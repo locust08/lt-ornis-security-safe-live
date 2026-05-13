@@ -1,0 +1,159 @@
+---
+const images = [
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_08 AM (1).webp",
+    alt: "Dark Ornis hero section showing a fire-resistant safe, 40 percent promotion, keyless unlocking, fingerprint unlocking, EGI steel, high-temperature fire protection, and anti-burglary design.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_10 AM (2).webp",
+    alt: "Dark comparison section showing ordinary drawer storage exposed to fire risk, theft, humidity, and worry beside an Ornis safe with fire protection and anti-burglary security.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_10 AM (3).webp",
+    alt: "Close-up of Ornis secure access with illuminated keypad and fingerprint reader, highlighting 1 to 8 digit PIN access, fingerprint recognition, voice guidance, and motorized auto locking.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_11 AM (4).webp",
+    alt: "Exploded view of Ornis safe construction showing EGI steel body, fire-resistant insulation layer, 3D UV-textured fascia, seamless door fit, and strong locking bolts.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_11 AM (5).webp",
+    alt: "Ornis safe in modern home and workspace settings including bedroom, wardrobe, study, and living room, with storage categories for documents, jewellery, cash, and family valuables.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_11 AM (6).webp",
+    alt: "Dark comparison chart showing Ornis fire-resistant safe advantages over ordinary storage, including fire protection, PIN and fingerprint access, auto lock, EGI steel, locking bolts, textured finish, voice guidance, and interior-friendly design.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_12 AM (7).webp",
+    alt: "Full Ornis specifications section showing Ruby and Emerald OR 310 and OR 530 models, dimensions, weight, volume, color options, and electronic lock with fingerprint details.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_12 AM (8).webp",
+    alt: "Ornis size guide comparing OR 310 compact safe and OR 530 spacious safe, with dimensions and examples for passports, jewellery, cash, documents, digital media, and small electronics.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_13 AM (9).webp",
+    alt: "Ornis how-to-use section explaining four steps: set PIN or register fingerprints, tap the smart touch display, unlock and store valuables, then close the door for auto-locking.",
+  },
+  {
+    src: "/ornis/v2/ChatGPT Image May 13, 2026, 12_56_14 AM (10).webp",
+    alt: "Ornis confidence and FAQ section with a safe product image, fire-resistant certification, fingerprint and PIN access, anti-burglary design, EGI steel, and certification logos.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Ornis premium fire-resistant security safe dark product story."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23060403'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f4a061'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f4a061' stroke-width='5'/%3E%3C/svg%3E"
+    />
+    <title>Ornis Security Safe V2</title>
+  </head>
+  <body>
+    <main class="image-stack" aria-label="Ornis security safe v2 product story">
+      {
+        images.map((image, index) => (
+          <section class="panel" aria-label={`Ornis v2 product image ${index + 1}`}>
+            <img
+              src={image.src}
+              alt={image.alt}
+              width="1672"
+              height="941"
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          </section>
+        ))
+      }
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: #030303;
+    color: #f6efe9;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    background: #030303;
+  }
+
+  .image-stack {
+    width: 100%;
+    overflow: clip;
+    background:
+      radial-gradient(circle at 78% 0%, rgba(238, 133, 67, 0.14), transparent 28rem),
+      #030303;
+  }
+
+  .panel {
+    width: 100%;
+    margin: 0;
+    padding: clamp(0.5rem, 2vw, 1.25rem);
+    view-timeline-name: --panel;
+    view-timeline-axis: block;
+  }
+
+  .panel + .panel {
+    padding-top: clamp(1rem, 3vw, 2.25rem);
+  }
+
+  .panel img {
+    display: block;
+    width: min(100%, 1672px);
+    height: auto;
+    margin: 0 auto;
+    border-radius: clamp(0.35rem, 0.8vw, 0.75rem);
+    box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.42);
+    transform-origin: center top;
+    animation: reveal-panel both ease-out;
+    animation-timeline: --panel;
+    animation-range: entry 0% cover 36%;
+  }
+
+  @keyframes reveal-panel {
+    from {
+      opacity: 0;
+      transform: translateY(2.25rem) scale(0.985);
+      clip-path: inset(12% 0 12% 0 round 0.75rem);
+      filter: blur(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      clip-path: inset(0 0 0 0 round 0.75rem);
+      filter: blur(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .panel img {
+      animation: none;
+    }
+  }
+</style>

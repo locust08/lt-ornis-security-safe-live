@@ -1,0 +1,7 @@
+.DS_Store
+.astro/
+.wrangler/
+.playwright-mcp/
+dist/
+node_modules/
+npm-debug.log*
