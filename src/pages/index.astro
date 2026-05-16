@@ -10,6 +10,8 @@ const images = [
     src: "/ornis/hero-promo-starburst-45-fingerprints.png",
     mobileSrc: "/ornis/mobile/hero-fire-resistant-security.png",
     alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and up to 45 percent off promotion.",
+    width: 1672,
+    height: 941,
     hasBuyNow: true,
   },
   {
@@ -288,8 +290,8 @@ const everydayLifeTiles = [
                         <img
                           src={image.src}
                           alt={image.alt}
-                          width="1672"
-                          height="941"
+                          width={image.width ?? 1672}
+                          height={image.height ?? 941}
                           loading={index === 0 ? "eager" : "lazy"}
                           decoding="async"
                         />
@@ -301,8 +303,8 @@ const everydayLifeTiles = [
                       <img
                         src={image.src}
                         alt={image.alt}
-                        width="1672"
-                        height="941"
+                        width={image.width ?? 1672}
+                        height={image.height ?? 941}
                         loading={index === 0 ? "eager" : "lazy"}
                         decoding="async"
                       />
