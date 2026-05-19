@@ -1,20 +1,27 @@
 ---
+import "../styles/globals.css";
+import ProductOverview from "@/components/shadcn-studio/blocks/product-overview-01/product-overview-01";
+
 const images = [
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_15_52 AM (1).webp",
-    alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-burglary design, and OR 310 and OR 530 pricing.",
+    src: "/ornis/hero-no-price.png",
+    alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and no price section.",
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_15_52 AM (2).webp",
-    alt: "Comparison between ordinary storage with exposed valuables and an Ornis fire-resistant safe offering better protection, safer daily access, home-friendly design, and peace of mind.",
+    src: "/ornis/malaysia-valuables-comparison-logo-rm100-refined.png",
+    alt: "Comparison between ordinary storage with Malaysian passport, Malaysian birth certificate, and RM100 notes beside an Ornis fire-resistant safe with Ornis logo, offering better protection, safer daily access, home-friendly design, and peace of mind.",
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_03 AM (3).webp",
-    alt: "Ornis smart security features including PIN and fingerprint access, slim smart touch display, voice assistance, motorized auto lock, textured fascia, and enhanced anti-burglary locking.",
+    src: "/ornis/smart-security-top-controls-no-hand.png",
+    alt: "Ornis smart security features showing no-hand closeups of the top black door control strip, including PIN keys, the square fingerprint sensor, green keypad numbers, motorized auto lock, and 3D UV-textured fascia.",
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_04 AM (4).webp",
-    alt: "Ornis safe cutaway showing heat, shock, and corrosion resistance with EGI steel construction, seamless door fit, rust-resistant durability, locking bolts, magnetic sealing, and certification badges.",
+    src: "/ornis/heat-resistance-rise-1-hour-final.png",
+    alt: "Ornis safe cutaway showing heat, shock, and corrosion resistance with EGI steel construction, seamless door fit, rust-resistant durability, locking bolts, magnetic sealing, RISE Sweden logo, and one hour fire protection details.",
+  },
+  {
+    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
+    alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
   },
   {
     src: "/ornis/ChatGPT Image May 13, 2026, 12_16_04 AM (5).webp",
@@ -25,20 +32,119 @@ const images = [
     alt: "Feature comparison table showing Ornis safe advantages over ordinary safe storage, including fire resistance, fingerprint access, PIN, auto lock, voice guidance, EGI steel, textured fascia, and anti-burglary sealing.",
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_06 AM (7).webp",
-    alt: "Ornis product selection and specifications for OR Ruby 310, OR Emerald 310, OR Ruby 530, and OR Emerald 530 with dimensions, weight, volume, color options, and biometric locking details.",
-  },
-  {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
-    alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
-  },
-  {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_08 AM (9).webp",
-    alt: "Ornis setup guide showing four steps: install batteries, set a PIN, register fingerprints, and tap to unlock while the motorized system auto-locks.",
+    src: "/ornis/secure-steps-top-control-battery.png",
+    alt: "Ornis setup guide showing four steps with batteries held in hand, PIN entry on the top control strip, fingerprint registration on the recessed top square button, and motorized auto-lock setup.",
   },
   {
     src: "/ornis/ChatGPT Image May 13, 2026, 12_16_09 AM (10).webp",
     alt: "Ornis FAQ section answering questions about fireproof certification, multiple fingerprints, battery use, dual authentication, keypad visibility, and key product benefits.",
+  },
+];
+
+const overviewData = [
+  {
+    id: "or-ruby-310",
+    name: "OR Ruby 310",
+    breadcrumbData: [
+      { label: "Ornis", href: "#" },
+      { label: "Fire-Resistant Safe", href: "#" },
+      { label: "OR Ruby 310", href: "#" },
+    ],
+    description:
+      "Compact fire-resistant security safe with smart lock access, biometric protection, and a refined ruby finish for everyday valuables.",
+    totalReview: 210,
+    rating: 4.8,
+    hasDiscount: true,
+    originalPrice: 2690,
+    price: 1500,
+    images: [{ src: "/ornis/or-ruby-310-hd.png", alt: "OR Ruby 310 safe" }],
+    defaultSize: "310",
+    defaultColorOption: "ruby",
+    specs: "310 x 420 x 378 mm / 15.12L",
+    href: "/payment?model=or-ruby-310",
+  },
+  {
+    id: "or-emerald-310",
+    name: "OR Emerald 310",
+    breadcrumbData: [
+      { label: "Ornis", href: "#" },
+      { label: "Fire-Resistant Safe", href: "#" },
+      { label: "OR Emerald 310", href: "#" },
+    ],
+    description:
+      "Compact fire-resistant security safe with smart lock access, biometric protection, and a refined emerald finish for everyday valuables.",
+    totalReview: 188,
+    rating: 4.8,
+    hasDiscount: true,
+    originalPrice: 2690,
+    price: 1500,
+    images: [{ src: "/ornis/or-emerald-310-hd.png", alt: "OR Emerald 310 safe" }],
+    defaultSize: "310",
+    defaultColorOption: "emerald",
+    specs: "310 x 420 x 378 mm / 15.12L",
+    href: "/payment?model=or-emerald-310",
+  },
+  {
+    id: "or-ruby-530",
+    name: "OR Ruby 530",
+    breadcrumbData: [
+      { label: "Ornis", href: "#" },
+      { label: "Fire-Resistant Safe", href: "#" },
+      { label: "OR Ruby 530", href: "#" },
+    ],
+    description:
+      "Larger fire-resistant security safe with smart lock access, biometric protection, and extra storage for documents and high-value items.",
+    totalReview: 164,
+    rating: 4.9,
+    hasDiscount: true,
+    originalPrice: 3160,
+    price: 1800,
+    images: [{ src: "/ornis/or-ruby-530-reference-hd.png", alt: "OR Ruby 530 safe" }],
+    defaultSize: "530",
+    defaultColorOption: "ruby",
+    specs: "530 x 435 x 463 mm / 40.87L",
+    href: "/payment?model=or-ruby-530",
+  },
+  {
+    id: "or-emerald-530",
+    name: "OR Emerald 530",
+    breadcrumbData: [
+      { label: "Ornis", href: "#" },
+      { label: "Fire-Resistant Safe", href: "#" },
+      { label: "OR Emerald 530", href: "#" },
+    ],
+    description:
+      "Larger fire-resistant security safe with smart lock access, biometric protection, and extra storage for documents and high-value items.",
+    totalReview: 171,
+    rating: 4.9,
+    hasDiscount: true,
+    originalPrice: 3160,
+    price: 1800,
+    images: [{ src: "/ornis/or-emerald-530-reference-hd.png", alt: "OR Emerald 530 safe" }],
+    defaultSize: "530",
+    defaultColorOption: "emerald",
+    specs: "530 x 435 x 463 mm / 40.87L",
+    href: "/payment?model=or-emerald-530",
+  },
+];
+
+const sizes = [
+  { value: "310", label: "OR 310" },
+  { value: "530", label: "OR 530" },
+];
+
+const colors = [
+  {
+    value: "ruby",
+    label: "Ruby",
+    colorOption:
+      "bg-[#b89aa3] has-data-[state=checked]:outline has-data-[state=checked]:outline-2 has-data-[state=checked]:outline-offset-2 has-data-[state=checked]:outline-[#955f69]",
+  },
+  {
+    value: "emerald",
+    label: "Emerald",
+    colorOption:
+      "bg-[#0e5963] has-data-[state=checked]:outline has-data-[state=checked]:outline-2 has-data-[state=checked]:outline-offset-2 has-data-[state=checked]:outline-[#0e5963]",
   },
 ];
 ---
@@ -62,18 +168,82 @@ const images = [
     <main class="image-stack" aria-label="Ornis security safe product story">
       {
         images.map((image, index) => (
-          <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
-            <img
-              src={image.src}
-              alt={image.alt}
-              width="1672"
-              height="941"
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
-          </section>
+          <>
+            <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
+              <img
+                src={image.src}
+                alt={image.alt}
+                width="1672"
+                height="941"
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            </section>
+
+            {
+              index === 0 && (
+                <section class="delivery-banner" aria-label="Free delivery promotion">
+                  <div class="delivery-banner__track" aria-hidden="true">
+                    <span>Free Delivery</span>
+                    <span>Fast, Secure Shipping</span>
+                    <span>Free Delivery</span>
+                    <span>Doorstep Delivery Included</span>
+                    <span>Free Delivery</span>
+                    <span>Fast, Secure Shipping</span>
+                    <span>Free Delivery</span>
+                    <span>Doorstep Delivery Included</span>
+                  </div>
+                  <p class="sr-only">Free delivery. Fast, secure shipping. Doorstep delivery included.</p>
+                </section>
+              )
+            }
+          </>
         ))
       }
+
+      <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
+
+      <footer class="site-footer" aria-label="Falcon Safe footer">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a class="site-footer__logo-card" href="/" aria-label="Falcon Safe home">
+              <svg viewBox="0 0 240 180" role="img" aria-label="Falcon Safe logo">
+                <rect width="240" height="180" fill="#f6e84a" />
+                <path
+                  d="M40 93h54l19-48 16 18 22-4 19 13-10 9-18-3-14 10-25 8-11 24H78l15-31-18 31H62l20-31-28 31H39l34-39H51l-28 28h-8l34-36h47l7-18-41 13v-7l49-18 15-20 6 20 33 4 25 18-7 11-24-16-22-3-24 13-16 42h102v12H34v-12h6Z"
+                  fill="#181818"
+                />
+                <rect x="15" y="112" width="210" height="31" fill="#181818" />
+                <text x="120" y="136" text-anchor="middle" fill="#f6e84a" font-family="Arial, sans-serif" font-size="27" font-weight="900">
+                  FALCON SAFE
+                </text>
+                <text x="120" y="162" text-anchor="middle" fill="#181818" font-family="Arial, sans-serif" font-size="18" font-style="italic" font-weight="700">
+                  The World's Trusted Safe
+                </text>
+              </svg>
+            </a>
+            <p>
+              Fire-resistant security solutions for safer homes, offices, and
+              everyday valuables.
+            </p>
+          </div>
+
+          <nav class="site-footer__links" aria-label="Footer links">
+            <h2>Quicklinks</h2>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms-and-conditions">Terms and Conditions</a>
+            <a href="/contact-us">Contact Us</a>
+          </nav>
+
+          <address class="site-footer__address">
+            <h2>Address</h2>
+            <p>
+              5 ½ Miles, G Floor, Lot 4912, Jalan Teratai, Off, Jalan Meru,
+              41050 Klang, Selangor
+            </p>
+          </address>
+        </div>
+      </footer>
     </main>
   </body>
 </html>
@@ -117,6 +287,62 @@ const images = [
     padding-top: clamp(1rem, 3vw, 2.25rem);
   }
 
+  .delivery-banner {
+    width: 100%;
+    margin: clamp(0.5rem, 1.5vw, 1rem) 0 clamp(0.25rem, 1vw, 0.75rem);
+    overflow: hidden;
+    border-block: 1px solid rgba(14, 89, 99, 0.16);
+    border-inline: 0;
+    border-radius: 0;
+    background:
+      linear-gradient(90deg, rgba(14, 89, 99, 0.98), rgba(20, 105, 112, 0.98)),
+      #0e5963;
+    box-shadow: 0 1rem 2.75rem rgba(52, 40, 31, 0.1);
+  }
+
+  .delivery-banner__track {
+    display: flex;
+    width: max-content;
+    min-width: 200%;
+    animation: delivery-loop 22s linear infinite;
+  }
+
+  .delivery-banner__track span {
+    display: inline-flex;
+    align-items: center;
+    min-height: clamp(2.8rem, 4vw, 3.7rem);
+    padding: 0 clamp(1.25rem, 3vw, 2.5rem);
+    color: #fff;
+    font-size: clamp(0.9rem, 1.25vw, 1.15rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .delivery-banner__track span::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: clamp(1.25rem, 2vw, 1.8rem);
+    border-radius: 50%;
+    background: #f4d5ca;
+    box-shadow: 0 0 0 0.25rem rgba(244, 213, 202, 0.13);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .panel img {
     display: block;
     width: min(100%, 1672px);
@@ -128,6 +354,374 @@ const images = [
     animation: reveal-panel both ease-out;
     animation-timeline: --panel;
     animation-range: entry 0% cover 36%;
+  }
+
+  .site-footer {
+    width: 100%;
+    margin-top: clamp(1.5rem, 4vw, 4rem);
+    background: #111;
+    color: #fff;
+  }
+
+  .site-footer__inner {
+    display: grid;
+    width: min(100%, 1672px);
+    margin: 0 auto;
+    grid-template-columns: minmax(0, 1.25fr) minmax(12rem, 0.7fr) minmax(16rem, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 4rem);
+  }
+
+  .site-footer__brand,
+  .site-footer__links,
+  .site-footer__address {
+    min-width: 0;
+  }
+
+  .site-footer__logo-card {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition:
+      filter 160ms ease,
+      transform 160ms ease;
+  }
+
+  .site-footer__logo-card svg {
+    display: block;
+    width: min(8.25rem, 100%);
+    height: auto;
+  }
+
+  .site-footer__logo-card:hover,
+  .site-footer__logo-card:focus-visible {
+    filter: brightness(1.08);
+    transform: translateY(-0.12rem);
+    outline: none;
+  }
+
+  .site-footer h2 {
+    position: relative;
+    margin: 0 0 1.55rem;
+    color: #fff;
+    font-size: clamp(1.05rem, 1.4vw, 1.35rem);
+    line-height: 1.1;
+  }
+
+  .site-footer h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.72rem;
+    width: 4.1rem;
+    height: 2px;
+    background: #ffe330;
+  }
+
+  .site-footer p,
+  .site-footer address,
+  .site-footer a:not(.site-footer__logo-card) {
+    color: #8d8d8d;
+    font-style: normal;
+    line-height: 1.7;
+  }
+
+  .site-footer__brand p {
+    max-width: 28rem;
+    margin: 1.25rem 0 0;
+  }
+
+  .site-footer__links {
+    display: grid;
+    align-content: start;
+    gap: 0.65rem;
+  }
+
+  .site-footer__links a {
+    width: fit-content;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .site-footer__links a:hover,
+  .site-footer__links a:focus-visible {
+    color: #ffe330;
+    outline: none;
+  }
+
+  .site-footer__address p {
+    max-width: 34rem;
+    margin: 0;
+  }
+
+  .product-carousel {
+    width: min(100%, 1672px);
+    margin: clamp(1.5rem, 4vw, 4rem) auto 0;
+    padding: clamp(1rem, 3vw, 2.75rem);
+  }
+
+  .product-viewer {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(20rem, 0.88fr);
+    gap: clamp(1.25rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .product-viewer__gallery {
+    min-width: 0;
+  }
+
+  .product-viewer__image {
+    position: relative;
+    display: grid;
+    min-height: clamp(24rem, 46vw, 42rem);
+    place-items: center;
+    overflow: hidden;
+    border-radius: 0.65rem;
+    background: linear-gradient(180deg, #f4f1ed, #ebe5de);
+  }
+
+  .product-viewer__image img {
+    width: min(78%, 38rem);
+    height: auto;
+    filter: drop-shadow(0 1.4rem 1.9rem rgba(38, 37, 34, 0.16));
+    transition: transform 240ms ease;
+  }
+
+  .product-viewer__image:hover img,
+  .product-viewer__image:focus-within img {
+    transform: scale(1.16);
+  }
+
+  .product-viewer__arrows {
+    position: absolute;
+    right: clamp(1rem, 2vw, 1.5rem);
+    bottom: clamp(1rem, 2vw, 1.5rem);
+    display: flex;
+    gap: 0.65rem;
+  }
+
+  .product-viewer__arrows button,
+  .product-viewer__thumbs button,
+  .product-viewer__options button,
+  .product-viewer__actions a,
+  .product-viewer__actions button {
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .product-viewer__arrows button {
+    min-width: 3.15rem;
+    min-height: 2.55rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #222;
+    cursor: pointer;
+    font-weight: 900;
+  }
+
+  .product-viewer__arrows button:hover,
+  .product-viewer__arrows button:focus-visible {
+    background: #0e5963;
+    color: #fff;
+    transform: translateY(-0.15rem);
+    outline: none;
+  }
+
+  .product-viewer__thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+  }
+
+  .product-viewer__thumbs button {
+    display: grid;
+    min-height: 5.25rem;
+    place-items: center;
+    border: 1px solid rgba(132, 101, 105, 0.18);
+    border-radius: 0.4rem;
+    background: rgba(255, 255, 255, 0.72);
+    cursor: pointer;
+  }
+
+  .product-viewer__thumbs button.is-active,
+  .product-viewer__thumbs button:hover,
+  .product-viewer__thumbs button:focus-visible {
+    border-color: #222;
+    outline: none;
+  }
+
+  .product-viewer__thumbs img {
+    width: min(80%, 8rem);
+    height: auto;
+  }
+
+  .product-viewer__details {
+    padding-top: 0.25rem;
+  }
+
+  .product-carousel__eyebrow {
+    margin: 0 0 0.45rem;
+    color: #955f69;
+    font-size: clamp(0.78rem, 0.9vw, 0.9rem);
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .product-viewer h2 {
+    margin: 0;
+    color: #222;
+    font-size: clamp(2rem, 4vw, 3.75rem);
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  .product-viewer__summary {
+    margin: 0.8rem 0 1.65rem;
+    color: #514a47;
+    font-size: clamp(0.98rem, 1.25vw, 1.18rem);
+    line-height: 1.48;
+  }
+
+  .product-viewer__group {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1.25rem;
+  }
+
+  .product-viewer__row-title {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  .product-viewer__row-title span,
+  .product-viewer__select span {
+    color: #222;
+    font-size: 1rem;
+    font-weight: 900;
+  }
+
+  .product-viewer__row-title small {
+    color: #665d57;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    text-align: right;
+  }
+
+  .product-viewer__options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .product-viewer__options button,
+  .product-viewer__select select {
+    min-height: 3.4rem;
+    border: 1px solid rgba(61, 55, 51, 0.24);
+    border-radius: 0.35rem;
+    background: rgba(255, 255, 255, 0.66);
+    color: #222;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+  }
+
+  .product-viewer__options button.is-active,
+  .product-viewer__options button:hover,
+  .product-viewer__options button:focus-visible {
+    border-color: #0e5963;
+    background: #0e5963;
+    color: #fff;
+    outline: none;
+  }
+
+  .product-viewer__select select {
+    width: 100%;
+    padding: 0 1rem;
+    appearance: auto;
+  }
+
+  .product-viewer__pricing {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 0.9rem;
+    align-items: baseline;
+    margin-top: 1.45rem;
+  }
+
+  .product-card__was {
+    position: relative;
+    color: #8b7d78;
+    font-size: clamp(1rem, 1.4vw, 1.18rem);
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .product-card__was::after {
+    content: "";
+    position: absolute;
+    left: -0.12rem;
+    right: -0.12rem;
+    top: 50%;
+    height: 2px;
+    background: #955f69;
+    transform: rotate(-8deg);
+    transform-origin: center;
+  }
+
+  .product-viewer__pricing strong {
+    color: #222;
+    font-size: clamp(2.1rem, 4vw, 3.3rem);
+    line-height: 1;
+  }
+
+  .product-viewer__actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.45rem;
+  }
+
+  .product-viewer__actions a,
+  .product-viewer__actions button {
+    display: inline-flex;
+    min-height: 3.65rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .product-viewer__buy {
+    border: 1px solid #0e5963;
+    background: #0e5963;
+    color: #fff;
+  }
+
+  .product-viewer__cart {
+    border: 1px solid rgba(61, 55, 51, 0.22);
+    background: rgba(255, 255, 255, 0.68);
+    color: #222;
+  }
+
+  .product-viewer__buy:hover,
+  .product-viewer__buy:focus-visible,
+  .product-viewer__cart:hover,
+  .product-viewer__cart:focus-visible {
+    box-shadow: 0 1rem 2rem rgba(52, 40, 31, 0.14);
+    transform: translateY(-0.18rem);
+    outline: none;
   }
 
   @keyframes reveal-panel {
@@ -146,6 +740,16 @@ const images = [
     }
   }
 
+  @keyframes delivery-loop {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -153,6 +757,38 @@ const images = [
 
     .panel img {
       animation: none;
+    }
+
+    .delivery-banner__track {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .product-viewer {
+      grid-template-columns: 1fr;
+    }
+
+    .product-viewer__image {
+      min-height: 23rem;
+    }
+
+    .product-viewer__options {
+      grid-template-columns: 1fr;
+    }
+
+    .product-viewer__row-title {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .product-viewer__row-title small {
+      text-align: left;
     }
   }
 </style>

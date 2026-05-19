@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --background: #f6f1ea;
+  --foreground: #1f2020;
+  --card: #ffffff;
+  --card-foreground: #1f2020;
+  --popover: #ffffff;
+  --popover-foreground: #1f2020;
+  --primary: #0e5963;
+  --primary-foreground: #ffffff;
+  --secondary: #f1ece6;
+  --secondary-foreground: #1f2020;
+  --muted: #eee8e1;
+  --muted-foreground: #665d57;
+  --accent: #955f69;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --border: rgba(61, 55, 51, 0.16);
+  --input: rgba(61, 55, 51, 0.18);
+  --ring: #0e5963;
+}
