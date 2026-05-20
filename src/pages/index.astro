@@ -207,20 +207,14 @@ const colors = [
         <div class="site-footer__inner">
           <div class="site-footer__brand">
             <a class="site-footer__logo-card" href="/" aria-label="Falcon Safe home">
-              <svg viewBox="0 0 240 180" role="img" aria-label="Falcon Safe logo">
-                <rect width="240" height="180" fill="#f6e84a" />
-                <path
-                  d="M40 93h54l19-48 16 18 22-4 19 13-10 9-18-3-14 10-25 8-11 24H78l15-31-18 31H62l20-31-28 31H39l34-39H51l-28 28h-8l34-36h47l7-18-41 13v-7l49-18 15-20 6 20 33 4 25 18-7 11-24-16-22-3-24 13-16 42h102v12H34v-12h6Z"
-                  fill="#181818"
-                />
-                <rect x="15" y="112" width="210" height="31" fill="#181818" />
-                <text x="120" y="136" text-anchor="middle" fill="#f6e84a" font-family="Arial, sans-serif" font-size="27" font-weight="900">
-                  FALCON SAFE
-                </text>
-                <text x="120" y="162" text-anchor="middle" fill="#181818" font-family="Arial, sans-serif" font-size="18" font-style="italic" font-weight="700">
-                  The World's Trusted Safe
-                </text>
-              </svg>
+              <img
+                src="/ornis/falcon-safe-footer-logo.svg"
+                alt="Falcon Safe - The World's Trusted Safe"
+                width="225"
+                height="225"
+                loading="lazy"
+                decoding="async"
+              />
             </a>
             <p>
               Fire-resistant security solutions for safer homes, offices, and
@@ -387,9 +381,9 @@ const colors = [
       transform 160ms ease;
   }
 
-  .site-footer__logo-card svg {
+  .site-footer__logo-card img {
     display: block;
-    width: min(8.25rem, 100%);
+    width: min(6.25rem, 100%);
     height: auto;
   }
 

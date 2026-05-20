@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 225 225" role="img" aria-labelledby="title desc">
+  <title id="title">Falcon Safe logo</title>
+  <desc id="desc">Falcon Safe logo with falcon mark and the words The World's Trusted Safe.</desc>
+  <rect width="225" height="225" fill="#f7e84d"/>
+  <path d="M15 122h29.8L78 84.2l-24.1 37.8h13.7l28.6-42.6-17.8 42.6h14.1l24.8-60.4 9.8 21.8 19.8-5.8 16.9 10.9-8.2 9.8-16.8-5-14.5 10.1-20.9 7.2-4.9 11.4H210l-19.8-22.1h-7.5l15.4 22.1h-14.2l-31.3-35.1-27.5 9.5-19.8 25.6h-12.9l17.5-40.9-27.3 40.9H70.9l28.9-50.6-35.2 50.6H50.3l32.8-49.4H64.9L31 122H15Zm45.9-54.4v-6.9l47.9-15.3 15-19.5 5.7 18.5 31.2 4.1 24.4 17.7-7 10.9-22.8-15.4-22.1-2.7-25 13.5-16.7 40.6 7.1-23.2-14.7-9.2-39.8 41.3h-7.8L72 83.6 22 122h-8l40.3-43.2h42.3l6.3-16.2-42 12.4Z" fill="#151515"/>
+  <rect x="14" y="131" width="197" height="27" fill="#151515"/>
+  <text x="112.5" y="153" text-anchor="middle" fill="#f7e84d" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="900">FALCON SAFE</text>
+  <text x="112.5" y="183" text-anchor="middle" fill="#151515" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" font-style="italic">The World's Trusted Safe</text>
+</svg>
