@@ -5,8 +5,8 @@ import AboutUs from "@/components/shadcn-studio/blocks/about-us-page-07/about-us
 
 const images = [
   {
-    src: "/ornis/hero-promo-starburst.png",
-    alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and no price section.",
+    src: "/ornis/hero-promo-starburst-45-fingerprints.png",
+    alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and up to 45 percent off promotion.",
     hasBuyNow: true,
   },
   {
@@ -14,7 +14,7 @@ const images = [
     alt: "Comparison between ordinary storage with Malaysian passport, Malaysian birth certificate, and RM100 notes beside an Ornis fire-resistant safe with Ornis logo, offering better protection, safer daily access, home-friendly design, and peace of mind.",
   },
   {
-    src: "/ornis/smart-security-buy-now.png",
+    src: "/ornis/smart-security-pin-or-fingerprint.png",
     alt: "Ornis smart security features showing no-hand closeups of the top black door control strip, including PIN keys, the square fingerprint sensor, green keypad numbers, motorized auto lock, and 3D UV-textured fascia.",
     hasBuyNow: true,
   },
@@ -24,22 +24,23 @@ const images = [
     hasBuyNow: true,
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
-    alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
-  },
-  {
     src: "/ornis/everyday-life-buy-now.png",
     alt: "Ornis safe placed in everyday spaces including a home office, bedroom nightstand, wardrobe shelf, and living room table with compact footprint messaging.",
     hasBuyNow: true,
   },
   {
-    src: "/ornis/secure-steps-buy-now.png",
+    src: "/ornis/secure-steps-8-batteries.png",
     alt: "Ornis setup guide showing four steps with batteries held in hand, PIN entry on the top control strip, fingerprint registration on the recessed top square button, and motorized auto-lock setup.",
     hasBuyNow: true,
   },
   {
-    src: "/ornis/confidence-answered-no-buy-now.png",
-    alt: "Ornis FAQ section answering questions about fireproof certification, multiple fingerprints, battery use, dual authentication, keypad visibility, and key product benefits.",
+    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_06 AM (7).webp",
+    alt: "Ornis specification section showing model choices, external and internal dimensions, weight, volume, drawers, shelf, color options, and locking option.",
+    hasBuyNow: true,
+  },
+  {
+    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
+    alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
   },
 ];
 
@@ -303,15 +304,20 @@ const everydayLifeTiles = [
                   <section class="delivery-banner" aria-label="Free delivery promotion">
                     <div class="delivery-banner__track" aria-hidden="true">
                       <span>Free Delivery</span>
+                      <span>Warranty 12 Months + 12 Months</span>
                       <span>Fast, Secure Shipping</span>
                       <span>Free Delivery</span>
                       <span>Doorstep Delivery Included</span>
                       <span>Free Delivery</span>
+                      <span>Warranty 12 Months + 12 Months</span>
                       <span>Fast, Secure Shipping</span>
                       <span>Free Delivery</span>
                       <span>Doorstep Delivery Included</span>
                     </div>
-                    <p class="sr-only">Free delivery. Fast, secure shipping. Doorstep delivery included.</p>
+                    <p class="sr-only">
+                      Free delivery. Warranty 12 months plus 12 months. Fast, secure shipping. Doorstep delivery
+                      included.
+                    </p>
                   </section>
                 </>
               )
@@ -324,7 +330,18 @@ const everydayLifeTiles = [
         <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
       </div>
 
-      <AboutUs statCards={statCards} featureCards={featureCards} />
+      <section class="panel" aria-label="Ornis confidence answered FAQ">
+        <img
+          src="/ornis/confidence-answered-no-buy-now.png"
+          alt="Ornis FAQ section answering questions about fireproof certification, multiple fingerprints, battery use, dual authentication, keypad visibility, and key product benefits."
+          width="1672"
+          height="941"
+          loading="lazy"
+          decoding="async"
+        />
+      </section>
+
+      <AboutUs statCards={statCards} featureCards={featureCards} client:load />
 
       <footer class="site-footer" aria-label="Falcon Safe footer">
         <div class="site-footer__inner">
