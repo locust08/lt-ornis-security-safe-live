@@ -1,42 +1,44 @@
 ---
 import "../styles/globals.css";
 import ProductOverview from "@/components/shadcn-studio/blocks/product-overview-01/product-overview-01";
+import AboutUs from "@/components/shadcn-studio/blocks/about-us-page-07/about-us-page-07";
 
 const images = [
   {
-    src: "/ornis/hero-no-price.png",
+    src: "/ornis/hero-promo-starburst.png",
     alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and no price section.",
+    hasBuyNow: true,
   },
   {
     src: "/ornis/malaysia-valuables-comparison-logo-rm100-refined.png",
     alt: "Comparison between ordinary storage with Malaysian passport, Malaysian birth certificate, and RM100 notes beside an Ornis fire-resistant safe with Ornis logo, offering better protection, safer daily access, home-friendly design, and peace of mind.",
   },
   {
-    src: "/ornis/smart-security-top-controls-no-hand.png",
+    src: "/ornis/smart-security-buy-now.png",
     alt: "Ornis smart security features showing no-hand closeups of the top black door control strip, including PIN keys, the square fingerprint sensor, green keypad numbers, motorized auto lock, and 3D UV-textured fascia.",
+    hasBuyNow: true,
   },
   {
-    src: "/ornis/heat-resistance-rise-1-hour-final.png",
+    src: "/ornis/heat-resistance-four-safes-buy-now.png",
     alt: "Ornis safe cutaway showing heat, shock, and corrosion resistance with EGI steel construction, seamless door fit, rust-resistant durability, locking bolts, magnetic sealing, RISE Sweden logo, and one hour fire protection details.",
+    hasBuyNow: true,
   },
   {
     src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
     alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_04 AM (5).webp",
+    src: "/ornis/everyday-life-buy-now.png",
     alt: "Ornis safe placed in everyday spaces including a home office, bedroom nightstand, wardrobe shelf, and living room table with compact footprint messaging.",
+    hasBuyNow: true,
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_05 AM (6).webp",
-    alt: "Feature comparison table showing Ornis safe advantages over ordinary safe storage, including fire resistance, fingerprint access, PIN, auto lock, voice guidance, EGI steel, textured fascia, and anti-burglary sealing.",
-  },
-  {
-    src: "/ornis/secure-steps-top-control-battery.png",
+    src: "/ornis/secure-steps-buy-now.png",
     alt: "Ornis setup guide showing four steps with batteries held in hand, PIN entry on the top control strip, fingerprint registration on the recessed top square button, and motorized auto-lock setup.",
+    hasBuyNow: true,
   },
   {
-    src: "/ornis/ChatGPT Image May 13, 2026, 12_16_09 AM (10).webp",
+    src: "/ornis/confidence-answered-no-buy-now.png",
     alt: "Ornis FAQ section answering questions about fireproof certification, multiple fingerprints, battery use, dual authentication, keypad visibility, and key product benefits.",
   },
 ];
@@ -78,7 +80,7 @@ const overviewData = [
     hasDiscount: true,
     originalPrice: 2690,
     price: 1500,
-    images: [{ src: "/ornis/or-emerald-310-hd.png", alt: "OR Emerald 310 safe" }],
+    images: [{ src: "/ornis/or-emerald-310-ruby-shape.png", alt: "OR Emerald 310 safe" }],
     defaultSize: "310",
     defaultColorOption: "emerald",
     specs: "310 x 420 x 378 mm / 15.12L",
@@ -99,7 +101,7 @@ const overviewData = [
     hasDiscount: true,
     originalPrice: 3160,
     price: 1800,
-    images: [{ src: "/ornis/or-ruby-530-reference-hd.png", alt: "OR Ruby 530 safe" }],
+    images: [{ src: "/ornis/or-ruby-530-emerald-shape.png", alt: "OR Ruby 530 safe" }],
     defaultSize: "530",
     defaultColorOption: "ruby",
     specs: "530 x 435 x 463 mm / 40.87L",
@@ -120,7 +122,7 @@ const overviewData = [
     hasDiscount: true,
     originalPrice: 3160,
     price: 1800,
-    images: [{ src: "/ornis/or-emerald-530-reference-hd.png", alt: "OR Emerald 530 safe" }],
+    images: [{ src: "/ornis/or-emerald-310-hd.png", alt: "OR Emerald 530 safe" }],
     defaultSize: "530",
     defaultColorOption: "emerald",
     specs: "530 x 435 x 463 mm / 40.87L",
@@ -147,6 +149,54 @@ const colors = [
       "bg-[#0e5963] has-data-[state=checked]:outline has-data-[state=checked]:outline-2 has-data-[state=checked]:outline-offset-2 has-data-[state=checked]:outline-[#0e5963]",
   },
 ];
+
+const statCards = [
+  {
+    title: "Since 1982",
+    description: "Manufacturing Falcon safe boxes, vaults, and fireproof protection products.",
+  },
+  {
+    title: "30+ years",
+    description: "Serving security and asset-protection needs across Malaysia and beyond.",
+  },
+  {
+    title: "Global reach",
+    description: "Exporting to Asia, Australia, the Middle East, Europe, USA, and China.",
+  },
+  {
+    title: "Certified trust",
+    description: "Backed by awards, certificates, and proven institutional use cases.",
+  },
+];
+
+const featureCards: { title: string; description: string }[] = [];
+
+const everydayLifeTiles = [
+  {
+    src: "/ornis/everyday-life-under-desk-ruby-310.png",
+    alt: "OR Ruby 310 safe placed under a home office desk.",
+    label: "Under desk",
+    model: "OR Ruby 310",
+  },
+  {
+    src: "/ornis/everyday-life-cabinet-emerald-310.png",
+    alt: "OR Emerald 310 safe placed inside a warm wooden cabinet.",
+    label: "Inside cabinet",
+    model: "OR Emerald 310",
+  },
+  {
+    src: "/ornis/everyday-life-bedside-ruby-530.png",
+    alt: "OR Ruby 530 safe placed beside a bedroom nightstand.",
+    label: "At the bedside",
+    model: "OR Ruby 530",
+  },
+  {
+    src: "/ornis/everyday-life-entryway-emerald-530.png",
+    alt: "OR Emerald 530 safe placed under an entryway console.",
+    label: "Entryway console",
+    model: "OR Emerald 530",
+  },
+];
 ---
 
 <!doctype html>
@@ -169,39 +219,112 @@ const colors = [
       {
         images.map((image, index) => (
           <>
-            <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
-              <img
-                src={image.src}
-                alt={image.alt}
-                width="1672"
-                height="941"
-                loading={index === 0 ? "eager" : "lazy"}
-                decoding="async"
-              />
-            </section>
+            {
+              image.src === "/ornis/everyday-life-buy-now.png" ? (
+                <section class="panel" aria-label="Ornis safes in everyday home spaces">
+                  <div class="everyday-life">
+                    <div class="everyday-life__header">
+                      <div>
+                        <h2>Fits Beautifully Into Everyday Life</h2>
+                        <p>Thoughtfully designed to protect what matters most-wherever life takes you.</p>
+                      </div>
+                    </div>
+
+                    <div class="everyday-life__grid">
+                      {everydayLifeTiles.map((tile) => (
+                        <article class="everyday-life__tile">
+                          <img
+                            src={tile.src}
+                            alt={tile.alt}
+                            width="1792"
+                            height="1024"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <div class="everyday-life__badge">
+                            <span>{tile.label}</span>
+                            <strong>{tile.model}</strong>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+
+                    <a class="everyday-life__button" href="#price-section">Buy Now</a>
+                  </div>
+                </section>
+              ) : (
+                <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
+                  {image.hasBuyNow ? (
+                    <a class="panel__image-link" href="#price-section" aria-label="View Ornis prices">
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        width="1672"
+                        height="941"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                      />
+                    </a>
+                  ) : (
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      width="1672"
+                      height="941"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  )}
+                </section>
+              )
+            }
 
             {
               index === 0 && (
-                <section class="delivery-banner" aria-label="Free delivery promotion">
-                  <div class="delivery-banner__track" aria-hidden="true">
-                    <span>Free Delivery</span>
-                    <span>Fast, Secure Shipping</span>
-                    <span>Free Delivery</span>
-                    <span>Doorstep Delivery Included</span>
-                    <span>Free Delivery</span>
-                    <span>Fast, Secure Shipping</span>
-                    <span>Free Delivery</span>
-                    <span>Doorstep Delivery Included</span>
-                  </div>
-                  <p class="sr-only">Free delivery. Fast, secure shipping. Doorstep delivery included.</p>
-                </section>
+                <>
+                  <section class="countdown-offer" aria-label="Promotion countdown">
+                    <p>Promotion ends in</p>
+                    <div class="countdown-offer__timer" data-countdown>
+                      <span>
+                        <strong data-countdown-hours>24</strong>
+                        Hours
+                      </span>
+                      <span>
+                        <strong data-countdown-minutes>00</strong>
+                        Minutes
+                      </span>
+                      <span>
+                        <strong data-countdown-seconds>00</strong>
+                        Seconds
+                      </span>
+                    </div>
+                  </section>
+
+                  <section class="delivery-banner" aria-label="Free delivery promotion">
+                    <div class="delivery-banner__track" aria-hidden="true">
+                      <span>Free Delivery</span>
+                      <span>Fast, Secure Shipping</span>
+                      <span>Free Delivery</span>
+                      <span>Doorstep Delivery Included</span>
+                      <span>Free Delivery</span>
+                      <span>Fast, Secure Shipping</span>
+                      <span>Free Delivery</span>
+                      <span>Doorstep Delivery Included</span>
+                    </div>
+                    <p class="sr-only">Free delivery. Fast, secure shipping. Doorstep delivery included.</p>
+                  </section>
+                </>
               )
             }
           </>
         ))
       }
 
-      <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
+      <div id="price-section" class="price-section">
+        <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
+      </div>
+
+      <AboutUs statCards={statCards} featureCards={featureCards} />
 
       <footer class="site-footer" aria-label="Falcon Safe footer">
         <div class="site-footer__inner">
@@ -226,19 +349,70 @@ const colors = [
             <h2>Quicklinks</h2>
             <a href="/privacy-policy">Privacy Policy</a>
             <a href="/terms-and-conditions">Terms and Conditions</a>
+            <a href="/return-refund-policy">Return & Refund Policy</a>
             <a href="/contact-us">Contact Us</a>
           </nav>
 
           <address class="site-footer__address">
-            <h2>Address</h2>
+            <h2>Contact Us</h2>
             <p>
               5 ½ Miles, G Floor, Lot 4912, Jalan Teratai, Off, Jalan Meru,
               41050 Klang, Selangor
             </p>
+            <p>
+              <a href="tel:+60333963888">+603-3396 3888</a>
+            </p>
+            <p>
+              <a href="mailto:falcon@falconsafe.com">falcon@falconsafe.com</a>
+            </p>
           </address>
         </div>
       </footer>
+
+      <p class="site-copyright">Copyright © 2026 Falcon Safe Marketing Sdn Bhd</p>
     </main>
+
+    <script>
+      const countdownRoot = document.querySelector("[data-countdown]");
+      const countdownHours = document.querySelector("[data-countdown-hours]");
+      const countdownMinutes = document.querySelector("[data-countdown-minutes]");
+      const countdownSeconds = document.querySelector("[data-countdown-seconds]");
+      const countdownStorageKey = "ornis-offer-countdown-end";
+      const countdownLength = 24 * 60 * 60 * 1000;
+
+      if (countdownRoot && countdownHours && countdownMinutes && countdownSeconds) {
+        const storedEnd = Number(localStorage.getItem(countdownStorageKey));
+        let countdownEnd = Number.isFinite(storedEnd) && storedEnd > Date.now()
+          ? storedEnd
+          : Date.now() + countdownLength;
+
+        localStorage.setItem(countdownStorageKey, String(countdownEnd));
+
+        const pad = (value: number) => String(value).padStart(2, "0");
+
+        const updateCountdown = () => {
+          let remaining = countdownEnd - Date.now();
+
+          if (remaining <= 0) {
+            countdownEnd = Date.now() + countdownLength;
+            localStorage.setItem(countdownStorageKey, String(countdownEnd));
+            remaining = countdownLength;
+          }
+
+          const totalSeconds = Math.floor(remaining / 1000);
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+
+          countdownHours.textContent = pad(hours);
+          countdownMinutes.textContent = pad(minutes);
+          countdownSeconds.textContent = pad(seconds);
+        };
+
+        updateCountdown();
+        window.setInterval(updateCountdown, 1000);
+      }
+    </script>
   </body>
 </html>
 
@@ -281,6 +455,57 @@ const colors = [
     padding-top: clamp(1rem, 3vw, 2.25rem);
   }
 
+  .countdown-offer {
+    display: flex;
+    width: min(calc(100% - clamp(1rem, 4vw, 2.5rem)), 1672px);
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.85rem, 2.4vw, 2rem);
+    margin: clamp(0.15rem, 0.8vw, 0.45rem) auto clamp(0.5rem, 1.5vw, 1rem);
+    padding: clamp(0.65rem, 1.1vw, 0.9rem) clamp(1rem, 3vw, 2.25rem);
+    border-block: 1px solid rgba(14, 89, 99, 0.14);
+    background: rgba(255, 255, 255, 0.42);
+  }
+
+  .countdown-offer p {
+    margin: 0;
+    color: #665d57;
+    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+    font-weight: 500;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .countdown-offer__timer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.45rem, 1.2vw, 0.8rem);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .countdown-offer__timer span {
+    display: grid;
+    min-width: clamp(3.6rem, 7vw, 4.8rem);
+    min-height: clamp(2.7rem, 4.4vw, 3.4rem);
+    place-items: center;
+    padding: 0.4rem 0.55rem;
+    border-left: 1px solid rgba(14, 89, 99, 0.18);
+    color: #7d716b;
+    font-size: 0.62rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .countdown-offer__timer strong {
+    display: block;
+    color: #0e5963;
+    font-size: clamp(1.15rem, 1.9vw, 1.65rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+
   .delivery-banner {
     width: 100%;
     margin: clamp(0.5rem, 1.5vw, 1rem) 0 clamp(0.25rem, 1vw, 0.75rem);
@@ -308,7 +533,7 @@ const colors = [
     padding: 0 clamp(1.25rem, 3vw, 2.5rem);
     color: #fff;
     font-size: clamp(0.9rem, 1.25vw, 1.15rem);
-    font-weight: 800;
+    font-weight: 600;
     line-height: 1;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -348,6 +573,147 @@ const colors = [
     animation: reveal-panel both ease-out;
     animation-timeline: --panel;
     animation-range: entry 0% cover 36%;
+  }
+
+  .panel__image-link {
+    display: block;
+    width: min(100%, 1672px);
+    margin: 0 auto;
+    border-radius: clamp(0.35rem, 0.8vw, 0.75rem);
+    cursor: pointer;
+  }
+
+  .panel__image-link img {
+    width: 100%;
+  }
+
+  .panel__image-link:focus-visible {
+    outline: 3px solid rgba(14, 89, 99, 0.55);
+    outline-offset: 0.25rem;
+  }
+
+  .price-section {
+    scroll-margin-top: clamp(1rem, 4vw, 3rem);
+  }
+
+  .everyday-life {
+    width: min(100%, 1672px);
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 3rem);
+    border-radius: clamp(0.35rem, 0.8vw, 0.75rem);
+    background:
+      radial-gradient(circle at 90% 0%, rgba(255, 255, 255, 0.86), transparent 28rem),
+      #f8f1e9;
+    box-shadow: 0 1.5rem 5rem rgba(52, 40, 31, 0.14);
+    transform-origin: center top;
+    animation: reveal-panel both ease-out;
+    animation-timeline: --panel;
+    animation-range: entry 0% cover 36%;
+  }
+
+  .everyday-life__header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: clamp(1rem, 3vw, 2rem);
+    margin-bottom: clamp(1rem, 2.4vw, 2rem);
+  }
+
+  .everyday-life h2 {
+    margin: 0;
+    color: #080808;
+    font-size: clamp(2rem, 4.8vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.02;
+  }
+
+  .everyday-life p {
+    max-width: 56rem;
+    margin: clamp(0.55rem, 1vw, 0.85rem) 0 0;
+    color: #7e6d78;
+    font-size: clamp(1rem, 1.55vw, 1.38rem);
+    line-height: 1.45;
+  }
+
+  .everyday-life__button {
+    display: inline-flex;
+    width: fit-content;
+    min-width: clamp(9.5rem, 14vw, 13rem);
+    min-height: clamp(3rem, 4vw, 3.8rem);
+    align-items: center;
+    justify-content: center;
+    margin: clamp(1rem, 2.4vw, 2rem) auto 0;
+    border-radius: 8px;
+    background: #0e5963;
+    color: #fff;
+    font-size: clamp(1rem, 1.4vw, 1.25rem);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .everyday-life__button:hover,
+  .everyday-life__button:focus-visible {
+    background: #0a4851;
+    transform: translateY(-0.1rem);
+    outline: none;
+  }
+
+  .everyday-life__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.8rem, 1.7vw, 1.4rem);
+  }
+
+  .everyday-life__tile {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #eadfd2;
+  }
+
+  .everyday-life__tile img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .everyday-life__badge {
+    position: absolute;
+    left: clamp(0.75rem, 1.4vw, 1.15rem);
+    top: clamp(0.75rem, 1.4vw, 1.15rem);
+    display: grid;
+    gap: 0.15rem;
+    max-width: calc(100% - 1.5rem);
+    padding: clamp(0.55rem, 1vw, 0.8rem) clamp(0.75rem, 1.4vw, 1rem);
+    border-radius: 8px;
+    background: rgba(14, 89, 99, 0.94);
+    color: #fff;
+    box-shadow: 0 0.85rem 2rem rgba(16, 32, 36, 0.18);
+  }
+
+  .everyday-life__badge span,
+  .everyday-life__badge strong {
+    overflow-wrap: anywhere;
+    line-height: 1.12;
+  }
+
+  .everyday-life__badge span {
+    font-size: clamp(0.85rem, 1.15vw, 1rem);
+    font-weight: 700;
+  }
+
+  .everyday-life__badge strong {
+    color: #dfecef;
+    font-size: clamp(0.7rem, 0.95vw, 0.85rem);
+    font-weight: 500;
   }
 
   .site-footer {
@@ -446,6 +812,21 @@ const colors = [
   .site-footer__address p {
     max-width: 34rem;
     margin: 0;
+  }
+
+  .site-footer__address p + p {
+    margin-top: 0.45rem;
+  }
+
+  .site-copyright {
+    margin: 0;
+    padding: 1rem clamp(1.25rem, 4vw, 4rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #111;
+    color: #777;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    text-align: center;
   }
 
   .product-carousel {
@@ -753,6 +1134,10 @@ const colors = [
       animation: none;
     }
 
+    .everyday-life {
+      animation: none;
+    }
+
     .delivery-banner__track {
       animation: none;
       transform: none;
@@ -783,6 +1168,19 @@ const colors = [
 
     .product-viewer__row-title small {
       text-align: left;
+    }
+
+    .everyday-life__header {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .everyday-life__button {
+      width: 100%;
+    }
+
+    .everyday-life__grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
