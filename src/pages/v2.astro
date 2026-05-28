@@ -37,11 +37,11 @@ const images = [
     alt: "Ornis how-to-use section explaining four steps: set PIN or register fingerprints, tap the smart touch display, unlock and store valuables, then close the door for auto-locking.",
   },
   {
-    src: "/ornis/confidence-answered.png",
-    alt: "Ornis Confidence, Answered FAQ section with a safe product image, fire-resistant certification, up to 60 registered fingerprints, EGI steel durability, and modern home-friendly design.",
-    width: 941,
-    height: 1672,
-    isPortrait: true,
+    src: "/ornis/confidence-answered-no-buy-now.png",
+    mobileSrc: "/ornis/mobile/confidence-answered.png",
+    alt: "Ornis Confidence, Answered FAQ section with a safe product image, fire-resistant certification, up to 40 registered fingerprints, EGI steel durability, and modern home-friendly design.",
+    width: 1672,
+    height: 941,
   },
 ];
 ---
@@ -80,15 +80,29 @@ const images = [
     <main class="image-stack" aria-label="Ornis security safe v2 product story">
       {
         images.map((image, index) => (
-          <section class={image.isPortrait ? "panel panel--portrait" : "panel"} aria-label={`Ornis v2 product image ${index + 1}`}>
-            <img
-              src={image.src}
-              alt={image.alt}
-              width={image.width ?? 1672}
-              height={image.height ?? 941}
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
+          <section class="panel" aria-label={`Ornis v2 product image ${index + 1}`}>
+            {image.mobileSrc ? (
+              <picture>
+                <source media="(max-width: 720px)" srcset={image.mobileSrc} />
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  width={image.width ?? 1672}
+                  height={image.height ?? 941}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </picture>
+            ) : (
+              <img
+                src={image.src}
+                alt={image.alt}
+                width={image.width ?? 1672}
+                height={image.height ?? 941}
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            )}
           </section>
         ))
       }
@@ -240,6 +254,16 @@ const images = [
     animation: reveal-panel both ease-out;
     animation-timeline: --panel;
     animation-range: entry 0% cover 36%;
+  }
+
+  .panel picture {
+    display: block;
+    width: min(100%, 1672px);
+    margin: 0 auto;
+  }
+
+  .panel picture > img {
+    width: 100%;
   }
 
   .panel--portrait img {
