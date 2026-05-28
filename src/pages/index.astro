@@ -6,20 +6,24 @@ import AboutUs from "@/components/shadcn-studio/blocks/about-us-page-07/about-us
 const images = [
   {
     src: "/ornis/hero-promo-starburst-45-fingerprints.png",
+    mobileSrc: "/ornis/mobile/hero-fire-resistant-security.png",
     alt: "Ornis fire-resistant security safe hero showing keyless unlocking, fingerprint access, fire-tested protection, anti-theft design, and up to 45 percent off promotion.",
     hasBuyNow: true,
   },
   {
     src: "/ornis/malaysia-valuables-comparison-logo-rm100-refined.png",
+    mobileSrc: "/ornis/mobile/protect-what-matters-most.png",
     alt: "Comparison between ordinary storage with Malaysian passport, Malaysian birth certificate, and RM100 notes beside an Ornis fire-resistant safe with Ornis logo, offering better protection, safer daily access, home-friendly design, and peace of mind.",
   },
   {
     src: "/ornis/smart-security-pin-or-fingerprint.png",
+    mobileSrc: "/ornis/mobile/smart-security-daily-ease.png",
     alt: "Ornis smart security features showing no-hand closeups of the top black door control strip, including PIN keys, the square fingerprint sensor, green keypad numbers, motorized auto lock, and 3D UV-textured fascia.",
     hasBuyNow: true,
   },
   {
     src: "/ornis/built-to-resist-heat-shock-corrosion.png",
+    mobileSrc: "/ornis/mobile/built-to-resist-heat-shock-corrosion.png",
     alt: "Ornis safe cutaway showing heat, shock, and corrosion resistance with EGI steel construction, seamless door fit, rust-resistant durability, locking bolts, magnetic sealing, RISE Sweden logo, and one hour fire protection details.",
     hasBuyNow: true,
   },
@@ -30,16 +34,19 @@ const images = [
   },
   {
     src: "/ornis/secure-in-just-a-few-steps.png",
+    mobileSrc: "/ornis/mobile/secure-in-just-a-few-steps.png",
     alt: "Ornis setup guide showing four steps with batteries held in hand, PIN entry on the top control strip, fingerprint registration on the recessed top square button, and motorized auto-lock setup.",
     hasBuyNow: true,
   },
   {
     src: "/ornis/choose-your-ornis.png",
+    mobileSrc: "/ornis/mobile/choose-your-ornis.png",
     alt: "Ornis specification section showing model choices, external and internal dimensions, weight, volume, drawers, shelf, color options, and locking option.",
     hasBuyNow: true,
   },
   {
     src: "/ornis/ChatGPT Image May 13, 2026, 12_16_07 AM (8).webp",
+    mobileSrc: "/ornis/mobile/right-size-for-your-space.png",
     alt: "Ornis size guide comparing OR 310 compact everyday storage and OR 530 larger valuables storage with dimensions and example items that fit.",
   },
 ];
@@ -272,6 +279,21 @@ const everydayLifeTiles = [
                 <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
                   {image.hasBuyNow ? (
                     <a class="panel__image-link" href="#price-section" aria-label="View Ornis prices">
+                      <picture>
+                        {image.mobileSrc && <source media="(max-width: 720px)" srcset={image.mobileSrc} />}
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          width="1672"
+                          height="941"
+                          loading={index === 0 ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                      </picture>
+                    </a>
+                  ) : (
+                    <picture>
+                      {image.mobileSrc && <source media="(max-width: 720px)" srcset={image.mobileSrc} />}
                       <img
                         src={image.src}
                         alt={image.alt}
@@ -280,16 +302,7 @@ const everydayLifeTiles = [
                         loading={index === 0 ? "eager" : "lazy"}
                         decoding="async"
                       />
-                    </a>
-                  ) : (
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      width="1672"
-                      height="941"
-                      loading={index === 0 ? "eager" : "lazy"}
-                      decoding="async"
-                    />
+                    </picture>
                   )}
                 </section>
               )
@@ -353,14 +366,17 @@ const everydayLifeTiles = [
       </div>
 
       <section class="panel" aria-label="Ornis confidence answered FAQ">
-        <img
-          src="/ornis/confidence-answered-no-buy-now.png"
-          alt="Ornis FAQ section answering questions about fireproof certification, up to 60 registered fingerprints, 8 AA battery use, dual authentication, keypad visibility, and key product benefits."
-          width="1672"
-          height="941"
-          loading="lazy"
-          decoding="async"
-        />
+        <picture>
+          <source media="(max-width: 720px)" srcset="/ornis/mobile/confidence-answered.png" />
+          <img
+            src="/ornis/confidence-answered-no-buy-now.png"
+            alt="Ornis FAQ section answering questions about fireproof certification, up to 60 registered fingerprints, 8 AA battery use, dual authentication, keypad visibility, and key product benefits."
+            width="1672"
+            height="941"
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
       </section>
 
       <AboutUs statCards={statCards} featureCards={featureCards} client:load />
@@ -741,6 +757,16 @@ const everydayLifeTiles = [
     animation-range: entry 0% cover 36%;
   }
 
+  .panel picture {
+    display: block;
+    width: min(100%, 1672px);
+    margin: 0 auto;
+  }
+
+  .panel picture > img {
+    width: 100%;
+  }
+
   .panel__image-link {
     display: block;
     width: min(100%, 1672px);
@@ -750,6 +776,10 @@ const everydayLifeTiles = [
   }
 
   .panel__image-link img {
+    width: 100%;
+  }
+
+  .panel__image-link picture {
     width: 100%;
   }
 
