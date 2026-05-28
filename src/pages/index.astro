@@ -29,7 +29,7 @@ const images = [
     hasBuyNow: true,
   },
   {
-    src: "/ornis/secure-steps-8-batteries.png",
+    src: "/ornis/secure-in-just-a-few-steps.png",
     alt: "Ornis setup guide showing four steps with batteries held in hand, PIN entry on the top control strip, fingerprint registration on the recessed top square button, and motorized auto-lock setup.",
     hasBuyNow: true,
   },
@@ -216,6 +216,21 @@ const everydayLifeTiles = [
     <title>Ornis Security Safe</title>
   </head>
   <body>
+    <div class="promo-popup" data-promo-popup aria-hidden="true">
+      <div class="promo-popup__backdrop" data-promo-close></div>
+      <section class="promo-popup__dialog" role="dialog" aria-modal="true" aria-label="Limited time Ornis offer">
+        <img
+          src="/ornis/promo-popup-ornis45.png"
+          alt="Limited time Ornis offer with up to 45 percent off, code ORNIS45, valid for 3 days only."
+          width="1449"
+          height="1086"
+          loading="eager"
+          decoding="async"
+          data-promo-close
+        />
+      </section>
+    </div>
+
     <main class="image-stack" aria-label="Ornis security safe product story">
       {
         images.map((image, index) => (
@@ -284,21 +299,28 @@ const everydayLifeTiles = [
               index === 0 && (
                 <>
                   <section class="countdown-offer" aria-label="Promotion countdown">
-                    <p>Promotion ends in</p>
-                    <div class="countdown-offer__timer" data-countdown>
-                      <span>
-                        <strong data-countdown-hours>24</strong>
-                        Hours
-                      </span>
-                      <span>
-                        <strong data-countdown-minutes>00</strong>
-                        Minutes
-                      </span>
-                      <span>
-                        <strong data-countdown-seconds>00</strong>
-                        Seconds
-                      </span>
+                    <div class="countdown-offer__main">
+                      <p>Promotion ends in</p>
+                      <div class="countdown-offer__timer" data-countdown>
+                        <span>
+                          <strong data-countdown-days>03</strong>
+                          Days
+                        </span>
+                        <span>
+                          <strong data-countdown-hours>00</strong>
+                          Hours
+                        </span>
+                        <span>
+                          <strong data-countdown-minutes>00</strong>
+                          Minutes
+                        </span>
+                        <span>
+                          <strong data-countdown-seconds>00</strong>
+                          Seconds
+                        </span>
+                      </div>
                     </div>
+                    <p class="countdown-offer__code">Use code <strong>ORNIS45</strong></p>
                   </section>
 
                   <section class="delivery-banner" aria-label="Free delivery promotion">
@@ -364,9 +386,9 @@ const everydayLifeTiles = [
 
           <nav class="site-footer__links" aria-label="Footer links">
             <h2>Quicklinks</h2>
-            <a href="/privacy-policy">Privacy Policy</a>
-            <a href="/terms-and-conditions">Terms and Conditions</a>
-            <a href="/return-refund-policy">Return & Refund Policy</a>
+            <a href="/policies#privacy">Privacy Policy</a>
+            <a href="/policies#terms">Terms and Conditions</a>
+            <a href="/policies#returns">Return & Refund Policy</a>
             <a href="/contact-us">Contact Us</a>
           </nav>
 
@@ -390,14 +412,52 @@ const everydayLifeTiles = [
     </main>
 
     <script>
+      const promoPopup = document.querySelector("[data-promo-popup]");
+      const promoCloseButtons = document.querySelectorAll("[data-promo-close]");
+
+      if (promoPopup) {
+        let promoTimer: number | undefined;
+
+        const openPromoPopup = () => {
+          promoPopup.setAttribute("aria-hidden", "false");
+          document.documentElement.classList.add("promo-popup-is-open");
+        };
+
+        const closePromoPopup = () => {
+          promoPopup.setAttribute("aria-hidden", "true");
+          document.documentElement.classList.remove("promo-popup-is-open");
+        };
+
+        const schedulePromoPopup = () => {
+          window.clearTimeout(promoTimer);
+          closePromoPopup();
+          promoTimer = window.setTimeout(openPromoPopup, 4000);
+        };
+
+        schedulePromoPopup();
+        window.addEventListener("pageshow", schedulePromoPopup);
+
+        promoCloseButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            window.clearTimeout(promoTimer);
+            closePromoPopup();
+          });
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closePromoPopup();
+        });
+      }
+
       const countdownRoot = document.querySelector("[data-countdown]");
+      const countdownDays = document.querySelector("[data-countdown-days]");
       const countdownHours = document.querySelector("[data-countdown-hours]");
       const countdownMinutes = document.querySelector("[data-countdown-minutes]");
       const countdownSeconds = document.querySelector("[data-countdown-seconds]");
-      const countdownStorageKey = "ornis-offer-countdown-end";
-      const countdownLength = 24 * 60 * 60 * 1000;
+      const countdownStorageKey = "ornis-offer-countdown-end-3-days";
+      const countdownLength = 3 * 24 * 60 * 60 * 1000;
 
-      if (countdownRoot && countdownHours && countdownMinutes && countdownSeconds) {
+      if (countdownRoot && countdownDays && countdownHours && countdownMinutes && countdownSeconds) {
         const storedEnd = Number(localStorage.getItem(countdownStorageKey));
         let countdownEnd = Number.isFinite(storedEnd) && storedEnd > Date.now()
           ? storedEnd
@@ -416,11 +476,13 @@ const everydayLifeTiles = [
             remaining = countdownLength;
           }
 
-          const totalSeconds = Math.floor(remaining / 1000);
-          const hours = Math.floor(totalSeconds / 3600);
+          const totalSeconds = Math.ceil(remaining / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
 
+          countdownDays.textContent = pad(days);
           countdownHours.textContent = pad(hours);
           countdownMinutes.textContent = pad(minutes);
           countdownSeconds.textContent = pad(seconds);
@@ -452,9 +514,64 @@ const everydayLifeTiles = [
       "Segoe UI", sans-serif;
   }
 
+  .promo-popup-is-open {
+    overflow: hidden;
+  }
+
+  .promo-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms ease;
+  }
+
+  .promo-popup[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .promo-popup__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 8, 8, 0.72);
+    backdrop-filter: blur(5px);
+  }
+
+  .promo-popup__dialog {
+    position: relative;
+    width: min(100%, 72rem);
+    overflow: hidden;
+    border-radius: 0;
+    background: #f6f1ea;
+    box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.42);
+    transform: translateY(1rem) scale(0.985);
+    transition: transform 260ms ease;
+  }
+
+  .promo-popup[aria-hidden="false"] .promo-popup__dialog {
+    transform: translateY(0) scale(1);
+  }
+
+  .promo-popup__dialog img {
+    display: block;
+    width: 100%;
+    max-height: calc(100vh - clamp(2rem, 6vw, 5rem));
+    height: auto;
+    margin: 0;
+    object-fit: contain;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
   .image-stack {
     width: 100%;
-    overflow: clip;
+    overflow-x: clip;
+    overflow-y: visible;
     background:
       radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.85), transparent 28rem),
       #f6f1ea;
@@ -473,15 +590,27 @@ const everydayLifeTiles = [
   }
 
   .countdown-offer {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     display: flex;
-    width: min(calc(100% - clamp(1rem, 4vw, 2.5rem)), 1672px);
+    width: 100%;
     align-items: center;
     justify-content: center;
     gap: clamp(0.85rem, 2.4vw, 2rem);
-    margin: clamp(0.15rem, 0.8vw, 0.45rem) auto clamp(0.5rem, 1.5vw, 1rem);
+    margin: 0 0 clamp(0.5rem, 1.5vw, 1rem);
     padding: clamp(0.65rem, 1.1vw, 0.9rem) clamp(1rem, 3vw, 2.25rem);
     border-block: 1px solid rgba(14, 89, 99, 0.14);
-    background: rgba(255, 255, 255, 0.42);
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 0.85rem 2rem rgba(52, 40, 31, 0.08);
+    backdrop-filter: blur(14px);
+  }
+
+  .countdown-offer__main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.85rem, 2.4vw, 2rem);
   }
 
   .countdown-offer p {
@@ -491,6 +620,26 @@ const everydayLifeTiles = [
     font-weight: 500;
     line-height: 1.2;
     text-transform: uppercase;
+  }
+
+  .countdown-offer__code {
+    display: inline-flex;
+    min-height: clamp(2.7rem, 4.4vw, 3.4rem);
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem clamp(0.8rem, 1.8vw, 1.35rem);
+    border: 1px solid rgba(149, 95, 105, 0.35);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    color: #1e1f20;
+    white-space: nowrap;
+  }
+
+  .countdown-offer__code strong {
+    margin-left: 0.35rem;
+    color: #955f69;
+    font-size: clamp(0.95rem, 1.3vw, 1.18rem);
+    letter-spacing: 0;
   }
 
   .countdown-offer__timer {
@@ -1162,6 +1311,56 @@ const everydayLifeTiles = [
   }
 
   @media (max-width: 720px) {
+    .promo-popup {
+      padding: 0.8rem;
+    }
+
+    .countdown-offer {
+      width: 100%;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin: 0 0 0.65rem;
+      padding: 0.75rem;
+    }
+
+    .countdown-offer__main {
+      width: 100%;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .countdown-offer__timer {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .countdown-offer__timer span {
+      min-width: 0;
+      border-left: 0;
+      border-inline-start: 1px solid rgba(14, 89, 99, 0.16);
+    }
+
+    .countdown-offer__timer span:first-child {
+      border-inline-start: 0;
+    }
+
+    .countdown-offer__code {
+      width: 100%;
+      min-height: 2.75rem;
+    }
+
+    .delivery-banner {
+      margin-block: 0.5rem 0.25rem;
+    }
+
+    .delivery-banner__track span {
+      min-height: 2.85rem;
+      padding-inline: 1.15rem;
+      font-size: 0.82rem;
+    }
+
     .site-footer__inner {
       grid-template-columns: 1fr;
     }

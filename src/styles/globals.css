@@ -41,3 +41,27 @@
   --input: rgba(61, 55, 51, 0.18);
   --ring: #0e5963;
 }
+
+.coupon-price-strike {
+  position: relative;
+  display: inline-block;
+}
+
+.coupon-price-strike::after {
+  content: "";
+  position: absolute;
+  left: -0.12rem;
+  right: -0.12rem;
+  top: 52%;
+  height: 2px;
+  background: #955f69;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: coupon-strike 360ms ease-out forwards;
+}
+
+@keyframes coupon-strike {
+  to {
+    transform: scaleX(1);
+  }
+}

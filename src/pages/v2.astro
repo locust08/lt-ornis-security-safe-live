@@ -59,6 +59,21 @@ const images = [
     <title>Ornis Security Safe V2</title>
   </head>
   <body>
+    <div class="promo-popup" data-promo-popup aria-hidden="true">
+      <div class="promo-popup__backdrop" data-promo-close></div>
+      <section class="promo-popup__dialog" role="dialog" aria-modal="true" aria-label="Limited time Ornis offer">
+        <img
+          src="/ornis/promo-popup-ornis45.png"
+          alt="Limited time Ornis offer with up to 45 percent off, code ORNIS45, valid for 3 days only."
+          width="1449"
+          height="1086"
+          loading="eager"
+          decoding="async"
+          data-promo-close
+        />
+      </section>
+    </div>
+
     <main class="image-stack" aria-label="Ornis security safe v2 product story">
       {
         images.map((image, index) => (
@@ -75,6 +90,45 @@ const images = [
         ))
       }
     </main>
+
+    <script>
+      const promoPopup = document.querySelector("[data-promo-popup]");
+      const promoCloseButtons = document.querySelectorAll("[data-promo-close]");
+
+      if (promoPopup) {
+        let promoTimer: number | undefined;
+
+        const openPromoPopup = () => {
+          promoPopup.setAttribute("aria-hidden", "false");
+          document.documentElement.classList.add("promo-popup-is-open");
+        };
+
+        const closePromoPopup = () => {
+          promoPopup.setAttribute("aria-hidden", "true");
+          document.documentElement.classList.remove("promo-popup-is-open");
+        };
+
+        const schedulePromoPopup = () => {
+          window.clearTimeout(promoTimer);
+          closePromoPopup();
+          promoTimer = window.setTimeout(openPromoPopup, 4000);
+        };
+
+        schedulePromoPopup();
+        window.addEventListener("pageshow", schedulePromoPopup);
+
+        promoCloseButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            window.clearTimeout(promoTimer);
+            closePromoPopup();
+          });
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closePromoPopup();
+        });
+      }
+    </script>
   </body>
 </html>
 
@@ -96,6 +150,60 @@ const images = [
       Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", sans-serif;
     background: #030303;
+  }
+
+  .promo-popup-is-open {
+    overflow: hidden;
+  }
+
+  .promo-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms ease;
+  }
+
+  .promo-popup[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .promo-popup__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 3, 3, 0.74);
+    backdrop-filter: blur(5px);
+  }
+
+  .promo-popup__dialog {
+    position: relative;
+    width: min(100%, 72rem);
+    overflow: hidden;
+    border-radius: 0;
+    background: #f6f1ea;
+    box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.54);
+    transform: translateY(1rem) scale(0.985);
+    transition: transform 260ms ease;
+  }
+
+  .promo-popup[aria-hidden="false"] .promo-popup__dialog {
+    transform: translateY(0) scale(1);
+  }
+
+  .promo-popup__dialog img {
+    display: block;
+    width: 100%;
+    max-height: calc(100vh - clamp(2rem, 6vw, 5rem));
+    height: auto;
+    margin: 0;
+    object-fit: contain;
+    border-radius: 0;
+    cursor: pointer;
   }
 
   .image-stack {
@@ -154,6 +262,12 @@ const images = [
 
     .panel img {
       animation: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .promo-popup {
+      padding: 0.8rem;
     }
   }
 </style>
