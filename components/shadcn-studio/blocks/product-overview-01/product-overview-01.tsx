@@ -1,16 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckIcon, MinusIcon, PlusIcon, ShoppingCartIcon, StarIcon, Trash2Icon, TruckIcon, XIcon } from "lucide-react";
+import { CheckIcon, MinusIcon, PlusIcon, ShoppingCartIcon, Trash2Icon, TruckIcon, XIcon } from "lucide-react";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -180,7 +172,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
         type="button"
         onClick={() => setIsCartOpen(true)}
         className={cn(
-          "fixed right-4 top-[8.25rem] z-[70] inline-flex size-12 items-center justify-center rounded-full border border-[#0e5963]/15 bg-white/90 text-[#0e5963] shadow-[0_1rem_2rem_rgba(52,40,31,0.16)] backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-[#0e5963] hover:text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#0e5963]/30 sm:right-6 sm:top-[5.5rem]",
+          "fixed bottom-5 right-4 z-[70] inline-flex size-12 items-center justify-center rounded-full border border-[#0e5963]/15 bg-white/90 text-[#0e5963] shadow-[0_1rem_2rem_rgba(52,40,31,0.16)] backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-[#0e5963] hover:text-white focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#0e5963]/30 sm:bottom-6 sm:right-6",
           showCartNotice && "scale-110 ring-4 ring-[#955f69]/20",
         )}
         aria-label={`Open cart with ${cartCount} item${cartCount === 1 ? "" : "s"}`}
@@ -193,7 +185,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
         )}
         <span
           className={cn(
-            "pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] rounded-full bg-[#1f2020] px-3 py-1 text-xs font-bold text-white shadow-lg transition-all duration-300",
+            "pointer-events-none absolute bottom-[calc(100%+0.55rem)] right-0 rounded-full bg-[#1f2020] px-3 py-1 text-xs font-bold text-white shadow-lg transition-all duration-300",
             showCartNotice ? "translate-y-0 opacity-100" : "-translate-y-1 opacity-0",
           )}
         >
@@ -347,51 +339,25 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)] md:gap-12 xl:gap-20">
           <div className="flex flex-col gap-6">
-            <div className="relative grid min-h-[26rem] place-items-center overflow-hidden rounded-md bg-[#eee9e3] sm:min-h-[34rem]">
+            <div
+              id="ornis-product-preview"
+              className="relative grid min-h-[14rem] place-items-center overflow-hidden rounded-md bg-[#eee9e3] p-3 sm:min-h-[28rem] lg:min-h-[34rem]"
+            >
               <img
                 src={activeImage.src}
                 alt={activeImage.alt}
-                className="h-auto max-h-[22rem] w-auto max-w-[82%] object-contain drop-shadow-[0_1.5rem_2rem_rgba(38,37,34,0.18)] sm:max-h-[30rem] lg:max-h-[34rem]"
+                className="h-auto max-h-[12rem] w-auto max-w-[92%] object-contain drop-shadow-[0_1.5rem_2rem_rgba(38,37,34,0.18)] sm:max-h-[25rem] lg:max-h-[32rem]"
               />
             </div>
           </div>
 
           <div className="space-y-6 py-2 md:py-5">
-            <Breadcrumb>
-              <BreadcrumbList>
-                {activeProduct.breadcrumbData.map((breadcrumb, index) => (
-                  <div key={`${breadcrumb.label}-${index}`} className="flex items-center gap-2">
-                    <BreadcrumbItem>
-                      {index === activeProduct.breadcrumbData.length - 1 ? (
-                        <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink href={breadcrumb.href || "#"}>{breadcrumb.label}</BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                    {index < activeProduct.breadcrumbData.length - 1 && <BreadcrumbSeparator />}
-                  </div>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
-
             <div className="space-y-3">
               <p className="text-sm font-bold uppercase tracking-normal text-[#955f69]">Premium fire-resistant safe</p>
               <h2 id="choose-ornis" className="text-3xl font-semibold tracking-normal text-foreground sm:text-4xl">
                 {activeProduct.name}
               </h2>
             </div>
-
-            <div className="flex w-fit items-center rounded-sm border border-border bg-white/55 px-2.5 py-1.5">
-              <span className="me-2.5 flex items-center gap-1 border-e border-border pe-2.5 text-sm">
-                <span className="text-lg font-medium">{activeProduct.rating}</span>
-                <StarIcon className="mb-0.5 size-4 fill-amber-500 stroke-transparent" />
-              </span>
-              <span className="text-muted-foreground">{activeProduct.totalReview} Reviews</span>
-            </div>
-
-            <p className="max-w-xl text-muted-foreground">{activeProduct.description}</p>
-
-            <Separator />
 
             <div className="space-y-3">
               <div className="flex items-end justify-between gap-4">
@@ -428,6 +394,10 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                 ))}
               </div>
             </div>
+
+            <p className="max-w-xl text-muted-foreground">{activeProduct.description}</p>
+
+            <Separator />
 
             <div className="flex flex-wrap items-center gap-5">
               <h3 className="text-lg font-semibold">Color:</h3>

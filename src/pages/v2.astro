@@ -37,8 +37,11 @@ const images = [
     alt: "Ornis how-to-use section explaining four steps: set PIN or register fingerprints, tap the smart touch display, unlock and store valuables, then close the door for auto-locking.",
   },
   {
-    src: "/ornis/confidence-answered-no-buy-now.png",
+    src: "/ornis/confidence-answered.png",
     alt: "Ornis Confidence, Answered FAQ section with a safe product image, fire-resistant certification, up to 60 registered fingerprints, EGI steel durability, and modern home-friendly design.",
+    width: 941,
+    height: 1672,
+    isPortrait: true,
   },
 ];
 ---
@@ -63,9 +66,9 @@ const images = [
       <div class="promo-popup__backdrop" data-promo-close></div>
       <section class="promo-popup__dialog" role="dialog" aria-modal="true" aria-label="Limited time Ornis offer">
         <img
-          src="/ornis/promo-popup-ornis45.png"
+          src="/ornis/promo.png"
           alt="Limited time Ornis offer with up to 45 percent off, code ORNIS45, valid for 3 days only."
-          width="1449"
+          width="1448"
           height="1086"
           loading="eager"
           decoding="async"
@@ -77,12 +80,12 @@ const images = [
     <main class="image-stack" aria-label="Ornis security safe v2 product story">
       {
         images.map((image, index) => (
-          <section class="panel" aria-label={`Ornis v2 product image ${index + 1}`}>
+          <section class={image.isPortrait ? "panel panel--portrait" : "panel"} aria-label={`Ornis v2 product image ${index + 1}`}>
             <img
               src={image.src}
               alt={image.alt}
-              width="1672"
-              height="941"
+              width={image.width ?? 1672}
+              height={image.height ?? 941}
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
             />
@@ -237,6 +240,10 @@ const images = [
     animation: reveal-panel both ease-out;
     animation-timeline: --panel;
     animation-range: entry 0% cover 36%;
+  }
+
+  .panel--portrait img {
+    width: min(100%, 941px);
   }
 
   @keyframes reveal-panel {

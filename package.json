@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "clean": "node scripts/clean-local.mjs",
+    "clean:deps": "node scripts/clean-local.mjs --deps",
+    "clean:output": "node scripts/clean-local.mjs --output",
+    "clean:all": "node scripts/clean-local.mjs --deps --output"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
