@@ -1,0 +1,535 @@
+---
+import "../styles/globals.css";
+import MetaPixel from "@/components/MetaPixel.astro";
+import { ORNIS_PROMO_CODE, formatRM, getUnitPrice, isPromoApplied, parseCheckoutItems } from "@/lib/ornis/catalog";
+
+export const prerender = false;
+
+const items = parseCheckoutItems(Astro.url.searchParams);
+const promoApplied = isPromoApplied(Astro.url.searchParams.get("promo"));
+const promoCode = promoApplied ? ORNIS_PROMO_CODE : "";
+const subtotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoApplied) * item.quantity, 0);
+const originalSubtotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
+const cancelled = Astro.url.searchParams.get("cancelled") === "1";
+const catalogForScript = JSON.stringify(
+  items.map((item) => ({
+    id: item.id,
+    originalPrice: item.originalPrice,
+    discountedPrice: item.discountedPrice,
+    stock: item.stock,
+  })),
+).replace(/</g, "\\u003c");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Complete your Ornis order securely with Fiuu hosted payment." />
+    <MetaPixel />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f565d'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f6f1ea'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f6f1ea' stroke-width='5'/%3E%3C/svg%3E"
+    />
+    <title>Ornis Checkout</title>
+  </head>
+  <body class="checkout-body">
+    <main class="checkout-shell">
+      <header class="checkout-header">
+        <a href="/" aria-label="Back to Ornis landing page">Ornis</a>
+        <span>Secure checkout via Fiuu</span>
+      </header>
+
+      {cancelled && (
+        <div class="checkout-alert" role="status">
+          Payment was cancelled. You can review the order and try again.
+        </div>
+      )}
+
+      <form class="checkout-layout" action="/api/checkout" method="post">
+        <section class="checkout-main" aria-labelledby="checkout-title">
+          <div class="checkout-title">
+            <p>Free delivery included</p>
+            <h1 id="checkout-title">Complete Your Ornis Order</h1>
+          </div>
+
+          <fieldset class="checkout-section">
+            <legend>Customer Details</legend>
+            <div class="checkout-grid">
+              <label>
+                <span>Name</span>
+                <input name="name" autocomplete="name" required />
+              </label>
+              <label>
+                <span>Phone</span>
+                <input name="phone" autocomplete="tel" required />
+              </label>
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" autocomplete="email" required />
+              </label>
+              <label>
+                <span>Postcode</span>
+                <input name="postcode" autocomplete="postal-code" required />
+              </label>
+              <label class="checkout-grid__full">
+                <span>Address</span>
+                <textarea name="address" rows="3" autocomplete="street-address" required></textarea>
+              </label>
+              <label>
+                <span>State</span>
+                <select name="state" required>
+                  <option value="">Select state</option>
+                  <option>Johor</option>
+                  <option>Kedah</option>
+                  <option>Kelantan</option>
+                  <option>Kuala Lumpur</option>
+                  <option>Labuan</option>
+                  <option>Melaka</option>
+                  <option>Negeri Sembilan</option>
+                  <option>Pahang</option>
+                  <option>Penang</option>
+                  <option>Perak</option>
+                  <option>Perlis</option>
+                  <option>Putrajaya</option>
+                  <option>Sabah</option>
+                  <option>Sarawak</option>
+                  <option>Selangor</option>
+                  <option>Terengganu</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="checkout-section">
+            <legend>Voucher</legend>
+            <label class="voucher-field">
+              <span>Discount code</span>
+              <input id="promo-code" name="promoCode" value={promoCode} autocomplete="off" />
+            </label>
+          </fieldset>
+        </section>
+
+        <aside class="checkout-summary" aria-label="Order summary">
+          <h2>Order Summary</h2>
+
+          <div class="summary-items">
+            {
+              items.map((item) => (
+                <article
+                  class="summary-item"
+                  data-line-item
+                  data-item-id={item.id}
+                  data-original-price={item.originalPrice}
+                  data-discounted-price={item.discountedPrice}
+                >
+                  <input type="hidden" name="itemId" value={item.id} />
+                  <img src={item.image} alt={`${item.model} ${item.color} safe`} width="320" height="240" />
+                  <div>
+                    <h3>{item.model} {item.color}</h3>
+                    <p>{item.specs}</p>
+                    <div class="quantity-row">
+                      <label>
+                        <span>Quantity</span>
+                        <input
+                          name="quantity"
+                          type="number"
+                          inputmode="numeric"
+                          min="1"
+                          max={item.stock}
+                          value={item.quantity}
+                          data-quantity
+                          required
+                        />
+                      </label>
+                      <strong data-line-total>{formatRM(getUnitPrice(item, promoApplied) * item.quantity)}</strong>
+                    </div>
+                    <small>{item.stock} available</small>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+
+          <dl class="summary-totals">
+            <div>
+              <dt>Original subtotal</dt>
+              <dd data-original-subtotal>{formatRM(originalSubtotal)}</dd>
+            </div>
+            <div>
+              <dt>Discount</dt>
+              <dd data-discount>{formatRM(originalSubtotal - subtotal)}</dd>
+            </div>
+            <div>
+              <dt>Shipping</dt>
+              <dd>Free</dd>
+            </div>
+            <div class="summary-totals__total">
+              <dt>Total</dt>
+              <dd data-total>{formatRM(subtotal)}</dd>
+            </div>
+          </dl>
+
+          <button class="checkout-button" type="submit">Pay Securely With Fiuu</button>
+          <p class="checkout-note">You will be redirected to Fiuu's hosted payment page to choose FPX, card, e-wallet, DuitNow QR, or any enabled channel.</p>
+        </aside>
+      </form>
+    </main>
+
+    <script is:inline define:vars={{ catalogForScript, promoCode: ORNIS_PROMO_CODE }}>
+      const catalog = JSON.parse(catalogForScript);
+      const formatter = new Intl.NumberFormat("en-MY", {
+        style: "currency",
+        currency: "MYR",
+        maximumFractionDigits: 0,
+      });
+      const formatRM = (value) => formatter.format(value).replace("MYR", "RM");
+      const promoInput = document.querySelector("#promo-code");
+      const lineItems = Array.from(document.querySelectorAll("[data-line-item]"));
+      const originalSubtotal = document.querySelector("[data-original-subtotal]");
+      const discount = document.querySelector("[data-discount]");
+      const total = document.querySelector("[data-total]");
+
+      const updateSummary = () => {
+        const promoApplied = promoInput?.value.trim().toUpperCase() === promoCode;
+        let original = 0;
+        let payable = 0;
+
+        lineItems.forEach((line) => {
+          const item = catalog.find((entry) => entry.id === line.dataset.itemId);
+          const quantityInput = line.querySelector("[data-quantity]");
+          const lineTotal = line.querySelector("[data-line-total]");
+          const quantity = Math.min(Math.max(Number(quantityInput?.value) || 1, 1), item.stock);
+
+          if (quantityInput && String(quantityInput.value) !== String(quantity)) {
+            quantityInput.value = String(quantity);
+          }
+
+          original += item.originalPrice * quantity;
+          payable += (promoApplied ? item.discountedPrice : item.originalPrice) * quantity;
+
+          if (lineTotal) {
+            lineTotal.textContent = formatRM((promoApplied ? item.discountedPrice : item.originalPrice) * quantity);
+          }
+        });
+
+        if (originalSubtotal) originalSubtotal.textContent = formatRM(original);
+        if (discount) discount.textContent = formatRM(original - payable);
+        if (total) total.textContent = formatRM(payable);
+      };
+
+      promoInput?.addEventListener("input", updateSummary);
+      lineItems.forEach((line) => {
+        line.querySelector("[data-quantity]")?.addEventListener("input", updateSummary);
+      });
+      updateSummary();
+    </script>
+  </body>
+</html>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  .checkout-body {
+    min-width: 320px;
+    margin: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.66), transparent 26rem),
+      #f6f1ea;
+    color: #1f2020;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+  }
+
+  .checkout-shell {
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .checkout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+    color: #665d57;
+  }
+
+  .checkout-header a {
+    color: #0e5963;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .checkout-alert {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(149, 95, 105, 0.28);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.76);
+    color: #955f69;
+    font-weight: 700;
+  }
+
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .checkout-main,
+  .checkout-summary {
+    border: 1px solid rgba(14, 89, 99, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 1rem 2.5rem rgba(52, 40, 31, 0.08);
+  }
+
+  .checkout-main {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .checkout-title p {
+    margin: 0 0 0.4rem;
+    color: #955f69;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .checkout-title h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.75rem);
+    line-height: 1;
+  }
+
+  .checkout-section {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .checkout-section legend,
+  .checkout-summary h2 {
+    margin: 0;
+    color: #0e5963;
+    font-size: 1.15rem;
+    font-weight: 900;
+  }
+
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .checkout-grid__full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+    color: #665d57;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    min-height: 3rem;
+    border: 1px solid rgba(61, 55, 51, 0.18);
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2020;
+    font: inherit;
+    font-weight: 600;
+    outline: none;
+    padding: 0.75rem 0.9rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #0e5963;
+    box-shadow: 0 0 0 3px rgba(14, 89, 99, 0.16);
+  }
+
+  .voucher-field {
+    max-width: 20rem;
+  }
+
+  .checkout-summary {
+    position: sticky;
+    top: 1rem;
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .summary-items {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .summary-item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f6f1ea;
+  }
+
+  .summary-item img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+
+  .summary-item h3,
+  .summary-item p {
+    margin: 0;
+  }
+
+  .summary-item h3 {
+    font-size: 1rem;
+  }
+
+  .summary-item p,
+  .summary-item small {
+    color: #665d57;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .quantity-row {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 8rem) auto;
+    gap: 0.75rem;
+    align-items: end;
+    margin-top: 0.65rem;
+  }
+
+  .quantity-row input {
+    min-height: 2.5rem;
+  }
+
+  .quantity-row strong {
+    color: #0e5963;
+    font-size: 1.05rem;
+    text-align: right;
+  }
+
+  .summary-totals {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(14, 89, 99, 0.14);
+  }
+
+  .summary-totals div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .summary-totals dt,
+  .summary-totals dd {
+    margin: 0;
+  }
+
+  .summary-totals dt {
+    color: #665d57;
+  }
+
+  .summary-totals dd {
+    font-weight: 900;
+  }
+
+  .summary-totals__total {
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(14, 89, 99, 0.14);
+    color: #0e5963;
+    font-size: 1.25rem;
+  }
+
+  .checkout-button {
+    min-height: 3.4rem;
+    border: 0;
+    border-radius: 8px;
+    background: #0e5963;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 900;
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .checkout-button:hover,
+  .checkout-button:focus-visible {
+    background: #0a4851;
+    transform: translateY(-0.1rem);
+    outline: none;
+  }
+
+  .checkout-note {
+    margin: 0;
+    color: #665d57;
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 860px) {
+    .checkout-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .checkout-summary {
+      position: static;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .checkout-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-item {
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+    }
+
+    .quantity-row {
+      grid-template-columns: 1fr;
+    }
+
+    .quantity-row strong {
+      text-align: left;
+    }
+  }
+</style>

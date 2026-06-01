@@ -142,10 +142,13 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cartItems.reduce((total, item) => total + getItemPrice(item) * item.quantity, 0);
+  const cartItemParam = cartItems
+    .map((item) => `${encodeURIComponent(item.id ?? item.name)}:${item.quantity}`)
+    .join(",");
   const baseCheckoutHref =
     cartItems.length === 1
-      ? (cartItems[0].href ?? "/payment")
-      : `/payment?models=${cartItems.map((item) => encodeURIComponent(item.id ?? item.name)).join(",")}`;
+      ? `/payment?items=${cartItemParam}`
+      : `/payment?items=${cartItemParam}`;
   const checkoutHref = couponApplied
     ? withPromoCode(baseCheckoutHref)
     : baseCheckoutHref;
