@@ -6,6 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   site: "https://ornis.falconsafe.com.my",
   adapter: cloudflare(),
+  security: {
+    checkOrigin: false,
+  },
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
