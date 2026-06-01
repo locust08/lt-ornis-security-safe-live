@@ -42,6 +42,7 @@ jobs:
           FIUU_SECRET_KEY: ${{ secrets.FIUU_SECRET_KEY }}
           FIUU_PAYMENT_BASE_URL: ${{ secrets.FIUU_PAYMENT_BASE_URL }}
           FIUU_IPN_ACK_URL: ${{ secrets.FIUU_IPN_ACK_URL }}
+          FIUU_EXTENDED_VCODE: ${{ secrets.FIUU_EXTENDED_VCODE }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
           GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
@@ -71,6 +72,7 @@ jobs:
             FIUU_SECRET_KEY \
             FIUU_PAYMENT_BASE_URL \
             FIUU_IPN_ACK_URL \
+            FIUU_EXTENDED_VCODE \
             GOOGLE_SHEET_ID \
             GOOGLE_OAUTH_CLIENT_ID \
             GOOGLE_OAUTH_CLIENT_SECRET \
