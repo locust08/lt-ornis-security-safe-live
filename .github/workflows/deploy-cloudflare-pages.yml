@@ -30,6 +30,8 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          META_PIXEL_ID: ${{ secrets.META_PIXEL_ID }}
         run: npm run build
 
       - name: Sync Cloudflare Pages runtime secrets
@@ -50,6 +52,7 @@ jobs:
           GMAIL_FROM_EMAIL: ${{ secrets.GMAIL_FROM_EMAIL }}
           SELLER_NOTIFICATION_EMAIL: ${{ secrets.SELLER_NOTIFICATION_EMAIL }}
           SELLER_NOTIFICATION_CC: ${{ secrets.SELLER_NOTIFICATION_CC }}
+          META_PIXEL_ID: ${{ secrets.META_PIXEL_ID }}
         run: |
           set -euo pipefail
 
@@ -79,7 +82,8 @@ jobs:
             GOOGLE_WORKSPACE_OAUTH_REFRESH_TOKEN \
             GMAIL_FROM_EMAIL \
             SELLER_NOTIFICATION_EMAIL \
-            SELLER_NOTIFICATION_CC
+            SELLER_NOTIFICATION_CC \
+            META_PIXEL_ID
           do
             put_secret "$name"
           done
