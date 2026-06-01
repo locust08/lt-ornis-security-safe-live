@@ -7,6 +7,7 @@ export type RuntimeEnv = RuntimeEnvSource & {
   FIUU_SECRET_KEY?: string;
   FIUU_PAYMENT_BASE_URL?: string;
   FIUU_IPN_ACK_URL?: string;
+  FIUU_EXTENDED_VCODE?: string;
   GOOGLE_SHEET_ID?: string;
   GOOGLE_OAUTH_CLIENT_ID?: string;
   GOOGLE_OAUTH_CLIENT_SECRET?: string;

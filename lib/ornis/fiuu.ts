@@ -3,6 +3,8 @@ import { md5 } from "./md5";
 import type { CheckoutOrder } from "./order";
 import { formatAmount, summarizeItems } from "./order";
 
+const FIUU_CURRENCY = "MYR";
+
 export type FiuuResponse = {
   amount: string;
   orderid: string;
@@ -22,13 +24,14 @@ export const buildFiuuPaymentRequest = (env: RuntimeEnv, order: CheckoutOrder, o
   const merchantId = requireEnv(env, "FIUU_MERCHANT_ID");
   const verifyKey = requireEnv(env, "FIUU_VERIFY_KEY");
   const amount = formatAmount(order.totalPaid);
+  const useExtendedVcode = env.FIUU_EXTENDED_VCODE === "true";
   const baseUrl =
     env.FIUU_PAYMENT_BASE_URL ??
     (env.FIUU_MODE === "production"
-      ? "https://www.onlinepayment.com.my/MOLPay/pay"
-      : "https://sandbox.molpay.com/MOLPay/pay");
+      ? "https://pay.fiuu.com/RMS/pay"
+      : "https://sandbox-payment.fiuu.com/RMS/pay");
   const action = `${baseUrl.replace(/\/$/, "")}/${encodeURIComponent(merchantId)}/`;
-  const vcode = md5(`${amount}${merchantId}${order.orderId}${verifyKey}`);
+  const vcode = md5(`${amount}${merchantId}${order.orderId}${verifyKey}${useExtendedVcode ? FIUU_CURRENCY : ""}`);
   const returnUrl = new URL("/api/fiuu/return", origin).toString();
   const notifyUrl = new URL("/api/fiuu/notify", origin).toString();
   const cancelUrl = new URL(`/payment?cancelled=1&order=${encodeURIComponent(order.orderId)}`, origin).toString();
@@ -43,7 +46,7 @@ export const buildFiuuPaymentRequest = (env: RuntimeEnv, order: CheckoutOrder, o
       bill_mobile: order.customer.phone,
       bill_desc: `Ornis safe order: ${summarizeItems(order.items)}`,
       country: "MY",
-      cur: "MYR",
+      currency: FIUU_CURRENCY,
       vcode,
       returnurl: returnUrl,
       callbackurl: notifyUrl,
