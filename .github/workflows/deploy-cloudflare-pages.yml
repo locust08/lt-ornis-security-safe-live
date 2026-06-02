@@ -52,6 +52,9 @@ jobs:
           GMAIL_FROM_EMAIL: ${{ secrets.GMAIL_FROM_EMAIL }}
           SELLER_NOTIFICATION_EMAIL: ${{ secrets.SELLER_NOTIFICATION_EMAIL }}
           SELLER_NOTIFICATION_CC: ${{ secrets.SELLER_NOTIFICATION_CC }}
+          SALES_NOTIFICATION_CC: ${{ secrets.SALES_NOTIFICATION_CC }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
           META_PIXEL_ID: ${{ secrets.META_PIXEL_ID }}
         run: |
           set -euo pipefail
@@ -83,6 +86,9 @@ jobs:
             GMAIL_FROM_EMAIL \
             SELLER_NOTIFICATION_EMAIL \
             SELLER_NOTIFICATION_CC \
+            SALES_NOTIFICATION_CC \
+            RESEND_API_KEY \
+            RESEND_FROM_EMAIL \
             META_PIXEL_ID
           do
             put_secret "$name"

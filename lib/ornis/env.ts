@@ -14,7 +14,10 @@ export type RuntimeEnv = RuntimeEnvSource & {
   GOOGLE_WORKSPACE_OAUTH_REFRESH_TOKEN?: string;
   SELLER_NOTIFICATION_EMAIL?: string;
   SELLER_NOTIFICATION_CC?: string;
+  SALES_NOTIFICATION_CC?: string;
   GMAIL_FROM_EMAIL?: string;
+  RESEND_API_KEY?: string;
+  RESEND_FROM_EMAIL?: string;
   META_PIXEL_ID?: string;
   PUBLIC_META_PIXEL_ID?: string;
 };

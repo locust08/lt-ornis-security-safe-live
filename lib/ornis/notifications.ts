@@ -3,6 +3,26 @@ import { requireEnv, type RuntimeEnv } from "./env";
 import type { CheckoutOrder, FiuuPaymentUpdate } from "./order";
 import { summarizeItems } from "./order";
 
+type EmailMessage = {
+  to: string;
+  cc?: string;
+  subject: string;
+  lines: string[];
+};
+
+const normalizeEmailList = (value: string | undefined) =>
+  String(value ?? "")
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+
+const mergeEmailLists = (...values: (string | undefined)[]) => {
+  const merged = values.flatMap(normalizeEmailList);
+  const unique = merged.filter((email, index) => merged.indexOf(email) === index);
+
+  return unique.join(", ");
+};
+
 const base64UrlEncode = (input: string) => {
   const bytes = new TextEncoder().encode(input);
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -44,12 +64,7 @@ const getGoogleAccessToken = async (env: RuntimeEnv) => {
 
 const sendGmailMessage = async (
   env: RuntimeEnv,
-  message: {
-    to: string;
-    cc?: string;
-    subject: string;
-    lines: string[];
-  },
+  message: EmailMessage,
 ) => {
   const accessToken = await getGoogleAccessToken(env);
   const from = env.GMAIL_FROM_EMAIL ?? "eason@locus-t.com.my";
@@ -78,6 +93,39 @@ const sendGmailMessage = async (
   if (!response.ok) {
     throw new Error(`Gmail send failed with ${response.status}.`);
   }
+};
+
+const sendResendMessage = async (env: RuntimeEnv, message: EmailMessage) => {
+  const from = env.RESEND_FROM_EMAIL ?? env.GMAIL_FROM_EMAIL ?? "Ornis <noreply@locus-t.com.my>";
+  const cc = normalizeEmailList(message.cc);
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${requireEnv(env, "RESEND_API_KEY")}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: normalizeEmailList(message.to),
+      cc: cc.length > 0 ? cc : undefined,
+      subject: message.subject,
+      text: message.lines.join("\n"),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Resend send failed with ${response.status}: ${errorText}`);
+  }
+};
+
+const sendEmailMessage = async (env: RuntimeEnv, message: EmailMessage) => {
+  if (env.RESEND_API_KEY) {
+    await sendResendMessage(env, message);
+    return;
+  }
+
+  await sendGmailMessage(env, message);
 };
 
 export const sendSellerPaymentEmail = async (
@@ -109,9 +157,9 @@ export const sendSellerPaymentEmail = async (
     `Paid At: ${payment.paydate || "-"}`,
   ];
 
-  await sendGmailMessage(env, {
+  await sendEmailMessage(env, {
     to: env.SELLER_NOTIFICATION_EMAIL ?? "ethan09.goh@gmail.com",
-    cc: env.SELLER_NOTIFICATION_CC ?? "ava@locus-t.com.my",
+    cc: mergeEmailLists(env.SELLER_NOTIFICATION_CC ?? "ava@locus-t.com.my", env.SALES_NOTIFICATION_CC),
     subject,
     lines,
   });
@@ -122,7 +170,7 @@ export const sendCustomerPaymentEmail = async (
   order: CheckoutOrder,
   payment: FiuuPaymentUpdate,
 ) => {
-  await sendGmailMessage(env, {
+  await sendEmailMessage(env, {
     to: order.customer.email,
     cc: env.SELLER_NOTIFICATION_CC ?? "ava@locus-t.com.my",
     subject: `Your Ornis order is confirmed - ${order.orderId}`,
