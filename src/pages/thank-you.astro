@@ -33,8 +33,9 @@ if (paid && orderId && trackingConfigured) {
   try {
     const existing = await findOrderRow(env, orderId);
     const order = existing ? sheetRowToOrder(existing.values) : null;
+    const orderPaid = String(existing?.values[2] ?? "").toLowerCase() === "paid";
 
-    if (order) {
+    if (order && orderPaid) {
       purchaseEvent = {
         orderId: order.orderId,
         value: order.totalPaid,
