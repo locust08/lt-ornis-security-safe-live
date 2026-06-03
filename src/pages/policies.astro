@@ -1,6 +1,7 @@
 ---
 import "../styles/globals.css";
-import MetaPixel from "@/components/MetaPixel.astro";
+import TrackingBody from "@/components/TrackingBody.astro";
+import TrackingHead from "@/components/TrackingHead.astro";
 
 ---
 
@@ -13,7 +14,7 @@ import MetaPixel from "@/components/MetaPixel.astro";
       name="description"
       content="Falcon Safe privacy policy, return and refund policy, and terms and conditions."
     />
-    <MetaPixel />
+    <TrackingHead />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111111'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23ffe330'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23ffe330' stroke-width='5'/%3E%3C/svg%3E"
@@ -21,6 +22,7 @@ import MetaPixel from "@/components/MetaPixel.astro";
     <title>Falcon Safe Policies</title>
   </head>
   <body class="policies-page">
+    <TrackingBody />
     <header class="policies-hero">
       <a class="policies-logo" href="/" aria-label="Falcon Safe home">
         <img

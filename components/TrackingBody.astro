@@ -1,0 +1,31 @@
+---
+import { getRuntimeEnv } from "@/lib/ornis/env";
+
+const env = getRuntimeEnv(Astro);
+const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
+const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
+const gtmNoscriptSrc = `https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(gtmContainerId)}`;
+const metaNoscriptSrc = `https://www.facebook.com/tr?id=${encodeURIComponent(metaPixelId)}&ev=PageView&noscript=1`;
+---
+
+{
+  gtmContainerId && (
+    <noscript>
+      <iframe
+        src={gtmNoscriptSrc}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+        title="Google Tag Manager"
+      ></iframe>
+    </noscript>
+  )
+}
+
+{
+  metaPixelId && (
+    <noscript>
+      <img height="1" width="1" style="display:none" src={metaNoscriptSrc} alt="" />
+    </noscript>
+  )
+}

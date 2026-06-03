@@ -1,6 +1,7 @@
 ---
 import "../styles/globals.css";
-import MetaPixel from "@/components/MetaPixel.astro";
+import TrackingBody from "@/components/TrackingBody.astro";
+import TrackingHead from "@/components/TrackingHead.astro";
 import { ORNIS_PROMO_CODE, formatRM, getUnitPrice, isPromoApplied, parseCheckoutItems } from "@/lib/ornis/catalog";
 
 export const prerender = false;
@@ -27,7 +28,7 @@ const catalogForScript = JSON.stringify(
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Complete your Ornis order securely with Fiuu hosted payment." />
-    <MetaPixel />
+    <TrackingHead />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f565d'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f6f1ea'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f6f1ea' stroke-width='5'/%3E%3C/svg%3E"
@@ -35,6 +36,7 @@ const catalogForScript = JSON.stringify(
     <title>Ornis Checkout</title>
   </head>
   <body class="checkout-body">
+    <TrackingBody />
     <main class="checkout-shell">
       <header class="checkout-header">
         <a href="/" aria-label="Back to Ornis landing page">Ornis</a>

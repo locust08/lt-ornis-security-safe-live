@@ -1,6 +1,8 @@
 ---
 import "../styles/globals.css";
-import MetaPixel from "@/components/MetaPixel.astro";
+import TrackingBody from "@/components/TrackingBody.astro";
+import TrackingHead from "@/components/TrackingHead.astro";
+import { getUnitPrice } from "@/lib/ornis/catalog";
 import { getRuntimeEnv } from "@/lib/ornis/env";
 import { findOrderRow } from "@/lib/ornis/google";
 import { sheetRowToOrder } from "@/lib/ornis/order";
@@ -12,6 +14,9 @@ const status = Astro.url.searchParams.get("status") ?? "Pending";
 const paid = status.toLowerCase() === "paid";
 const env = getRuntimeEnv(Astro);
 const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
+const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
+const ga4MeasurementId = (env.GA4_MEASUREMENT_ID ?? env.PUBLIC_GA4_MEASUREMENT_ID ?? env.GOOGLE_ANALYTICS_ID ?? "").trim();
+const trackingConfigured = Boolean(metaPixelId || gtmContainerId || ga4MeasurementId);
 let purchaseEvent:
   | {
       orderId: string;
@@ -19,11 +24,12 @@ let purchaseEvent:
       currency: string;
       contentIds: string[];
       contents: { id: string; quantity: number }[];
+      items: { item_id: string; item_name: string; item_variant: string; price: number; quantity: number }[];
       numItems: number;
     }
   | null = null;
 
-if (paid && orderId && metaPixelId) {
+if (paid && orderId && trackingConfigured) {
   try {
     const existing = await findOrderRow(env, orderId);
     const order = existing ? sheetRowToOrder(existing.values) : null;
@@ -35,6 +41,13 @@ if (paid && orderId && metaPixelId) {
         currency: "MYR",
         contentIds: order.items.map((item) => item.id),
         contents: order.items.map((item) => ({ id: item.id, quantity: item.quantity })),
+        items: order.items.map((item) => ({
+          item_id: item.id,
+          item_name: `${item.model} ${item.color}`,
+          item_variant: item.color,
+          price: getUnitPrice(item, order.promoApplied),
+          quantity: item.quantity,
+        })),
         numItems: order.items.reduce((sum, item) => sum + item.quantity, 0),
       };
     }
@@ -50,27 +63,51 @@ if (paid && orderId && metaPixelId) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Ornis payment confirmation." />
-    <MetaPixel />
+    <TrackingHead />
     {
       purchaseEvent && (
         <script is:inline define:vars={{ purchaseEvent }}>
-          const storageKey = `meta_purchase_${purchaseEvent.orderId}`;
+          const storageKey = `tracking_purchase_${purchaseEvent.orderId}`;
           const alreadyTracked = window.sessionStorage.getItem(storageKey);
 
-          if (!alreadyTracked && window.fbq) {
-            fbq(
-              "track",
-              "Purchase",
-              {
+          if (!alreadyTracked) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: "purchase",
+              event_id: purchaseEvent.orderId,
+              ecommerce: {
+                transaction_id: purchaseEvent.orderId,
                 value: purchaseEvent.value,
                 currency: purchaseEvent.currency,
-                content_ids: purchaseEvent.contentIds,
-                contents: purchaseEvent.contents,
-                content_type: "product",
-                num_items: purchaseEvent.numItems,
+                items: purchaseEvent.items,
               },
-              { eventID: purchaseEvent.orderId },
-            );
+            });
+
+            if (window.gtag) {
+              gtag("event", "purchase", {
+                transaction_id: purchaseEvent.orderId,
+                value: purchaseEvent.value,
+                currency: purchaseEvent.currency,
+                items: purchaseEvent.items,
+              });
+            }
+
+            if (window.fbq) {
+              fbq(
+                "track",
+                "Purchase",
+                {
+                  value: purchaseEvent.value,
+                  currency: purchaseEvent.currency,
+                  content_ids: purchaseEvent.contentIds,
+                  contents: purchaseEvent.contents,
+                  content_type: "product",
+                  num_items: purchaseEvent.numItems,
+                },
+                { eventID: purchaseEvent.orderId },
+              );
+            }
+
             window.sessionStorage.setItem(storageKey, "1");
           }
         </script>
@@ -83,6 +120,7 @@ if (paid && orderId && metaPixelId) {
     <title>Thank You | Ornis</title>
   </head>
   <body>
+    <TrackingBody />
     <main class="thank-you">
       <section class="thank-you__panel">
         <p>{paid ? "Payment successful" : "Payment received for review"}</p>
