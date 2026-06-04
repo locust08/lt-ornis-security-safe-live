@@ -46,7 +46,7 @@ if (paid && orderId && trackingConfigured) {
           item_id: item.id,
           item_name: `${item.model} ${item.color}`,
           item_variant: item.color,
-          price: getUnitPrice(item, order.promoApplied),
+          price: getUnitPrice(item, order.promoCode),
           quantity: item.quantity,
         })),
         numItems: order.items.reduce((sum, item) => sum + item.quantity, 0),

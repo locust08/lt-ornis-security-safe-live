@@ -14,6 +14,8 @@ export type OrderLineItem = OrnisProduct & {
 };
 
 export const ORNIS_PROMO_CODE = "ORNIS45";
+export const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
+export const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE] as const;
 export const ORNIS_SHEET_ID = "1Mp2uefJ9T0tCzqzNZ3mfoCj0YPbj62tu-Zmmb_a3PRo";
 
 export const ORNIS_PRODUCTS: OrnisProduct[] = [
@@ -70,11 +72,25 @@ export const formatRM = (value: number) =>
 
 export const getProductById = (id: string) => ORNIS_PRODUCTS.find((product) => product.id === id);
 
-export const isPromoApplied = (promoCode: string | null | undefined) =>
-  promoCode?.trim().toUpperCase() === ORNIS_PROMO_CODE;
+export const getAppliedPromoCode = (promoCode: string | null | undefined) => {
+  const normalized = promoCode?.trim().toUpperCase();
 
-export const getUnitPrice = (product: OrnisProduct, promoApplied: boolean) =>
-  promoApplied ? product.discountedPrice : product.originalPrice;
+  return ORNIS_PROMO_CODES.find((code) => code === normalized) ?? "";
+};
+
+export const isPromoApplied = (promoCode: string | null | undefined) =>
+  Boolean(getAppliedPromoCode(promoCode));
+
+export const getUnitPrice = (product: OrnisProduct, promo: boolean | string | null | undefined) => {
+  if (typeof promo === "boolean") return promo ? product.discountedPrice : product.originalPrice;
+
+  const appliedPromoCode = getAppliedPromoCode(promo);
+
+  if (appliedPromoCode === ORNIS_FREE_PROMO_CODE) return 0;
+  if (appliedPromoCode === ORNIS_PROMO_CODE) return product.discountedPrice;
+
+  return product.originalPrice;
+};
 
 export const parseCheckoutItems = (searchParams: URLSearchParams): OrderLineItem[] => {
   const itemParam = searchParams.get("items");

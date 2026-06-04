@@ -2,14 +2,13 @@
 import "../styles/globals.css";
 import TrackingBody from "@/components/TrackingBody.astro";
 import TrackingHead from "@/components/TrackingHead.astro";
-import { ORNIS_PROMO_CODE, formatRM, getUnitPrice, isPromoApplied, parseCheckoutItems } from "@/lib/ornis/catalog";
+import { ORNIS_FREE_PROMO_CODE, ORNIS_PROMO_CODE, formatRM, getAppliedPromoCode, getUnitPrice, parseCheckoutItems } from "@/lib/ornis/catalog";
 
 export const prerender = false;
 
 const items = parseCheckoutItems(Astro.url.searchParams);
-const promoApplied = isPromoApplied(Astro.url.searchParams.get("promo"));
-const promoCode = promoApplied ? ORNIS_PROMO_CODE : "";
-const subtotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoApplied) * item.quantity, 0);
+const promoCode = getAppliedPromoCode(Astro.url.searchParams.get("promo"));
+const subtotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoCode) * item.quantity, 0);
 const originalSubtotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
 const cancelled = Astro.url.searchParams.get("cancelled") === "1";
 const catalogForScript = JSON.stringify(
@@ -20,6 +19,17 @@ const catalogForScript = JSON.stringify(
     stock: item.stock,
   })),
 ).replace(/</g, "\\u003c");
+const checkoutEvent = {
+  currency: "MYR",
+  value: subtotal,
+  items: items.map((item) => ({
+    item_id: item.id,
+    item_name: `${item.model} ${item.color}`,
+    item_variant: item.color,
+    price: getUnitPrice(item, promoCode),
+    quantity: item.quantity,
+  })),
+};
 ---
 
 <!doctype html>
@@ -29,6 +39,16 @@ const catalogForScript = JSON.stringify(
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Complete your Ornis order securely with Fiuu hosted payment." />
     <TrackingHead />
+    <script is:inline define:vars={{ checkoutEvent }}>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null });
+      window.dataLayer.push({
+        event: "begin_checkout",
+        currency: checkoutEvent.currency,
+        value: checkoutEvent.value,
+        ecommerce: checkoutEvent,
+      });
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f565d'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f6f1ea'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f6f1ea' stroke-width='5'/%3E%3C/svg%3E"
@@ -39,7 +59,16 @@ const catalogForScript = JSON.stringify(
     <TrackingBody />
     <main class="checkout-shell">
       <header class="checkout-header">
-        <a href="/" aria-label="Back to Ornis landing page">Ornis</a>
+        <a class="checkout-logo" href="/" aria-label="Back to Falcon Safe home">
+          <img
+            src="/ornis/falcon-safe-footer-logo.png"
+            alt="Falcon Safe - The World's Trusted Safe"
+            width="225"
+            height="225"
+            loading="eager"
+            decoding="async"
+          />
+        </a>
         <span>Secure checkout via Fiuu</span>
       </header>
 
@@ -95,8 +124,6 @@ const catalogForScript = JSON.stringify(
                   <option>Perak</option>
                   <option>Perlis</option>
                   <option>Putrajaya</option>
-                  <option>Sabah</option>
-                  <option>Sarawak</option>
                   <option>Selangor</option>
                   <option>Terengganu</option>
                 </select>
@@ -145,7 +172,7 @@ const catalogForScript = JSON.stringify(
                           required
                         />
                       </label>
-                      <strong data-line-total>{formatRM(getUnitPrice(item, promoApplied) * item.quantity)}</strong>
+                      <strong data-line-total>{formatRM(getUnitPrice(item, promoCode) * item.quantity)}</strong>
                     </div>
                     <small>{item.stock} available</small>
                   </div>
@@ -179,7 +206,7 @@ const catalogForScript = JSON.stringify(
       </form>
     </main>
 
-    <script is:inline define:vars={{ catalogForScript, promoCode: ORNIS_PROMO_CODE }}>
+    <script is:inline define:vars={{ catalogForScript, promoCodes: [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE] }}>
       const catalog = JSON.parse(catalogForScript);
       const formatter = new Intl.NumberFormat("en-MY", {
         style: "currency",
@@ -193,8 +220,19 @@ const catalogForScript = JSON.stringify(
       const discount = document.querySelector("[data-discount]");
       const total = document.querySelector("[data-total]");
 
+      const getAppliedPromoCode = () => {
+        const normalized = promoInput?.value.trim().toUpperCase() ?? "";
+        return promoCodes.includes(normalized) ? normalized : "";
+      };
+
+      const getUnitPrice = (item, appliedPromoCode) => {
+        if (appliedPromoCode === "JIEYEE00") return 0;
+        if (appliedPromoCode === "ORNIS45") return item.discountedPrice;
+        return item.originalPrice;
+      };
+
       const updateSummary = () => {
-        const promoApplied = promoInput?.value.trim().toUpperCase() === promoCode;
+        const appliedPromoCode = getAppliedPromoCode();
         let original = 0;
         let payable = 0;
 
@@ -209,10 +247,10 @@ const catalogForScript = JSON.stringify(
           }
 
           original += item.originalPrice * quantity;
-          payable += (promoApplied ? item.discountedPrice : item.originalPrice) * quantity;
+          payable += getUnitPrice(item, appliedPromoCode) * quantity;
 
           if (lineTotal) {
-            lineTotal.textContent = formatRM((promoApplied ? item.discountedPrice : item.originalPrice) * quantity);
+            lineTotal.textContent = formatRM(getUnitPrice(item, appliedPromoCode) * quantity);
           }
         });
 
@@ -262,11 +300,17 @@ const catalogForScript = JSON.stringify(
     color: #665d57;
   }
 
-  .checkout-header a {
-    color: #0e5963;
-    font-size: 1.5rem;
-    font-weight: 900;
+  .checkout-logo {
+    display: inline-flex;
+    align-items: center;
+    width: clamp(5.5rem, 14vw, 7.5rem);
     text-decoration: none;
+  }
+
+  .checkout-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .checkout-alert {

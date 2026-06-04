@@ -1,5 +1,5 @@
 import {
-  ORNIS_PROMO_CODE,
+  getAppliedPromoCode,
   ORNIS_PRODUCTS,
   getProductById,
   getUnitPrice,
@@ -111,10 +111,10 @@ export const parseOrderFromFormData = (formData: FormData): CheckoutOrder => {
     items.push({ ...product, quantity });
   });
 
-  const promoApplied = isPromoApplied(getString(formData, "promoCode"));
-  const promoCode = promoApplied ? ORNIS_PROMO_CODE : "";
+  const promoCode = getAppliedPromoCode(getString(formData, "promoCode"));
+  const promoApplied = isPromoApplied(promoCode);
   const originalTotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
-  const finalTotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoApplied) * item.quantity, 0);
+  const finalTotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoCode) * item.quantity, 0);
   const shipping = 0;
 
   return {
@@ -141,7 +141,7 @@ export const orderToSheetRow = (
   const productSummary = order.items.map((item) => `${item.model} x ${item.quantity}`).join(", ");
   const colorSummary = order.items.map((item) => item.color).join(", ");
   const originalUnitSummary = order.items.map((item) => item.originalPrice).join(", ");
-  const finalUnitSummary = order.items.map((item) => getUnitPrice(item, order.promoApplied)).join(", ");
+  const finalUnitSummary = order.items.map((item) => getUnitPrice(item, order.promoCode)).join(", ");
 
   return [
     order.orderId,
@@ -204,8 +204,8 @@ export const sheetRowToOrder = (values: string[]): CheckoutOrder | null => {
   if (items.length === 0) return null;
 
   items.forEach((item, index) => {
-    if (originalPrices[index]) item.originalPrice = originalPrices[index];
-    if (finalPrices[index]) item.discountedPrice = finalPrices[index];
+    if (Number.isFinite(originalPrices[index]) && originalPrices[index] > 0) item.originalPrice = originalPrices[index];
+    if (Number.isFinite(finalPrices[index])) item.discountedPrice = finalPrices[index];
   });
 
   return {
@@ -221,7 +221,7 @@ export const sheetRowToOrder = (values: string[]): CheckoutOrder | null => {
     },
     items,
     promoCode: values[16] ?? "",
-    promoApplied: (values[16] ?? "").toUpperCase() === ORNIS_PROMO_CODE,
+    promoApplied: isPromoApplied(values[16]),
     shipping: parseNumber(values[18]),
     originalTotal: items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0),
     finalTotal: parseNumber(values[19]),

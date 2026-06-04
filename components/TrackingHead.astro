@@ -10,13 +10,20 @@ const ga4MeasurementId = (
   ""
 ).trim();
 const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
+const metaDatasetId = (env.META_DATASET_ID ?? env.PUBLIC_META_DATASET_ID ?? "").trim();
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
 
+{metaDatasetId && <meta name="meta-dataset-id" content={metaDatasetId} />}
+
 {
   gtmContainerId && (
-    <script is:inline define:vars={{ gtmContainerId }}>
+    <script is:inline define:vars={{ gtmContainerId, metaDatasetId }}>
       window.dataLayer = window.dataLayer || [];
+      if (metaDatasetId) {
+        window.metaDatasetId = metaDatasetId;
+        window.dataLayer.push({ metaDatasetId, meta_dataset_id: metaDatasetId });
+      }
       window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
       (function (w, d, s, l, i) {
         w[l] = w[l] || [];
@@ -29,6 +36,17 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       })(window, document, "script", "dataLayer", gtmContainerId);
     </script>
   )
+}
+
+{
+  !gtmContainerId &&
+    metaDatasetId && (
+      <script is:inline define:vars={{ metaDatasetId }}>
+        window.metaDatasetId = metaDatasetId;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ metaDatasetId, meta_dataset_id: metaDatasetId });
+      </script>
+    )
 }
 
 {

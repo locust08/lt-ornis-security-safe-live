@@ -53,6 +53,12 @@ type CartItem = ProductItem & {
   quantity: number;
 };
 
+declare global {
+  interface Window {
+    dataLayer?: Array<Record<string, unknown>>;
+  }
+}
+
 const formatRM = (value: number) =>
   new Intl.NumberFormat("en-MY", {
     style: "currency",
@@ -64,8 +70,8 @@ const formatRM = (value: number) =>
 
 const ORNIS_PROMO_CODE = "ORNIS45";
 
-const withPromoCode = (href: string) =>
-  `${href}${href.includes("?") ? "&" : "?"}promo=${ORNIS_PROMO_CODE}`;
+const withPromoCode = (href: string, promoCode: string) =>
+  `${href}${href.includes("?") ? "&" : "?"}promo=${encodeURIComponent(promoCode)}`;
 
 const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverviewProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -91,10 +97,35 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const activeColor = activeProduct.defaultColorOption ?? activeProduct.color;
   const activeSize = activeProduct.defaultSize;
   const productHref = couponApplied
-    ? withPromoCode(activeProduct.href ?? "/payment")
+    ? withPromoCode(activeProduct.href ?? "/payment", ORNIS_PROMO_CODE)
     : (activeProduct.href ?? "#");
   const getItemListPrice = (item: ProductItem) => item.originalPrice ?? item.price;
   const getItemPrice = (item: ProductItem) => (couponApplied ? item.price : getItemListPrice(item));
+  const getTrackingItem = (item: ProductItem, quantity = 1) => ({
+    item_id: item.id ?? item.name,
+    item_name: item.name,
+    item_variant: [item.defaultSize, item.defaultColorOption ?? item.color].filter(Boolean).join(" / "),
+    price: getItemPrice(item),
+    quantity,
+  });
+  const pushEcommerceEvent = (event: "add_to_cart" | "begin_checkout", items: Array<{ item: ProductItem; quantity: number }>) => {
+    if (typeof window === "undefined") return;
+
+    const trackingItems = items.map(({ item, quantity }) => getTrackingItem(item, quantity));
+    const value = trackingItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event,
+      currency: "MYR",
+      value,
+      ecommerce: {
+        currency: "MYR",
+        value,
+        items: trackingItems,
+      },
+    });
+  };
 
   const switchProduct = (nextSize?: string, nextColor?: string) => {
     const match = productItems.findIndex(
@@ -111,6 +142,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   };
 
   const addToCart = () => {
+    pushEcommerceEvent("add_to_cart", [{ item: activeProduct, quantity: 1 }]);
+
     setCartItems((items) => {
       const existingItem = items.find((item) => (item.id ?? item.name) === (activeProduct.id ?? activeProduct.name));
 
@@ -150,7 +183,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       ? `/payment?items=${cartItemParam}`
       : `/payment?items=${cartItemParam}`;
   const checkoutHref = couponApplied
-    ? withPromoCode(baseCheckoutHref)
+    ? withPromoCode(baseCheckoutHref, ORNIS_PROMO_CODE)
     : baseCheckoutHref;
 
   useEffect(() => {
@@ -168,6 +201,17 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       }
     };
   }, []);
+
+  const trackBuyNow = () => {
+    pushEcommerceEvent("begin_checkout", [{ item: activeProduct, quantity: 1 }]);
+  };
+
+  const trackCartCheckout = () => {
+    pushEcommerceEvent(
+      "begin_checkout",
+      cartItems.map((item) => ({ item, quantity: item.quantity })),
+    );
+  };
 
   return (
     <section className="relative bg-background py-8 sm:py-14 lg:py-20" aria-labelledby="choose-ornis">
@@ -305,7 +349,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                               </button>
                             </div>
                             <div className="text-right">
-                              {couponApplied && itemListPrice > item.price && (
+                              {couponApplied && itemListPrice > itemUnitPrice && (
                                 <span className="block text-xs font-semibold text-[#8b7d78] line-through">
                                   {formatRM(itemListPrice * item.quantity)}
                                 </span>
@@ -333,7 +377,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                 asChild={cartItems.length > 0}
                 tabIndex={isCartOpen ? 0 : -1}
               >
-                {cartItems.length > 0 ? <a href={checkoutHref}>Checkout</a> : <span>Checkout</span>}
+                {cartItems.length > 0 ? <a href={checkoutHref} onClick={trackCartCheckout}>Checkout</a> : <span>Checkout</span>}
               </Button>
             </div>
           </aside>
@@ -467,7 +511,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
 
             <div className="flex gap-4">
               <Button size="lg" className="grow rounded-md hover:-translate-y-0.5 hover:shadow-lg" asChild>
-                <a href={productHref}>
+                <a href={productHref} onClick={trackBuyNow}>
                   <ShoppingCartIcon />
                   Buy Now
                 </a>
