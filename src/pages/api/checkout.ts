@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
+import { ORNIS_FREE_PROMO_CODE } from "@/lib/ornis/catalog";
 import { buildFiuuPaymentRequest } from "@/lib/ornis/fiuu";
-import { appendPendingOrder } from "@/lib/ornis/google";
+import { appendPendingOrder, updateOrderPayment } from "@/lib/ornis/google";
 import { getRuntimeEnv } from "@/lib/ornis/env";
-import { parseOrderFromFormData } from "@/lib/ornis/order";
+import { formatAmount, parseOrderFromFormData } from "@/lib/ornis/order";
 
 export const prerender = false;
 
@@ -82,6 +83,25 @@ export const POST: APIRoute = async (context) => {
     const env = getRuntimeEnv(context);
     const formData = await context.request.formData();
     const order = parseOrderFromFormData(formData);
+
+    if (order.promoCode === ORNIS_FREE_PROMO_CODE && formatAmount(order.totalPaid) === "0.00") {
+      await updateOrderPayment(
+        env,
+        order,
+        {
+          status: "Paid",
+          tranId: `TEST-${order.orderId}`,
+          channel: "Internal Test",
+          amount: "0.00",
+          paydate: new Date().toISOString(),
+          note: "Marked paid internally via JIEYEE00 test checkout.",
+        },
+        "Skipped - test checkout",
+      );
+
+      return Response.redirect(new URL(`/thank-you?order=${encodeURIComponent(order.orderId)}&status=Paid`, context.url.origin), 303);
+    }
+
     const paymentRequest = buildFiuuPaymentRequest(env, order, context.url.origin);
 
     await appendPendingOrder(env, order);
