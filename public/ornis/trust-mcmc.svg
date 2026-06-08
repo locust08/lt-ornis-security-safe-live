@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 190" role="img" aria-labelledby="title desc">
+  <title id="title">Malaysian Communications and Multimedia Commission logo</title>
+  <desc id="desc">Triangular MCMC credibility logo.</desc>
+  <rect width="360" height="190" fill="#fff"/>
+  <g transform="translate(17 2)">
+    <path d="M108 8 6 142h203Z" fill="#f8aa00"/>
+    <path d="M108 8v134h101Z" fill="#0a7ac2"/>
+    <path d="M6 142h203L108 89Z" fill="#ef3b86"/>
+    <circle cx="108" cy="89" r="38" fill="#fff" opacity=".55"/>
+    <path d="M108 51a38 38 0 0 1 0 76Z" fill="#fff" opacity=".28"/>
+    <path d="M0 180v-29c0-9 7-15 16-15h6c7 0 12 3 16 8l22 26 22-26c4-5 9-8 16-8h6c9 0 16 6 16 15v29h-10v-28c0-4-3-7-8-7h-3c-4 0-7 1-10 5l-29 34-29-34c-3-4-6-5-10-5h-3c-5 0-8 3-8 7v28Z" fill="#0877c9"/>
+    <path d="M142 180c-17 0-28-10-28-22s11-22 28-22h68v10h-68c-10 0-17 5-17 12s7 12 17 12h68v10Z" fill="#0877c9"/>
+    <path d="M237 180c-17 0-28-10-28-22s11-22 28-22h68v10h-68c-10 0-17 5-17 12s7 12 17 12h68v10Z" fill="#0877c9"/>
+    <path d="M316 180v-44h10v44Z" fill="#0877c9"/>
+  </g>
+</svg>

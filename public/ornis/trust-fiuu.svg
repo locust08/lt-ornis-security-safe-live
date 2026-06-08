@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" role="img" aria-labelledby="title desc">
+  <title id="title">Fiuu logo</title>
+  <desc id="desc">Fiuu payment logo.</desc>
+  <rect width="360" height="140" fill="#fff"/>
+  <g transform="translate(10 25)">
+    <path d="M17 43 93 20c15-5 27 7 23 22L92 120H63l19-61-48 15c-12 4-25-4-28-16-2-7 3-13 11-15Z" fill="#0c49b7"/>
+    <circle cx="40" cy="84" r="12" fill="#00da11"/>
+    <path d="M122 22h72l-7 24h-42l-7 24h39l-7 23h-39l-13 45H90Z" fill="#0c49b7"/>
+    <path d="M195 55h28l-23 83h-28Z" fill="#0c49b7"/>
+    <circle cx="211" cy="22" r="12" fill="#00da11"/>
+    <path d="M236 55h28l-12 45c-3 12 2 18 13 18 12 0 20-7 23-19l12-44h28l-23 83h-26l3-12c-9 10-20 15-34 15-24 0-35-15-28-41Z" fill="#0c49b7"/>
+  </g>
+</svg>

@@ -218,6 +218,43 @@ const checkoutEvent = {
 
           <button class="checkout-button" type="submit">Pay Securely</button>
           <p class="checkout-note">You will be redirected to Fiuu's hosted payment page to choose FPX, card, e-wallet, DuitNow QR, or any enabled channel.</p>
+          <section class="checkout-trust" aria-label="Checkout credibility logos">
+            <p>Secured by</p>
+            <div class="checkout-trust__logos">
+              <img
+                src="/ornis/trust-ssm.svg"
+                alt="Suruhanjaya Syarikat Malaysia logo"
+                width="180"
+                height="96"
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                src="/ornis/trust-mcmc.svg"
+                alt="Malaysian Communications and Multimedia Commission logo"
+                width="180"
+                height="96"
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                src="/ornis/trust-fiuu.svg"
+                alt="Fiuu logo"
+                width="180"
+                height="96"
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                src="/ornis/falcon-safe-footer-logo.png"
+                alt="Falcon Safe logo"
+                width="180"
+                height="180"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </section>
         </aside>
       </form>
     </main>
@@ -644,6 +681,41 @@ const checkoutEvent = {
     line-height: 1.5;
   }
 
+  .checkout-trust {
+    display: grid;
+    gap: 0.8rem;
+    padding: 0.9rem;
+    border: 1px solid rgba(14, 89, 99, 0.14);
+    border-radius: 8px;
+    background: rgba(246, 241, 234, 0.72);
+  }
+
+  .checkout-trust p {
+    margin: 0;
+    color: #0e5963;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .checkout-trust__logos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .checkout-trust__logos img {
+    display: block;
+    width: 100%;
+    height: 3.4rem;
+    padding: 0.45rem;
+    border-radius: 8px;
+    background: #fff;
+    object-fit: contain;
+  }
+
   @media (max-width: 860px) {
     .checkout-layout {
       grid-template-columns: 1fr;
@@ -657,6 +729,10 @@ const checkoutEvent = {
   @media (max-width: 620px) {
     .checkout-grid {
       grid-template-columns: 1fr;
+    }
+
+    .checkout-trust__logos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .summary-item {

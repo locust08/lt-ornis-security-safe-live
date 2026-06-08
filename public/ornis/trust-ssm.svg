@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 190" role="img" aria-labelledby="title desc">
+  <title id="title">Suruhanjaya Syarikat Malaysia logo</title>
+  <desc id="desc">Stylized SSM credibility logo.</desc>
+  <rect width="360" height="190" fill="#fff"/>
+  <g transform="translate(14 12)">
+    <path d="M7 48C70 23 134 19 205 33c38 8 79 9 121 3v12c-50 7-92 4-129-7C119 18 64 34 7 63Z" fill="#282a86"/>
+    <path d="M28 61c45-22 96-24 153-8 32 9 68 10 117 3v19c-48 8-88 6-119-4C119 53 73 58 28 79Z" fill="#282a86"/>
+    <g fill="#f4ed22" stroke="#282a86" stroke-width="8" stroke-linejoin="round">
+      <path d="M82 22h88v28h-46c-9 0-15 3-15 9 0 7 8 9 21 12l20 5c26 7 39 20 39 43 0 33-27 52-73 52H48v-31h58c17 0 25-4 25-13 0-7-6-10-21-14l-19-5c-26-7-39-20-39-42 0-27 18-44 30-44Z"/>
+      <path d="M162 22h92v28h-49c-10 0-15 3-15 9 0 7 8 9 21 12l21 5c26 7 39 20 39 43 0 33-27 52-73 52h-65v-31h56c18 0 26-4 26-13 0-7-6-10-21-14l-20-5c-26-7-39-20-39-42 0-27 18-44 27-44Z"/>
+      <path d="M236 22h44l27 76 27-76h16v149h-39V96l-23 75h-26l-23-75v75h-39V22Z"/>
+    </g>
+    <g fill="#282a86">
+      <circle cx="328" cy="34" r="11"/>
+      <circle cx="354" cy="34" r="11"/>
+      <circle cx="328" cy="65" r="11"/>
+      <circle cx="354" cy="65" r="11"/>
+    </g>
+    <text x="37" y="153" fill="#282a86" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="800">SURUHANJAYA SYARIKAT MALAYSIA</text>
+    <text x="79" y="174" fill="#282a86" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="800">COMPANIES COMMISSION OF MALAYSIA</text>
+  </g>
+</svg>
