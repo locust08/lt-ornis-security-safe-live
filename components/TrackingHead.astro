@@ -10,7 +10,7 @@ const ga4MeasurementId = (
   ""
 ).trim();
 const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
-const tiktokPixelId = (env.PUBLIC_TIKTOK_PIXEL_ID ?? "").trim();
+const tiktokPixelId = env.PUBLIC_TIKTOK_PIXEL_ID?.trim() || "D8FTG3RC77UANKFS989G";
 const visitorEventApiEnabled = Boolean(
   (env.NOTION_TOKEN ?? "").trim() && (env.NOTION_VISITOR_EVENTS_DATABASE_ID ?? "").trim(),
 );

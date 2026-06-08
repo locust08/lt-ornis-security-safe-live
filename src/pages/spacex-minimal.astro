@@ -1,4 +1,7 @@
 ---
+import TrackingBody from "@/components/TrackingBody.astro";
+import TrackingHead from "@/components/TrackingHead.astro";
+
 const hero = {
   src: "/ornis/ornis-spacex-minimal-hero-4k.webp",
   alt: "Minimal dark aerospace Ornis security safe hero with logo, fire-resistant security headline, sub-heading, Buy Now button, and original white and rose product safe.",
@@ -16,6 +19,7 @@ const hero = {
       name="description"
       content="Ornis security safe minimal dark aerospace hero concept."
     />
+    <TrackingHead />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23030408'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f5f2ee'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f5f2ee' stroke-width='5'/%3E%3C/svg%3E"
@@ -23,6 +27,7 @@ const hero = {
     <title>Ornis SpaceX Minimal Hero</title>
   </head>
   <body>
+    <TrackingBody />
     <main class="hero-page" aria-label="Ornis SpaceX minimal hero concept">
       <img
         src={hero.src}

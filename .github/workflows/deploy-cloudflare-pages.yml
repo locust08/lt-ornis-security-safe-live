@@ -36,6 +36,7 @@ jobs:
           PUBLIC_GTM_CONTAINER_ID: ${{ secrets.PUBLIC_GTM_CONTAINER_ID }}
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
           PUBLIC_GA4_MEASUREMENT_ID: ${{ secrets.PUBLIC_GA4_MEASUREMENT_ID }}
+          PUBLIC_TIKTOK_PIXEL_ID: ${{ secrets.PUBLIC_TIKTOK_PIXEL_ID || 'D8FTG3RC77UANKFS989G' }}
         run: npm run build
 
       - name: Sync Cloudflare Pages runtime secrets
@@ -64,6 +65,7 @@ jobs:
           PUBLIC_GTM_CONTAINER_ID: ${{ secrets.PUBLIC_GTM_CONTAINER_ID }}
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
           PUBLIC_GA4_MEASUREMENT_ID: ${{ secrets.PUBLIC_GA4_MEASUREMENT_ID }}
+          PUBLIC_TIKTOK_PIXEL_ID: ${{ secrets.PUBLIC_TIKTOK_PIXEL_ID || 'D8FTG3RC77UANKFS989G' }}
         run: |
           set -euo pipefail
 
@@ -101,7 +103,8 @@ jobs:
             GTM_CONTAINER_ID \
             PUBLIC_GTM_CONTAINER_ID \
             GA4_MEASUREMENT_ID \
-            PUBLIC_GA4_MEASUREMENT_ID
+            PUBLIC_GA4_MEASUREMENT_ID \
+            PUBLIC_TIKTOK_PIXEL_ID
           do
             put_secret "$name"
           done
