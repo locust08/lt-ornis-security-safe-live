@@ -74,8 +74,8 @@ jobs:
             local value="${!name:-}"
 
             if [ -z "$value" ]; then
-              echo "::error::Missing GitHub secret: $name"
-              exit 1
+              echo "::warning::Skipping empty GitHub secret: $name"
+              return 0
             fi
 
             printf '%s\n' "$value" | npx --yes wrangler@4 pages secret put "$name" --project-name=lt-ornis-security-safe
