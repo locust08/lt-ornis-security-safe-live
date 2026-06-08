@@ -207,6 +207,56 @@ const everydayLifeTiles = [
     model: "OR Emerald 530",
   },
 ];
+
+const googleReviews = [
+  {
+    name: "Eddy Wong",
+    rating: 5,
+    comment: "Best overall safe box. Good Quality, Price and Service.",
+    avatarSrc: "/ornis/reviews/eddy-wong.png",
+    profileUrl: "https://www.google.com/maps/contrib/103273842326781478425/reviews?hl=en-GB",
+  },
+  {
+    name: "Judy Hii",
+    rating: 5,
+    comment:
+      "Good quality and reliable safe with reasonable price. Sales person nice and good service. Will introduce friends to buy.",
+    avatarSrc: "/ornis/reviews/judy-hii.png",
+    profileUrl: "https://www.google.com/maps/contrib/109201334480359129107/reviews?hl=en-GB",
+  },
+  {
+    name: "Chin Yoke Mee",
+    rating: 5,
+    comment:
+      "Great customer support, professional delivery team, reliable safe & reasonable prices. Strongly recommended!",
+    avatarSrc: "/ornis/reviews/chin-yoke-mee.png",
+    profileUrl: "https://www.google.com/maps/contrib/108742023600151042355/reviews?hl=en-GB",
+  },
+  {
+    name: "Cheng Lim",
+    rating: 5,
+    comment: "Sales person very good service & patience. High recommed their safe, good quality, nice product.",
+    avatarSrc: "/ornis/reviews/cheng-lim.png",
+    profileUrl: "https://www.google.com/maps/contrib/112368855148880388853/reviews?hl=en-GB",
+  },
+  {
+    name: "Gopi Gopi",
+    rating: 5,
+    comment: "Good quality product. Very responsif staff. And product delivered on time.",
+    avatarSrc: "/ornis/reviews/gopi-gopi.png",
+    profileUrl: "https://www.google.com/maps/contrib/116761975874718376691/reviews?hl=en-GB",
+  },
+  {
+    name: "Sales - MACROTEC",
+    rating: 5,
+    comment: "Good product quality, good services... satisfied.",
+    avatarSrc: "/ornis/reviews/sales-macrotec.png",
+    profileUrl: "https://www.google.com/maps/contrib/100909431995459381280/reviews?hl=en-GB",
+  },
+];
+
+const googleReviewsUrl =
+  "https://www.google.com/search?q=Falcon+Safe+Marketing+Sdn+Bhd+Reviews";
 ---
 
 <!doctype html>
@@ -368,6 +418,62 @@ const everydayLifeTiles = [
       <div id="price-section" class="price-section">
         <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
       </div>
+
+      <section class="google-reviews" aria-labelledby="google-reviews-title">
+        <div class="google-reviews__inner">
+          <div class="google-reviews__header">
+            <div>
+              <p class="google-reviews__eyebrow">Google Reviews</p>
+              <h2 id="google-reviews-title">Trusted by customers protecting what matters most.</h2>
+            </div>
+            <a class="google-reviews__summary" href={googleReviewsUrl} target="_blank" rel="noreferrer">
+              <span class="google-reviews__summary-stars" aria-hidden="true">★★★★★</span>
+              <span><strong>4.9</strong> from 30 Google reviews</span>
+            </a>
+          </div>
+
+          <div class="google-reviews__grid">
+            {googleReviews.map((review) => (
+              <article class="google-review-card">
+                <div class="google-review-card__person">
+                  <a
+                    class="google-review-card__avatar"
+                    href={review.profileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${review.name} Google profile`}
+                  >
+                    <img
+                      src={review.avatarSrc}
+                      alt={`${review.name} profile photo`}
+                      width="128"
+                      height="128"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </a>
+                  <div>
+                    <a class="google-review-card__name" href={review.profileUrl} target="_blank" rel="noreferrer">
+                      {review.name}
+                    </a>
+                    <div class="google-review-card__stars" aria-label={`${review.rating} out of 5 stars`}>
+                      {Array.from({ length: 5 }, (_, starIndex) => (
+                        <span aria-hidden="true">{starIndex < review.rating ? "★" : "☆"}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {review.comment && <p class="google-review-card__comment">{review.comment}</p>}
+
+                <a class="google-review-card__source" href={googleReviewsUrl} target="_blank" rel="noreferrer">
+                  <strong>Google</strong> review
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section class="panel" aria-label="Ornis confidence answered FAQ">
         <picture>
@@ -987,6 +1093,168 @@ const everydayLifeTiles = [
     font-weight: 500;
   }
 
+  .google-reviews {
+    width: 100%;
+    padding: clamp(2rem, 5vw, 4.75rem) clamp(1rem, 3vw, 3rem);
+    background:
+      radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.86), transparent 28rem),
+      linear-gradient(180deg, #f6f1ea 0%, #fffaf4 100%);
+  }
+
+  .google-reviews__inner {
+    width: min(100%, 1672px);
+    margin: 0 auto;
+  }
+
+  .google-reviews__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: end;
+    margin-bottom: clamp(1.25rem, 2.6vw, 2.2rem);
+  }
+
+  .google-reviews__eyebrow {
+    margin: 0 0 clamp(0.45rem, 1vw, 0.7rem);
+    color: #0e5963;
+    font-size: clamp(0.78rem, 1vw, 0.95rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .google-reviews h2 {
+    max-width: 58rem;
+    margin: 0;
+    color: #080808;
+    font-size: clamp(2rem, 4.7vw, 4.35rem);
+    font-weight: 850;
+    line-height: 1.02;
+  }
+
+  .google-reviews__summary {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 12rem;
+    color: #4d463f;
+    font-size: clamp(0.9rem, 1.15vw, 1.05rem);
+    font-weight: 700;
+    text-align: right;
+    text-decoration: none;
+  }
+
+  .google-reviews__summary strong {
+    color: #1f2020;
+  }
+
+  .google-reviews__summary-stars {
+    color: #f5a623;
+    font-size: clamp(1.25rem, 1.8vw, 1.65rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .google-reviews__summary:hover,
+  .google-reviews__summary:focus-visible,
+  .google-review-card__name:hover,
+  .google-review-card__name:focus-visible,
+  .google-review-card__source:hover,
+  .google-review-card__source:focus-visible {
+    color: #0e5963;
+    outline: none;
+  }
+
+  .google-reviews__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.85rem, 1.5vw, 1.25rem);
+  }
+
+  .google-review-card {
+    display: flex;
+    min-width: 0;
+    min-height: 17rem;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1rem, 1.7vw, 1.35rem);
+    border: 1px solid rgba(61, 55, 51, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 1.15rem 3rem rgba(52, 40, 31, 0.1);
+  }
+
+  .google-review-card__person {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .google-review-card__avatar {
+    display: block;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #0e5963;
+  }
+
+  .google-review-card__avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .google-review-card__avatar:focus-visible {
+    outline: 3px solid rgba(14, 89, 99, 0.42);
+    outline-offset: 0.2rem;
+  }
+
+  .google-review-card__name {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: #1f2020;
+    font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+    font-weight: 850;
+    line-height: 1.18;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .google-review-card__stars {
+    margin-top: 0.18rem;
+    color: #f5a623;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .google-review-card__comment {
+    margin: 0;
+    color: #4b4540;
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+    line-height: 1.55;
+  }
+
+  .google-review-card__source {
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(61, 55, 51, 0.1);
+    color: #6a625b;
+    font-size: 0.86rem;
+    text-decoration: none;
+  }
+
+  .google-review-card__source strong {
+    color: #1f2020;
+  }
+
   .site-footer {
     width: 100%;
     margin-top: clamp(1.5rem, 4vw, 4rem);
@@ -1523,6 +1791,28 @@ const everydayLifeTiles = [
 
     .everyday-life__grid {
       grid-template-columns: 1fr;
+    }
+
+    .google-reviews {
+      padding: 2.25rem 1rem;
+    }
+
+    .google-reviews__header {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .google-reviews__summary {
+      min-width: 0;
+      text-align: left;
+    }
+
+    .google-reviews__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .google-review-card {
+      min-height: 0;
     }
   }
 </style>
