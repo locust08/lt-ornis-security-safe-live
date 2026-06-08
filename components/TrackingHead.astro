@@ -9,21 +9,13 @@ const ga4MeasurementId = (
   env.GOOGLE_ANALYTICS_ID ??
   ""
 ).trim();
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
-const metaDatasetId = (env.META_DATASET_ID ?? env.PUBLIC_META_DATASET_ID ?? "").trim();
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
 
-{metaDatasetId && <meta name="meta-dataset-id" content={metaDatasetId} />}
-
 {
   gtmContainerId && (
-    <script is:inline define:vars={{ gtmContainerId, metaDatasetId }}>
+    <script is:inline define:vars={{ gtmContainerId }}>
       window.dataLayer = window.dataLayer || [];
-      if (metaDatasetId) {
-        window.metaDatasetId = metaDatasetId;
-        window.dataLayer.push({ metaDatasetId, meta_dataset_id: metaDatasetId });
-      }
       window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
       (function (w, d, s, l, i) {
         w[l] = w[l] || [];
@@ -39,17 +31,6 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
 }
 
 {
-  !gtmContainerId &&
-    metaDatasetId && (
-      <script is:inline define:vars={{ metaDatasetId }}>
-        window.metaDatasetId = metaDatasetId;
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ metaDatasetId, meta_dataset_id: metaDatasetId });
-      </script>
-    )
-}
-
-{
   ga4MeasurementId && (
     <>
       <script is:inline async src={ga4ScriptSrc}></script>
@@ -62,31 +43,5 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
         gtag("config", ga4MeasurementId);
       </script>
     </>
-  )
-}
-
-{
-  metaPixelId && (
-    <script is:inline define:vars={{ metaPixelId }}>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = true;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = true;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-
-      fbq("init", metaPixelId);
-      fbq("track", "PageView");
-    </script>
   )
 }

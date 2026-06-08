@@ -31,8 +31,6 @@ jobs:
 
       - name: Build
         env:
-          META_PIXEL_ID: ${{ secrets.META_PIXEL_ID }}
-          META_DATASET_ID: ${{ secrets.META_DATASET_ID }}
           GTM_CONTAINER_ID: ${{ secrets.GTM_CONTAINER_ID }}
           PUBLIC_GTM_CONTAINER_ID: ${{ secrets.PUBLIC_GTM_CONTAINER_ID }}
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
@@ -60,8 +58,6 @@ jobs:
           SALES_NOTIFICATION_CC: ${{ secrets.SALES_NOTIFICATION_CC }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
-          META_PIXEL_ID: ${{ secrets.META_PIXEL_ID }}
-          META_DATASET_ID: ${{ secrets.META_DATASET_ID }}
           GTM_CONTAINER_ID: ${{ secrets.GTM_CONTAINER_ID }}
           PUBLIC_GTM_CONTAINER_ID: ${{ secrets.PUBLIC_GTM_CONTAINER_ID }}
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
@@ -99,8 +95,6 @@ jobs:
             SALES_NOTIFICATION_CC \
             RESEND_API_KEY \
             RESEND_FROM_EMAIL \
-            META_PIXEL_ID \
-            META_DATASET_ID \
             GTM_CONTAINER_ID \
             PUBLIC_GTM_CONTAINER_ID \
             GA4_MEASUREMENT_ID \
