@@ -11,6 +11,7 @@ export const prerender = false;
 
 const orderId = Astro.url.searchParams.get("order") ?? "";
 const status = Astro.url.searchParams.get("status") ?? "Pending";
+const metaTestPurchase = Astro.url.searchParams.get("meta_test_purchase") === "ornis-pixel-test-2026";
 const paid = status.toLowerCase() === "paid";
 const env = getRuntimeEnv(Astro);
 const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
@@ -59,13 +60,19 @@ if (paid && orderId && trackingConfigured) {
   }
 }
 
-if (!purchaseEvent && trackingConfigured && !orderId && ["localhost", "127.0.0.1", "::1"].includes(Astro.url.hostname)) {
+if (
+  !purchaseEvent &&
+  trackingConfigured &&
+  !orderId &&
+  (metaTestPurchase || ["localhost", "127.0.0.1", "::1"].includes(Astro.url.hostname))
+) {
   const product = ORNIS_PRODUCTS[0];
   const price = getUnitPrice(product, ORNIS_PROMO_CODE);
+  const isProductionMetaTest = metaTestPurchase && !["localhost", "127.0.0.1", "::1"].includes(Astro.url.hostname);
 
   purchaseEvent = {
-    orderId: "local-test-purchase",
-    value: price,
+    orderId: isProductionMetaTest ? `meta-test-purchase-${Date.now()}` : "local-test-purchase",
+    value: isProductionMetaTest ? 0 : price,
     currency: "MYR",
     contentIds: [product.id],
     contents: [{ id: product.id, quantity: 1 }],
@@ -74,7 +81,7 @@ if (!purchaseEvent && trackingConfigured && !orderId && ["localhost", "127.0.0.1
         item_id: product.id,
         item_name: `${product.model} ${product.color}`,
         item_variant: product.color,
-        price,
+        price: isProductionMetaTest ? 0 : price,
         quantity: 1,
       },
     ],
@@ -95,9 +102,10 @@ if (!purchaseEvent && trackingConfigured && !orderId && ["localhost", "127.0.0.1
         <script is:inline define:vars={{ purchaseEvent }}>
           const storageKey = `tracking_purchase_${purchaseEvent.orderId}`;
           const isLocalTestPurchase = purchaseEvent.orderId === "local-test-purchase";
+          const isMetaTestPurchase = purchaseEvent.orderId.startsWith("meta-test-purchase-");
           const alreadyTracked = window.sessionStorage.getItem(storageKey);
 
-          if (isLocalTestPurchase || !alreadyTracked) {
+          if (isLocalTestPurchase || isMetaTestPurchase || !alreadyTracked) {
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
               event: "purchase",
@@ -133,7 +141,7 @@ if (!purchaseEvent && trackingConfigured && !orderId && ["localhost", "127.0.0.1
             );
 
             window.ornisTrack?.("purchase", purchaseEvent);
-            if (!isLocalTestPurchase) {
+            if (!isLocalTestPurchase && !isMetaTestPurchase) {
               window.sessionStorage.setItem(storageKey, "1");
             }
           }
