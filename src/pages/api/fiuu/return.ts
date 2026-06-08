@@ -7,6 +7,12 @@ export const prerender = false;
 const redirectToThankYou = (origin: string, orderId: string, status: string) =>
   Response.redirect(new URL(`/thank-you?order=${encodeURIComponent(orderId)}&status=${encodeURIComponent(status)}`, origin), 303);
 
+const searchParamsToFormData = (searchParams: URLSearchParams) => {
+  const formData = new FormData();
+  searchParams.forEach((value, key) => formData.append(key, value));
+  return formData;
+};
+
 export const POST: APIRoute = async (context) => {
   try {
     const env = getRuntimeEnv(context);
@@ -19,4 +25,14 @@ export const POST: APIRoute = async (context) => {
   }
 };
 
-export const GET: APIRoute = async (context) => redirectToThankYou(context.url.origin, "", "Pending");
+export const GET: APIRoute = async (context) => {
+  try {
+    const env = getRuntimeEnv(context);
+    const formData = searchParamsToFormData(context.url.searchParams);
+    const result = await processFiuuStatusUpdate(env, formData);
+
+    return redirectToThankYou(context.url.origin, result.orderId, result.status);
+  } catch {
+    return redirectToThankYou(context.url.origin, "", "Pending");
+  }
+};
