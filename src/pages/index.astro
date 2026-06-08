@@ -155,6 +155,31 @@ const productContentEvent = {
   currency: "MYR",
 };
 
+const fallbackAddToCartEvent = {
+  content_ids: [overviewData[0].id],
+  contents: [
+    {
+      id: overviewData[0].id,
+      quantity: 1,
+      item_price: overviewData[0].originalPrice,
+    },
+  ],
+  content_type: "product",
+  currency: "MYR",
+  value: overviewData[0].originalPrice,
+  num_items: 1,
+  items: [
+    {
+      item_id: overviewData[0].id,
+      item_name: overviewData[0].name,
+      item_variant: [overviewData[0].defaultSize, overviewData[0].defaultColorOption].filter(Boolean).join(" / "),
+      price: overviewData[0].originalPrice,
+      quantity: 1,
+    },
+  ],
+  coupon: "",
+};
+
 const sizes = [
   { value: "310", label: "OR 310" },
   { value: "530", label: "OR 530" },
@@ -453,12 +478,32 @@ const everydayLifeTiles = [
       <p class="site-copyright">Copyright © 2026 Falcon Safe Marketing Sdn Bhd</p>
     </main>
 
-    <script>
+    <script is:inline define:vars={{ fallbackAddToCartEvent }}>
       const promoPopup = document.querySelector("[data-promo-popup]");
       const promoCloseButtons = document.querySelectorAll("[data-promo-close]");
+      const fallbackAddToCartKey = "ornis_fallback_add_to_cart";
+
+      document.addEventListener("click", (event) => {
+        const button = event.target instanceof Element ? event.target.closest("button") : null;
+        const unhydratedProductIsland = button?.closest("#price-section astro-island[ssr]");
+
+        if (!button || !unhydratedProductIsland || !button.textContent?.includes("Add to Cart")) return;
+        if (window.sessionStorage.getItem(fallbackAddToCartKey)) return;
+
+        window.sessionStorage.setItem(fallbackAddToCartKey, "1");
+        window.ornisTrackMetaEvent?.("AddToCart", {
+          content_ids: fallbackAddToCartEvent.content_ids,
+          contents: fallbackAddToCartEvent.contents,
+          content_type: fallbackAddToCartEvent.content_type,
+          currency: fallbackAddToCartEvent.currency,
+          value: fallbackAddToCartEvent.value,
+          num_items: fallbackAddToCartEvent.num_items,
+        });
+        window.ornisTrack?.("add_to_cart", fallbackAddToCartEvent);
+      });
 
       if (promoPopup) {
-        let promoTimer: number | undefined;
+        let promoTimer;
         const promoViewTrackingKey = `ornis_promo_view_${window.location.pathname}`;
 
         const openPromoPopup = () => {
@@ -530,7 +575,7 @@ const everydayLifeTiles = [
 
         localStorage.setItem(countdownStorageKey, String(countdownEnd));
 
-        const pad = (value: number) => String(value).padStart(2, "0");
+        const pad = (value) => String(value).padStart(2, "0");
 
         const updateCountdown = () => {
           let remaining = countdownEnd - Date.now();
