@@ -2,12 +2,12 @@
 import { getRuntimeEnv } from "@/lib/ornis/env";
 
 const env = getRuntimeEnv(Astro);
-const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
+const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "GTM-MTSG39H2").trim();
 const ga4MeasurementId = (
   env.GA4_MEASUREMENT_ID ??
   env.PUBLIC_GA4_MEASUREMENT_ID ??
   env.GOOGLE_ANALYTICS_ID ??
-  ""
+  "G-BGX6DX7JFP"
 ).trim();
 const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const tiktokPixelId = env.PUBLIC_TIKTOK_PIXEL_ID?.trim() || "D8FTG3RC77UANKFS989G";
