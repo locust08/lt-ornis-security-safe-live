@@ -214,7 +214,6 @@ const googleReviews = [
     rating: 5,
     comment: "Best overall safe box. Good Quality, Price and Service.",
     avatarSrc: "/ornis/reviews/eddy-wong.png",
-    profileUrl: "https://www.google.com/maps/contrib/103273842326781478425/reviews?hl=en-GB",
   },
   {
     name: "Judy Hii",
@@ -222,7 +221,6 @@ const googleReviews = [
     comment:
       "Good quality and reliable safe with reasonable price. Sales person nice and good service. Will introduce friends to buy.",
     avatarSrc: "/ornis/reviews/judy-hii.png",
-    profileUrl: "https://www.google.com/maps/contrib/109201334480359129107/reviews?hl=en-GB",
   },
   {
     name: "Chin Yoke Mee",
@@ -230,33 +228,26 @@ const googleReviews = [
     comment:
       "Great customer support, professional delivery team, reliable safe & reasonable prices. Strongly recommended!",
     avatarSrc: "/ornis/reviews/chin-yoke-mee.png",
-    profileUrl: "https://www.google.com/maps/contrib/108742023600151042355/reviews?hl=en-GB",
   },
   {
     name: "Cheng Lim",
     rating: 5,
     comment: "Sales person very good service & patience. High recommed their safe, good quality, nice product.",
     avatarSrc: "/ornis/reviews/cheng-lim.png",
-    profileUrl: "https://www.google.com/maps/contrib/112368855148880388853/reviews?hl=en-GB",
   },
   {
     name: "Gopi Gopi",
     rating: 5,
     comment: "Good quality product. Very responsif staff. And product delivered on time.",
     avatarSrc: "/ornis/reviews/gopi-gopi.png",
-    profileUrl: "https://www.google.com/maps/contrib/116761975874718376691/reviews?hl=en-GB",
   },
   {
-    name: "Sales - MACROTEC",
+    name: "Steven Yong",
     rating: 5,
-    comment: "Good product quality, good services... satisfied.",
-    avatarSrc: "/ornis/reviews/sales-macrotec.png",
-    profileUrl: "https://www.google.com/maps/contrib/100909431995459381280/reviews?hl=en-GB",
+    comment: "Very good quality & very professional seller.",
+    avatarSrc: "/ornis/reviews/steven-yong.png",
   },
 ];
-
-const googleReviewsUrl =
-  "https://www.google.com/search?q=Falcon+Safe+Marketing+Sdn+Bhd+Reviews";
 ---
 
 <!doctype html>
@@ -424,25 +415,19 @@ const googleReviewsUrl =
           <div class="google-reviews__header">
             <div>
               <p class="google-reviews__eyebrow">Google Reviews</p>
-              <h2 id="google-reviews-title">Trusted by customers protecting what matters most.</h2>
+              <h2 id="google-reviews-title">Our Safe &amp; Protected Customers</h2>
             </div>
-            <a class="google-reviews__summary" href={googleReviewsUrl} target="_blank" rel="noreferrer">
+            <div class="google-reviews__summary" aria-label="4.9 from 30 Google reviews">
               <span class="google-reviews__summary-stars" aria-hidden="true">★★★★★</span>
               <span><strong>4.9</strong> from 30 Google reviews</span>
-            </a>
+            </div>
           </div>
 
           <div class="google-reviews__grid">
             {googleReviews.map((review) => (
               <article class="google-review-card">
                 <div class="google-review-card__person">
-                  <a
-                    class="google-review-card__avatar"
-                    href={review.profileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`${review.name} Google profile`}
-                  >
+                  <div class="google-review-card__avatar">
                     <img
                       src={review.avatarSrc}
                       alt={`${review.name} profile photo`}
@@ -451,11 +436,9 @@ const googleReviewsUrl =
                       loading="eager"
                       decoding="async"
                     />
-                  </a>
+                  </div>
                   <div>
-                    <a class="google-review-card__name" href={review.profileUrl} target="_blank" rel="noreferrer">
-                      {review.name}
-                    </a>
+                    <p class="google-review-card__name">{review.name}</p>
                     <div class="google-review-card__stars" aria-label={`${review.rating} out of 5 stars`}>
                       {Array.from({ length: 5 }, (_, starIndex) => (
                         <span aria-hidden="true">{starIndex < review.rating ? "★" : "☆"}</span>
@@ -466,9 +449,9 @@ const googleReviewsUrl =
 
                 {review.comment && <p class="google-review-card__comment">{review.comment}</p>}
 
-                <a class="google-review-card__source" href={googleReviewsUrl} target="_blank" rel="noreferrer">
+                <p class="google-review-card__source">
                   <strong>Google</strong> review
-                </a>
+                </p>
               </article>
             ))}
           </div>
@@ -1154,16 +1137,6 @@ const googleReviewsUrl =
     line-height: 1;
   }
 
-  .google-reviews__summary:hover,
-  .google-reviews__summary:focus-visible,
-  .google-review-card__name:hover,
-  .google-review-card__name:focus-visible,
-  .google-review-card__source:hover,
-  .google-review-card__source:focus-visible {
-    color: #0e5963;
-    outline: none;
-  }
-
   .google-reviews__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1209,14 +1182,10 @@ const googleReviewsUrl =
     animation: none;
   }
 
-  .google-review-card__avatar:focus-visible {
-    outline: 3px solid rgba(14, 89, 99, 0.42);
-    outline-offset: 0.2rem;
-  }
-
   .google-review-card__name {
     display: block;
     max-width: 100%;
+    margin: 0;
     overflow: hidden;
     color: #1f2020;
     font-size: clamp(0.98rem, 1.2vw, 1.12rem);
@@ -1244,11 +1213,11 @@ const googleReviewsUrl =
 
   .google-review-card__source {
     margin-top: auto;
+    margin-bottom: 0;
     padding-top: 0.8rem;
     border-top: 1px solid rgba(61, 55, 51, 0.1);
     color: #6a625b;
     font-size: 0.86rem;
-    text-decoration: none;
   }
 
   .google-review-card__source strong {
