@@ -436,18 +436,22 @@ const everydayLifeTiles = [
 
       if (promoPopup) {
         let promoTimer: number | undefined;
+        const promoViewTrackingKey = `ornis_promo_view_${window.location.pathname}`;
 
         const openPromoPopup = () => {
           promoPopup.setAttribute("aria-hidden", "false");
           document.documentElement.classList.add("promo-popup-is-open");
-          window.fbq?.("track", "ViewContent", {
-            content_name: "ORNIS45 promo popup",
-            content_category: "Promotion",
-          });
-          window.ornisTrack?.("promo_view", {
-            content_name: "ORNIS45 promo popup",
-            content_category: "Promotion",
-          });
+          if (!window.sessionStorage.getItem(promoViewTrackingKey)) {
+            window.sessionStorage.setItem(promoViewTrackingKey, "1");
+            window.fbq?.("track", "ViewContent", {
+              content_name: "ORNIS45 promo popup",
+              content_category: "Promotion",
+            });
+            window.ornisTrack?.("promo_view", {
+              content_name: "ORNIS45 promo popup",
+              content_category: "Promotion",
+            });
+          }
         };
 
         const closePromoPopup = () => {

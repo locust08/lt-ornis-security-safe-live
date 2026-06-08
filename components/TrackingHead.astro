@@ -9,37 +9,54 @@ const ga4MeasurementId = (
   env.GOOGLE_ANALYTICS_ID ??
   ""
 ).trim();
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "1848746201969006").trim();
+const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const tiktokPixelId = (env.PUBLIC_TIKTOK_PIXEL_ID ?? "").trim();
+const visitorEventApiEnabled = Boolean(
+  (env.NOTION_TOKEN ?? "").trim() && (env.NOTION_VISITOR_EVENTS_DATABASE_ID ?? "").trim(),
+);
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
 
-<script is:inline>
+<script is:inline define:vars={{ visitorEventApiEnabled }}>
   (function () {
     const visitorKey = "ornis_tracking_visitor_id";
     const sessionKey = "ornis_tracking_session_id";
     const firstTouchKey = "ornis_tracking_first_touch";
     const attributionKeys = ["clid", "fbclid", "ttclid", "gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+    const memoryStorage = { localStorage: {}, sessionStorage: {} };
+
+    const getStorageValue = (area, key) => {
+      try {
+        return window[area]?.getItem(key) || memoryStorage[area][key] || "";
+      } catch {
+        return memoryStorage[area][key] || "";
+      }
+    };
+
+    const setStorageValue = (area, key, value) => {
+      memoryStorage[area][key] = value;
+      try {
+        window[area]?.setItem(key, value);
+      } catch {}
+    };
 
     const readJson = (key) => {
       try {
-        return JSON.parse(window.localStorage.getItem(key) || "null") || {};
+        return JSON.parse(getStorageValue("localStorage", key) || "null") || {};
       } catch {
         return {};
       }
     };
 
     const writeJson = (key, value) => {
-      try {
-        window.localStorage.setItem(key, JSON.stringify(value));
-      } catch {}
+      setStorageValue("localStorage", key, JSON.stringify(value));
     };
 
-    const getId = (storage, key, prefix) => {
-      let value = storage.getItem(key);
+    const getId = (area, key, prefix) => {
+      let value = getStorageValue(area, key);
       if (!value) {
         value = `${prefix}_${crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2)}`;
-        storage.setItem(key, value);
+        setStorageValue(area, key, value);
       }
       return value;
     };
@@ -100,8 +117,54 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       }
     };
 
-    const visitorId = getId(window.localStorage, visitorKey, "visitor");
-    const sessionId = getId(window.sessionStorage, sessionKey, "session");
+    const visitorId = getId("localStorage", visitorKey, "visitor");
+    const sessionId = getId("sessionStorage", sessionKey, "session");
+    const trackingQueue = [];
+    let trackingFlushTimer;
+
+    const sendTrackingEvents = (events, useBeacon) => {
+      if (!visitorEventApiEnabled || !events.length) return;
+
+      const text = JSON.stringify({ events });
+      let sentWithBeacon = false;
+
+      if (useBeacon) {
+        try {
+          if (navigator.sendBeacon) {
+            sentWithBeacon = navigator.sendBeacon("/api/track", new Blob([text], { type: "application/json" }));
+          }
+        } catch {}
+      }
+
+      if (!sentWithBeacon) {
+        fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: text,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    };
+
+    const flushTrackingQueue = (useBeacon = false) => {
+      window.clearTimeout(trackingFlushTimer);
+      trackingFlushTimer = undefined;
+
+      if (!trackingQueue.length) return;
+      sendTrackingEvents(trackingQueue.splice(0, trackingQueue.length), useBeacon);
+    };
+
+    const queueTrackingEvent = (body) => {
+      trackingQueue.push(body);
+
+      if (trackingQueue.length >= 8) {
+        flushTrackingQueue();
+        return;
+      }
+
+      window.clearTimeout(trackingFlushTimer);
+      trackingFlushTimer = window.setTimeout(flushTrackingQueue, 900);
+    };
 
     window.ornisGetAttribution = getAttribution;
     window.ornisBuildUrl = decorateUrl;
@@ -125,24 +188,7 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
         payload: payload || {},
       };
 
-      const text = JSON.stringify(body);
-
-      let sentWithBeacon = false;
-
-      try {
-        if (navigator.sendBeacon) {
-          sentWithBeacon = navigator.sendBeacon("/api/track", new Blob([text], { type: "application/json" }));
-        }
-      } catch {}
-
-      if (!sentWithBeacon) {
-        fetch("/api/track", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: text,
-          keepalive: true,
-        }).catch(() => {});
-      }
+      queueTrackingEvent(body);
 
       if (window.ttq?.track) {
         const tiktokEventNames = {
@@ -163,7 +209,16 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       return body;
     };
 
-    window.ornisTrack("page_view");
+    window.addEventListener("pagehide", () => flushTrackingQueue(true));
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flushTrackingQueue(true);
+    });
+
+    const pageViewTrackingKey = `ornis_tracking_page_view_${window.location.pathname}${window.location.search}`;
+    if (!getStorageValue("sessionStorage", pageViewTrackingKey)) {
+      setStorageValue("sessionStorage", pageViewTrackingKey, "1");
+      window.ornisTrack("page_view");
+    }
   })();
 </script>
 
@@ -205,8 +260,8 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
         s.parentNode.insertBefore(t, s);
       })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
-      fbq("init", metaPixelId);
-      fbq("track", "PageView");
+      window.fbq("init", metaPixelId);
+      window.fbq("track", "PageView");
     </script>
   )
 }

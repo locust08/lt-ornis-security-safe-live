@@ -13,7 +13,7 @@ const orderId = Astro.url.searchParams.get("order") ?? "";
 const status = Astro.url.searchParams.get("status") ?? "Pending";
 const paid = status.toLowerCase() === "paid";
 const env = getRuntimeEnv(Astro);
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "1848746201969006").trim();
+const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
 const ga4MeasurementId = (env.GA4_MEASUREMENT_ID ?? env.PUBLIC_GA4_MEASUREMENT_ID ?? env.GOOGLE_ANALYTICS_ID ?? "").trim();
 const trackingConfigured = Boolean(metaPixelId || gtmContainerId || ga4MeasurementId);
@@ -96,7 +96,7 @@ if (paid && orderId && trackingConfigured) {
             }
 
             if (window.fbq) {
-              fbq(
+              window.fbq(
                 "track",
                 "Purchase",
                 {

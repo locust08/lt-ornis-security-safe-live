@@ -3,7 +3,7 @@ import { getRuntimeEnv } from "@/lib/ornis/env";
 
 const env = getRuntimeEnv(Astro);
 const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "1848746201969006").trim();
+const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const gtmNoscriptSrc = `https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(gtmContainerId)}`;
 const metaNoscriptSrc = `https://www.facebook.com/tr?id=${encodeURIComponent(metaPixelId)}&ev=PageView&noscript=1`;
 ---

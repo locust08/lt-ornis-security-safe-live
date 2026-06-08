@@ -29,7 +29,8 @@ export const processFiuuStatusUpdate = async (env: RuntimeEnv, formData: FormDat
   }
 
   const status = fiuu.status === "00" ? "Paid" : fiuu.status === "22" ? "Pending" : "Failed";
-  const existingEmailStatus = existing?.values[20] ?? "";
+  const hasCreatedTimeColumn = !["paid", "pending", "failed"].includes(String(existing?.values[2] ?? "").toLowerCase());
+  const existingEmailStatus = existing?.values[hasCreatedTimeColumn ? 21 : 20] ?? "";
   let emailStatus = existingEmailStatus;
   let note = fiuu.error_desc || fiuu.error_code || "";
 

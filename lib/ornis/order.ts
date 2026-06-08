@@ -64,6 +64,53 @@ export const itemLabel = (item: OrderLineItem) => `${item.model} ${item.color}`;
 export const summarizeItems = (items: OrderLineItem[]) =>
   items.map((item) => `${itemLabel(item)} x ${item.quantity}`).join(", ");
 
+const MALAYSIA_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+const padTwoDigits = (value: number) => String(value).padStart(2, "0");
+
+const formatCreatedDateTime = (createdAt: string) => {
+  const date = new Date(createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return { date: createdAt, time: "" };
+  }
+
+  const malaysiaDate = new Date(date.getTime() + MALAYSIA_UTC_OFFSET_MS);
+  const year = malaysiaDate.getUTCFullYear();
+  const month = padTwoDigits(malaysiaDate.getUTCMonth() + 1);
+  const day = padTwoDigits(malaysiaDate.getUTCDate());
+  const hour24 = malaysiaDate.getUTCHours();
+  const hour12 = hour24 % 12 || 12;
+  const minutes = padTwoDigits(malaysiaDate.getUTCMinutes());
+  const suffix = hour24 < 12 ? "AM" : "PM";
+
+  return {
+    date: `${year}-${month}-${day}`,
+    time: `${padTwoDigits(hour12)}:${minutes}${suffix}`,
+  };
+};
+
+const parseCreatedDateTime = (dateValue: string | undefined, timeValue: string | undefined) => {
+  const date = String(dateValue ?? "").trim();
+  const time = String(timeValue ?? "").trim();
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+
+  if (!date || !match) return date || new Date().toISOString();
+
+  const [, rawHour, rawMinutes, rawSuffix] = match;
+  const [year, month, day] = date.split("-").map(Number);
+  const parsedHour = Number(rawHour);
+  const minutes = Number(rawMinutes);
+  const suffix = rawSuffix.toUpperCase();
+  const hour24 = suffix === "AM" ? parsedHour % 12 : (parsedHour % 12) + 12;
+
+  if (![year, month, day, parsedHour, minutes].every(Number.isFinite)) {
+    return date;
+  }
+
+  return new Date(Date.UTC(year, month - 1, day, hour24, minutes) - MALAYSIA_UTC_OFFSET_MS).toISOString();
+};
+
 export const parseOrderFromFormData = (formData: FormData): CheckoutOrder => {
   const customer: CustomerDetails = {
     name: getString(formData, "name"),
@@ -137,6 +184,7 @@ export const orderToSheetRow = (
   payment?: Partial<FiuuPaymentUpdate>,
   emailStatus = "",
 ) => {
+  const created = formatCreatedDateTime(order.createdAt);
   const firstItem = order.items[0];
   const productSummary = order.items.map((item) => `${item.model} x ${item.quantity}`).join(", ");
   const colorSummary = order.items.map((item) => item.color).join(", ");
@@ -145,7 +193,8 @@ export const orderToSheetRow = (
 
   return [
     order.orderId,
-    order.createdAt,
+    created.date,
+    created.time,
     status,
     order.orderId,
     payment?.tranId ?? "",
@@ -172,19 +221,22 @@ export const orderToSheetRow = (
 
 const parseNumber = (value: string | undefined) => Number(String(value ?? "").replace(/[^0-9.-]/g, "")) || 0;
 
+const hasCreatedTimeColumn = (values: string[]) => !["paid", "pending", "failed"].includes(String(values[2] ?? "").toLowerCase());
+
 export const sheetRowToOrder = (values: string[]): CheckoutOrder | null => {
-  const productParts = String(values[12] ?? "")
+  const offset = hasCreatedTimeColumn(values) ? 1 : 0;
+  const productParts = String(values[12 + offset] ?? "")
     .split(",")
     .map((part) => part.trim())
     .filter(Boolean);
-  const colorParts = String(values[13] ?? "")
+  const colorParts = String(values[13 + offset] ?? "")
     .split(",")
     .map((part) => part.trim())
     .filter(Boolean);
-  const originalPrices = String(values[15] ?? "")
+  const originalPrices = String(values[15 + offset] ?? "")
     .split(",")
     .map((part) => parseNumber(part));
-  const finalPrices = String(values[17] ?? "")
+  const finalPrices = String(values[17 + offset] ?? "")
     .split(",")
     .map((part) => parseNumber(part));
   const items: OrderLineItem[] = [];
@@ -210,21 +262,21 @@ export const sheetRowToOrder = (values: string[]): CheckoutOrder | null => {
 
   return {
     orderId: values[0] ?? "",
-    createdAt: values[1] ?? new Date().toISOString(),
+    createdAt: offset ? parseCreatedDateTime(values[1], values[2]) : values[1] ?? new Date().toISOString(),
     customer: {
-      name: values[6] ?? "",
-      phone: values[7] ?? "",
-      email: values[8] ?? "",
-      address: values[9] ?? "",
-      postcode: values[10] ?? "",
-      state: values[11] ?? "",
+      name: values[6 + offset] ?? "",
+      phone: values[7 + offset] ?? "",
+      email: values[8 + offset] ?? "",
+      address: values[9 + offset] ?? "",
+      postcode: values[10 + offset] ?? "",
+      state: values[11 + offset] ?? "",
     },
     items,
-    promoCode: values[16] ?? "",
-    promoApplied: isPromoApplied(values[16]),
-    shipping: parseNumber(values[18]),
+    promoCode: values[16 + offset] ?? "",
+    promoApplied: isPromoApplied(values[16 + offset]),
+    shipping: parseNumber(values[18 + offset]),
     originalTotal: items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0),
-    finalTotal: parseNumber(values[19]),
-    totalPaid: parseNumber(values[19]),
+    finalTotal: parseNumber(values[19 + offset]),
+    totalPaid: parseNumber(values[19 + offset]),
   };
 };

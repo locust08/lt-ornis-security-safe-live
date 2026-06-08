@@ -48,6 +48,8 @@ type TrackingEvent = {
   payload?: unknown;
 };
 
+type TrackingRequestBody = TrackingEvent | TrackingEvent[] | { events?: TrackingEvent[] };
+
 type CloudflareRequest = Request & {
   cf?: Record<string, unknown>;
 };
@@ -120,6 +122,64 @@ const jsonPayload = (event: TrackingEvent, ipAddress: string, geo: ReturnType<ty
   return text.length > 1900 ? `${text.slice(0, 1885)}...[truncated]` : text;
 };
 
+const getTrackingEvents = (body: TrackingRequestBody) => {
+  if (Array.isArray(body)) return body;
+  if (body && typeof body === "object" && Array.isArray((body as { events?: unknown }).events)) {
+    return (body as { events: TrackingEvent[] }).events;
+  }
+  return [body as TrackingEvent];
+};
+
+const createNotionVisitorEvent = async (
+  event: TrackingEvent,
+  notionToken: string,
+  databaseId: string,
+  ipAddress: string,
+  geo: ReturnType<typeof getCloudflareGeo>,
+) => {
+  const eventName = EVENT_NAMES.has(asString(event.event_name)) ? asString(event.event_name) : "page_view";
+  const platform = PLATFORMS.has(asString(event.platform)) ? asString(event.platform) : "Unknown";
+  const eventTime = asString(event.event_time) || new Date().toISOString();
+  const eventId = asString(event.event_id) || crypto.randomUUID();
+
+  return fetch("https://api.notion.com/v1/pages", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${notionToken}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION,
+    },
+    body: JSON.stringify({
+      parent: { database_id: databaseId },
+      properties: {
+        "Event ID": title(eventId),
+        "Event Time": date(eventTime),
+        "Event Name": select(eventName),
+        CLID: richText(event.clid),
+        "Platform Click ID": richText(event.platform_click_id),
+        Platform: select(platform),
+        "Session ID": richText(event.session_id),
+        "Visitor ID": richText(event.visitor_id),
+        "Full URL": richText(event.full_url),
+        "Page Path": richText(event.page_path),
+        Referrer: richText(event.referrer),
+        "UTM Source": richText(event.utm_source),
+        "UTM Medium": richText(event.utm_medium),
+        "UTM Campaign": richText(event.utm_campaign),
+        "UTM Content": richText(event.utm_content),
+        "UTM Term": richText(event.utm_term),
+        "IP Address": richText(ipAddress),
+        Country: richText(geo.country),
+        Region: richText(geo.region),
+        City: richText(geo.city),
+        Timezone: richText(geo.timezone || event.timezone),
+        "User Agent": richText(event.user_agent),
+        "Event Payload": richText(jsonPayload(event, ipAddress, geo)),
+      },
+    }),
+  });
+};
+
 export const POST: APIRoute = async (context) => {
   try {
     const env = getRuntimeEnv(context);
@@ -133,61 +193,25 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    const event = (await context.request.json()) as TrackingEvent;
-    const eventName = EVENT_NAMES.has(asString(event.event_name)) ? asString(event.event_name) : "page_view";
-    const platform = PLATFORMS.has(asString(event.platform)) ? asString(event.platform) : "Unknown";
-    const eventTime = asString(event.event_time) || new Date().toISOString();
-    const eventId = asString(event.event_id) || crypto.randomUUID();
+    const body = (await context.request.json()) as TrackingRequestBody;
+    const events = getTrackingEvents(body).filter((event) => event && typeof event === "object").slice(0, 25);
     const ipAddress = getIpAddress(context.request);
     const geo = getCloudflareGeo(context);
+    let tracked = 0;
 
-    const notionResponse = await fetch("https://api.notion.com/v1/pages", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${notionToken}`,
-        "Content-Type": "application/json",
-        "Notion-Version": NOTION_VERSION,
-      },
-      body: JSON.stringify({
-        parent: { database_id: databaseId },
-        properties: {
-          "Event ID": title(eventId),
-          "Event Time": date(eventTime),
-          "Event Name": select(eventName),
-          CLID: richText(event.clid),
-          "Platform Click ID": richText(event.platform_click_id),
-          Platform: select(platform),
-          "Session ID": richText(event.session_id),
-          "Visitor ID": richText(event.visitor_id),
-          "Full URL": richText(event.full_url),
-          "Page Path": richText(event.page_path),
-          Referrer: richText(event.referrer),
-          "UTM Source": richText(event.utm_source),
-          "UTM Medium": richText(event.utm_medium),
-          "UTM Campaign": richText(event.utm_campaign),
-          "UTM Content": richText(event.utm_content),
-          "UTM Term": richText(event.utm_term),
-          "IP Address": richText(ipAddress),
-          Country: richText(geo.country),
-          Region: richText(geo.region),
-          City: richText(geo.city),
-          Timezone: richText(geo.timezone || event.timezone),
-          "User Agent": richText(event.user_agent),
-          "Event Payload": richText(jsonPayload(event, ipAddress, geo)),
-        },
-      }),
-    });
+    for (const event of events) {
+      const notionResponse = await createNotionVisitorEvent(event, notionToken, databaseId, ipAddress, geo);
 
-    if (!notionResponse.ok) {
-      const errorText = await notionResponse.text();
-      console.error("Unable to create Notion visitor event.", errorText);
-      return new Response(JSON.stringify({ ok: false }), {
-        status: 202,
-        headers: { "Content-Type": "application/json" },
-      });
+      if (!notionResponse.ok) {
+        const errorText = await notionResponse.text();
+        console.error("Unable to create Notion visitor event.", errorText);
+        continue;
+      }
+
+      tracked += 1;
     }
 
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ ok: true, received: events.length, tracked }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {

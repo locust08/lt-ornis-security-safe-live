@@ -13,6 +13,15 @@ type ExistingOrderRow = {
   values: string[];
 };
 
+type SheetMetadata = {
+  sheets?: {
+    properties?: {
+      sheetId?: number;
+      title?: string;
+    };
+  }[];
+};
+
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
 const getGoogleAccessToken = async (env: RuntimeEnv) => {
@@ -62,17 +71,66 @@ const sheetsRequest = async (env: RuntimeEnv, path: string, init: RequestInit = 
   return response.json();
 };
 
+const getOrdersSheetId = async (env: RuntimeEnv) => {
+  const metadata = (await sheetsRequest(env, "?fields=sheets(properties(sheetId,title))")) as SheetMetadata;
+  const ordersSheetId = metadata.sheets?.find((sheet) => sheet.properties?.title === "Orders")?.properties?.sheetId;
+
+  if (ordersSheetId === undefined) {
+    throw new Error("Orders sheet was not found.");
+  }
+
+  return ordersSheetId;
+};
+
+const applyPaymentStatusDropdown = async (env: RuntimeEnv, rowNumber: number) => {
+  const ordersSheetId = await getOrdersSheetId(env);
+
+  await sheetsRequest(env, ":batchUpdate", {
+    method: "POST",
+    body: JSON.stringify({
+      requests: [
+        {
+          setDataValidation: {
+            range: {
+              sheetId: ordersSheetId,
+              startRowIndex: rowNumber - 1,
+              endRowIndex: rowNumber,
+              startColumnIndex: 3,
+              endColumnIndex: 4,
+            },
+            rule: {
+              condition: {
+                type: "ONE_OF_LIST",
+                values: [
+                  { userEnteredValue: "Paid" },
+                  { userEnteredValue: "Pending" },
+                  { userEnteredValue: "Failed" },
+                ],
+              },
+              strict: true,
+              showCustomUi: true,
+            },
+          },
+        },
+      ],
+    }),
+  });
+};
+
 export const appendPendingOrder = async (env: RuntimeEnv, order: CheckoutOrder) => {
-  await sheetsRequest(env, "/values/Orders!A:W:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS", {
+  await sheetsRequest(env, "/values/Orders!A:X:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS", {
     method: "POST",
     body: JSON.stringify({
       values: [orderToSheetRow(order, "Pending")],
     }),
   });
+
+  const existing = await findOrderRow(env, order.orderId);
+  if (existing) await applyPaymentStatusDropdown(env, existing.rowNumber);
 };
 
 export const findOrderRow = async (env: RuntimeEnv, orderId: string): Promise<ExistingOrderRow | null> => {
-  const data = await sheetsRequest(env, "/values/Orders!A:W?majorDimension=ROWS");
+  const data = await sheetsRequest(env, "/values/Orders!A:X?majorDimension=ROWS");
   const rows = (data.values ?? []) as string[][];
   const index = rows.findIndex((row) => row[0] === orderId);
 
@@ -94,15 +152,18 @@ export const updateOrderPayment = async (
   const row = orderToSheetRow(order, payment.status, payment, sellerEmailSent);
 
   if (!existing) {
-    await sheetsRequest(env, "/values/Orders!A:W:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS", {
+    await sheetsRequest(env, "/values/Orders!A:X:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS", {
       method: "POST",
       body: JSON.stringify({ values: [row] }),
     });
+    const appended = await findOrderRow(env, order.orderId);
+    if (appended) await applyPaymentStatusDropdown(env, appended.rowNumber);
     return;
   }
 
-  await sheetsRequest(env, `/values/Orders!A${existing.rowNumber}:W${existing.rowNumber}?valueInputOption=USER_ENTERED`, {
+  await sheetsRequest(env, `/values/Orders!A${existing.rowNumber}:X${existing.rowNumber}?valueInputOption=USER_ENTERED`, {
     method: "PUT",
     body: JSON.stringify({ values: [row] }),
   });
+  await applyPaymentStatusDropdown(env, existing.rowNumber);
 };

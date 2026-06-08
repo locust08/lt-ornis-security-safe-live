@@ -158,7 +158,7 @@ export const sendSellerPaymentEmail = async (
   ];
 
   await sendEmailMessage(env, {
-    to: env.SELLER_NOTIFICATION_EMAIL ?? "ethan09.goh@gmail.com",
+    to: env.SELLER_NOTIFICATION_EMAIL ?? "mandy@falconsafe.com",
     cc: mergeEmailLists(env.SELLER_NOTIFICATION_CC ?? "ava@locus-t.com.my", env.SALES_NOTIFICATION_CC),
     subject,
     lines,

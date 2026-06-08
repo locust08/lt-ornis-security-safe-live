@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckIcon, MinusIcon, PlusIcon, ShoppingCartIcon, Trash2Icon, TruckIcon, XIcon } from "lucide-react";
 
@@ -107,8 +108,6 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const productHref = couponApplied
     ? withPromoCode(activeProduct.href ?? "/payment", ORNIS_PROMO_CODE)
     : (activeProduct.href ?? "#");
-  const decorateHref = (href: string) =>
-    typeof window === "undefined" ? href : (window.ornisBuildUrl?.(href) ?? href);
   const getItemListPrice = (item: ProductItem) => item.originalPrice ?? item.price;
   const getItemPrice = (item: ProductItem) => (couponApplied ? item.price : getItemListPrice(item));
   const getTrackingItem = (item: ProductItem, quantity = 1) => ({
@@ -244,8 +243,6 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const checkoutHref = couponApplied
     ? withPromoCode(baseCheckoutHref, ORNIS_PROMO_CODE)
     : baseCheckoutHref;
-  const trackedProductHref = decorateHref(productHref);
-  const trackedCheckoutHref = decorateHref(checkoutHref);
 
   useEffect(() => {
     const promo = new URLSearchParams(window.location.search).get("promo");
@@ -263,11 +260,17 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
     };
   }, []);
 
-  const trackBuyNow = () => {
+  const applyAttributionToLink = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.currentTarget.href = window.ornisBuildUrl?.(event.currentTarget.getAttribute("href") || event.currentTarget.href) ?? event.currentTarget.href;
+  };
+
+  const trackBuyNow = (event: MouseEvent<HTMLAnchorElement>) => {
+    applyAttributionToLink(event);
     pushEcommerceEvent("begin_checkout", [{ item: activeProduct, quantity: 1 }]);
   };
 
-  const trackCartCheckout = () => {
+  const trackCartCheckout = (event: MouseEvent<HTMLAnchorElement>) => {
+    applyAttributionToLink(event);
     pushEcommerceEvent(
       "begin_checkout",
       cartItems.map((item) => ({ item, quantity: item.quantity })),
@@ -452,7 +455,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                 asChild={cartItems.length > 0}
                 tabIndex={isCartOpen ? 0 : -1}
               >
-                {cartItems.length > 0 ? <a href={trackedCheckoutHref} onClick={trackCartCheckout}>Checkout</a> : <span>Checkout</span>}
+                {cartItems.length > 0 ? <a href={checkoutHref} onClick={trackCartCheckout}>Checkout</a> : <span>Checkout</span>}
               </Button>
             </div>
           </aside>
@@ -592,7 +595,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
 
             <div className="flex gap-4">
               <Button size="lg" className="grow rounded-md hover:-translate-y-0.5 hover:shadow-lg" asChild>
-                <a href={trackedProductHref} onClick={trackBuyNow}>
+                <a href={productHref} onClick={trackBuyNow}>
                   <ShoppingCartIcon />
                   Buy Now
                 </a>
