@@ -13,14 +13,17 @@ const orderId = Astro.url.searchParams.get("order") ?? "";
 const status = Astro.url.searchParams.get("status") ?? "Pending";
 const paid = status.toLowerCase() === "paid";
 const env = getRuntimeEnv(Astro);
+const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
 const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
 const ga4MeasurementId = (env.GA4_MEASUREMENT_ID ?? env.PUBLIC_GA4_MEASUREMENT_ID ?? env.GOOGLE_ANALYTICS_ID ?? "").trim();
-const trackingConfigured = Boolean(gtmContainerId || ga4MeasurementId);
+const trackingConfigured = Boolean(metaPixelId || gtmContainerId || ga4MeasurementId);
 let purchaseEvent:
   | {
       orderId: string;
       value: number;
       currency: string;
+      contentIds: string[];
+      contents: { id: string; quantity: number }[];
       items: { item_id: string; item_name: string; item_variant: string; price: number; quantity: number }[];
       numItems: number;
     }
@@ -37,6 +40,8 @@ if (paid && orderId && trackingConfigured) {
         orderId: order.orderId,
         value: order.totalPaid,
         currency: "MYR",
+        contentIds: order.items.map((item) => item.id),
+        contents: order.items.map((item) => ({ id: item.id, quantity: item.quantity })),
         items: order.items.map((item) => ({
           item_id: item.id,
           item_name: `${item.model} ${item.color}`,
@@ -86,6 +91,22 @@ if (paid && orderId && trackingConfigured) {
                 currency: purchaseEvent.currency,
                 items: purchaseEvent.items,
               });
+            }
+
+            if (window.fbq) {
+              fbq(
+                "track",
+                "Purchase",
+                {
+                  value: purchaseEvent.value,
+                  currency: purchaseEvent.currency,
+                  content_ids: purchaseEvent.contentIds,
+                  contents: purchaseEvent.contents,
+                  content_type: "product",
+                  num_items: purchaseEvent.numItems,
+                },
+                { eventID: purchaseEvent.orderId },
+              );
             }
 
             window.sessionStorage.setItem(storageKey, "1");
