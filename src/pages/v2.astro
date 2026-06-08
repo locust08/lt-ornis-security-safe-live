@@ -123,11 +123,30 @@ const images = [
         const openPromoPopup = () => {
           promoPopup.setAttribute("aria-hidden", "false");
           document.documentElement.classList.add("promo-popup-is-open");
+          window.fbq?.("track", "ViewContent", {
+            content_name: "ORNIS45 promo popup",
+            content_category: "Promotion",
+          });
+          window.ornisTrack?.("promo_view", {
+            content_name: "ORNIS45 promo popup",
+            content_category: "Promotion",
+          });
         };
 
         const closePromoPopup = () => {
+          const wasOpen = promoPopup.getAttribute("aria-hidden") === "false";
           promoPopup.setAttribute("aria-hidden", "true");
           document.documentElement.classList.remove("promo-popup-is-open");
+          if (wasOpen) {
+            window.fbq?.("trackCustom", "PromoDismiss", {
+              content_name: "ORNIS45 promo popup",
+              page_path: window.location.pathname,
+            });
+            window.ornisTrack?.("promo_dismiss", {
+              content_name: "ORNIS45 promo popup",
+              page_path: window.location.pathname,
+            });
+          }
         };
 
         const schedulePromoPopup = () => {

@@ -22,6 +22,13 @@ const catalogForScript = JSON.stringify(
 const checkoutEvent = {
   currency: "MYR",
   value: subtotal,
+  contentIds: items.map((item) => item.id),
+  contents: items.map((item) => ({
+    id: item.id,
+    quantity: item.quantity,
+    item_price: getUnitPrice(item, promoCode),
+  })),
+  numItems: items.reduce((sum, item) => sum + item.quantity, 0),
   items: items.map((item) => ({
     item_id: item.id,
     item_name: `${item.model} ${item.color}`,
@@ -48,6 +55,15 @@ const checkoutEvent = {
         value: checkoutEvent.value,
         ecommerce: checkoutEvent,
       });
+      window.fbq?.("track", "InitiateCheckout", {
+        content_ids: checkoutEvent.contentIds,
+        contents: checkoutEvent.contents,
+        content_type: "product",
+        currency: checkoutEvent.currency,
+        value: checkoutEvent.value,
+        num_items: checkoutEvent.numItems,
+      });
+      window.ornisTrack?.("begin_checkout", checkoutEvent);
     </script>
     <link
       rel="icon"
@@ -78,7 +94,7 @@ const checkoutEvent = {
         </div>
       )}
 
-      <form class="checkout-layout" action="/api/checkout" method="post">
+      <form class="checkout-layout" action="/api/checkout" method="post" data-checkout-form>
         <section class="checkout-main" aria-labelledby="checkout-title">
           <div class="checkout-title">
             <p>Free delivery included</p>
@@ -219,6 +235,8 @@ const checkoutEvent = {
       const originalSubtotal = document.querySelector("[data-original-subtotal]");
       const discount = document.querySelector("[data-discount]");
       const total = document.querySelector("[data-total]");
+      const checkoutForm = document.querySelector("[data-checkout-form]");
+      let lastAppliedPromoCode = "";
 
       const getAppliedPromoCode = () => {
         const normalized = promoInput?.value.trim().toUpperCase() ?? "";
@@ -229,6 +247,37 @@ const checkoutEvent = {
         if (appliedPromoCode === "JIEYEE00") return 0;
         if (appliedPromoCode === "ORNIS45") return item.discountedPrice;
         return item.originalPrice;
+      };
+
+      const getCurrentCheckoutEvent = () => {
+        const appliedPromoCode = getAppliedPromoCode();
+        const contents = [];
+        const items = [];
+        let value = 0;
+        let numItems = 0;
+
+        lineItems.forEach((line) => {
+          const item = catalog.find((entry) => entry.id === line.dataset.itemId);
+          const quantityInput = line.querySelector("[data-quantity]");
+          const quantity = Math.min(Math.max(Number(quantityInput?.value) || 1, 1), item.stock);
+          const price = getUnitPrice(item, appliedPromoCode);
+
+          contents.push({ id: item.id, quantity, item_price: price });
+          items.push({ item_id: item.id, price, quantity });
+          value += price * quantity;
+          numItems += quantity;
+        });
+
+        return {
+          content_ids: contents.map((item) => item.id),
+          contents,
+          content_type: "product",
+          currency: "MYR",
+          value,
+          num_items: numItems,
+          items,
+          coupon: appliedPromoCode,
+        };
       };
 
       const updateSummary = () => {
@@ -261,7 +310,49 @@ const checkoutEvent = {
 
       promoInput?.addEventListener("input", updateSummary);
       lineItems.forEach((line) => {
-        line.querySelector("[data-quantity]")?.addEventListener("input", updateSummary);
+        line.querySelector("[data-quantity]")?.addEventListener("input", () => {
+          updateSummary();
+          const checkoutPayload = getCurrentCheckoutEvent();
+          window.fbq?.("trackCustom", "CartQuantityUpdate", {
+            content_ids: checkoutPayload.content_ids,
+            contents: checkoutPayload.contents,
+            content_type: "product",
+            currency: checkoutPayload.currency,
+            value: checkoutPayload.value,
+            num_items: checkoutPayload.num_items,
+          });
+          window.ornisTrack?.("cart_quantity_update", checkoutPayload);
+        });
+      });
+      promoInput?.addEventListener("input", () => {
+        const appliedPromoCode = getAppliedPromoCode();
+        if (appliedPromoCode && appliedPromoCode !== lastAppliedPromoCode) {
+          lastAppliedPromoCode = appliedPromoCode;
+          const checkoutPayload = getCurrentCheckoutEvent();
+          window.fbq?.("trackCustom", "VoucherApply", {
+            content_name: "Ornis checkout voucher",
+            coupon: appliedPromoCode,
+            currency: checkoutPayload.currency,
+            value: checkoutPayload.value,
+          });
+          window.ornisTrack?.("voucher_apply", {
+            content_name: "Ornis checkout voucher",
+            ...checkoutPayload,
+          });
+        }
+        if (!appliedPromoCode) lastAppliedPromoCode = "";
+      });
+      checkoutForm?.addEventListener("submit", () => {
+        const checkoutPayload = getCurrentCheckoutEvent();
+        window.fbq?.("track", "AddPaymentInfo", {
+          content_ids: checkoutPayload.content_ids,
+          contents: checkoutPayload.contents,
+          content_type: "product",
+          currency: checkoutPayload.currency,
+          value: checkoutPayload.value,
+          num_items: checkoutPayload.num_items,
+        });
+        window.ornisTrack?.("add_payment_info", checkoutPayload);
       });
       updateSummary();
     </script>

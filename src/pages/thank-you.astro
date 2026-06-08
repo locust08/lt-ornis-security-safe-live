@@ -13,7 +13,7 @@ const orderId = Astro.url.searchParams.get("order") ?? "";
 const status = Astro.url.searchParams.get("status") ?? "Pending";
 const paid = status.toLowerCase() === "paid";
 const env = getRuntimeEnv(Astro);
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
+const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "1848746201969006").trim();
 const gtmContainerId = (env.GTM_CONTAINER_ID ?? env.PUBLIC_GTM_CONTAINER_ID ?? "").trim();
 const ga4MeasurementId = (env.GA4_MEASUREMENT_ID ?? env.PUBLIC_GA4_MEASUREMENT_ID ?? env.GOOGLE_ANALYTICS_ID ?? "").trim();
 const trackingConfigured = Boolean(metaPixelId || gtmContainerId || ga4MeasurementId);
@@ -33,7 +33,9 @@ if (paid && orderId && trackingConfigured) {
   try {
     const existing = await findOrderRow(env, orderId);
     const order = existing ? sheetRowToOrder(existing.values) : null;
-    const orderPaid = String(existing?.values[2] ?? "").toLowerCase() === "paid";
+    const oldStatusValue = String(existing?.values[2] ?? "");
+    const hasCreatedTimeColumn = !["paid", "pending", "failed"].includes(oldStatusValue.toLowerCase());
+    const orderPaid = String(existing?.values[hasCreatedTimeColumn ? 3 : 2] ?? "").toLowerCase() === "paid";
 
     if (order && orderPaid) {
       purchaseEvent = {
@@ -109,6 +111,7 @@ if (paid && orderId && trackingConfigured) {
               );
             }
 
+            window.ornisTrack?.("purchase", purchaseEvent);
             window.sessionStorage.setItem(storageKey, "1");
           }
         </script>

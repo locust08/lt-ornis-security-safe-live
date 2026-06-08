@@ -56,6 +56,14 @@ type CartItem = ProductItem & {
 declare global {
   interface Window {
     dataLayer?: Array<Record<string, unknown>>;
+    fbq?: (
+      action: "track" | "trackCustom",
+      eventName: string,
+      parameters?: Record<string, unknown>,
+      options?: Record<string, unknown>,
+    ) => void;
+    ornisTrack?: (eventName: string, payload?: Record<string, unknown>) => void;
+    ornisBuildUrl?: (href: string) => string;
   }
 }
 
@@ -99,6 +107,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const productHref = couponApplied
     ? withPromoCode(activeProduct.href ?? "/payment", ORNIS_PROMO_CODE)
     : (activeProduct.href ?? "#");
+  const decorateHref = (href: string) =>
+    typeof window === "undefined" ? href : (window.ornisBuildUrl?.(href) ?? href);
   const getItemListPrice = (item: ProductItem) => item.originalPrice ?? item.price;
   const getItemPrice = (item: ProductItem) => (couponApplied ? item.price : getItemListPrice(item));
   const getTrackingItem = (item: ProductItem, quantity = 1) => ({
@@ -108,11 +118,23 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
     price: getItemPrice(item),
     quantity,
   });
+  const getMetaContents = (items: Array<{ item: ProductItem; quantity: number }>) =>
+    items.map(({ item, quantity }) => ({
+      id: item.id ?? item.name,
+      quantity,
+      item_price: getItemPrice(item),
+    }));
+  const trackMetaCustom = (eventName: string, parameters: Record<string, unknown>) => {
+    if (typeof window === "undefined" || !window.fbq) return;
+    window.fbq("trackCustom", eventName, parameters);
+  };
   const pushEcommerceEvent = (event: "add_to_cart" | "begin_checkout", items: Array<{ item: ProductItem; quantity: number }>) => {
     if (typeof window === "undefined") return;
 
     const trackingItems = items.map(({ item, quantity }) => getTrackingItem(item, quantity));
     const value = trackingItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const metaEvent = event === "add_to_cart" ? "AddToCart" : "InitiateCheckout";
+    const metaContents = getMetaContents(items);
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ ecommerce: null });
     window.dataLayer.push({
@@ -125,6 +147,24 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
         items: trackingItems,
       },
     });
+    window.fbq?.("track", metaEvent, {
+      content_ids: metaContents.map((item) => item.id),
+      contents: metaContents,
+      content_type: "product",
+      currency: "MYR",
+      value,
+      num_items: metaContents.reduce((sum, item) => sum + Number(item.quantity), 0),
+    });
+    window.ornisTrack?.(event, {
+      content_ids: metaContents.map((item) => item.id),
+      contents: metaContents,
+      content_type: "product",
+      currency: "MYR",
+      value,
+      num_items: metaContents.reduce((sum, item) => sum + Number(item.quantity), 0),
+      items: trackingItems,
+      coupon: couponApplied ? ORNIS_PROMO_CODE : "",
+    });
   };
 
   const switchProduct = (nextSize?: string, nextColor?: string) => {
@@ -134,7 +174,26 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
         (!nextColor || (item.defaultColorOption ?? item.color) === nextColor),
     );
 
-    if (match >= 0) setActiveIndex(match);
+    if (match >= 0) {
+      setActiveIndex(match);
+      const nextProduct = productItems[match];
+      trackMetaCustom("CustomizeProduct", {
+        content_name: nextProduct.name,
+        content_ids: [nextProduct.id ?? nextProduct.name],
+        model: nextProduct.defaultSize,
+        color: nextProduct.defaultColorOption ?? nextProduct.color,
+        currency: "MYR",
+        value: getItemPrice(nextProduct),
+      });
+      window.ornisTrack?.("product_customize", {
+        content_name: nextProduct.name,
+        content_ids: [nextProduct.id ?? nextProduct.name],
+        model: nextProduct.defaultSize,
+        color: nextProduct.defaultColorOption ?? nextProduct.color,
+        currency: "MYR",
+        value: getItemPrice(nextProduct),
+      });
+    }
   };
 
   const switchModel = (nextSize: string) => {
@@ -185,6 +244,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const checkoutHref = couponApplied
     ? withPromoCode(baseCheckoutHref, ORNIS_PROMO_CODE)
     : baseCheckoutHref;
+  const trackedProductHref = decorateHref(productHref);
+  const trackedCheckoutHref = decorateHref(checkoutHref);
 
   useEffect(() => {
     const promo = new URLSearchParams(window.location.search).get("promo");
@@ -211,6 +272,20 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       "begin_checkout",
       cartItems.map((item) => ({ item, quantity: item.quantity })),
     );
+  };
+  const trackVoucherApply = (code: string) => {
+    trackMetaCustom("VoucherApply", {
+      content_name: "Ornis voucher",
+      coupon: code,
+      currency: "MYR",
+      value: finalPrice,
+    });
+    window.ornisTrack?.("voucher_apply", {
+      content_name: "Ornis voucher",
+      coupon: code,
+      currency: "MYR",
+      value: finalPrice,
+    });
   };
 
   return (
@@ -377,7 +452,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                 asChild={cartItems.length > 0}
                 tabIndex={isCartOpen ? 0 : -1}
               >
-                {cartItems.length > 0 ? <a href={checkoutHref} onClick={trackCartCheckout}>Checkout</a> : <span>Checkout</span>}
+                {cartItems.length > 0 ? <a href={trackedCheckoutHref} onClick={trackCartCheckout}>Checkout</a> : <span>Checkout</span>}
               </Button>
             </div>
           </aside>
@@ -482,7 +557,13 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                 <input
                   id="ornis-coupon"
                   value={couponCode}
-                  onChange={(event) => setCouponCode(event.target.value)}
+                  onChange={(event) => {
+                    const nextCode = event.target.value;
+                    setCouponCode(nextCode);
+                    if (nextCode.trim().toLowerCase() === ORNIS_PROMO_CODE.toLowerCase()) {
+                      trackVoucherApply(ORNIS_PROMO_CODE);
+                    }
+                  }}
                   className="min-w-0 flex-1 bg-transparent text-base font-semibold uppercase text-[#1f2020] outline-none placeholder:normal-case placeholder:text-[#8b7d78]"
                   placeholder="Use code ORNIS45"
                 />
@@ -511,7 +592,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
 
             <div className="flex gap-4">
               <Button size="lg" className="grow rounded-md hover:-translate-y-0.5 hover:shadow-lg" asChild>
-                <a href={productHref} onClick={trackBuyNow}>
+                <a href={trackedProductHref} onClick={trackBuyNow}>
                   <ShoppingCartIcon />
                   Buy Now
                 </a>

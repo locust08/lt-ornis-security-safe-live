@@ -440,11 +440,30 @@ const everydayLifeTiles = [
         const openPromoPopup = () => {
           promoPopup.setAttribute("aria-hidden", "false");
           document.documentElement.classList.add("promo-popup-is-open");
+          window.fbq?.("track", "ViewContent", {
+            content_name: "ORNIS45 promo popup",
+            content_category: "Promotion",
+          });
+          window.ornisTrack?.("promo_view", {
+            content_name: "ORNIS45 promo popup",
+            content_category: "Promotion",
+          });
         };
 
         const closePromoPopup = () => {
+          const wasOpen = promoPopup.getAttribute("aria-hidden") === "false";
           promoPopup.setAttribute("aria-hidden", "true");
           document.documentElement.classList.remove("promo-popup-is-open");
+          if (wasOpen) {
+            window.fbq?.("trackCustom", "PromoDismiss", {
+              content_name: "ORNIS45 promo popup",
+              page_path: window.location.pathname,
+            });
+            window.ornisTrack?.("promo_dismiss", {
+              content_name: "ORNIS45 promo popup",
+              page_path: window.location.pathname,
+            });
+          }
         };
 
         const schedulePromoPopup = () => {
@@ -510,6 +529,51 @@ const everydayLifeTiles = [
         updateCountdown();
         window.setInterval(updateCountdown, 1000);
       }
+
+      document.querySelectorAll('a[href="#price-section"]').forEach((link) => {
+        link.addEventListener("click", () => {
+          window.fbq?.("trackCustom", "CTA_Click", {
+            content_name: link.getAttribute("aria-label") || link.textContent?.trim() || "Buy Now",
+            destination: "#price-section",
+            page_path: window.location.pathname,
+          });
+          window.ornisTrack?.("cta_click", {
+            content_name: link.getAttribute("aria-label") || link.textContent?.trim() || "Buy Now",
+            destination: "#price-section",
+            page_path: window.location.pathname,
+          });
+        });
+      });
+
+      document.querySelectorAll(".site-footer__links a").forEach((link) => {
+        link.addEventListener("click", () => {
+          window.fbq?.("trackCustom", "FooterLinkClick", {
+            content_name: link.textContent?.trim() || "Footer link",
+            destination: link.getAttribute("href") || "",
+            page_path: window.location.pathname,
+          });
+          window.ornisTrack?.("footer_link_click", {
+            content_name: link.textContent?.trim() || "Footer link",
+            destination: link.getAttribute("href") || "",
+            page_path: window.location.pathname,
+          });
+        });
+      });
+
+      document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"]').forEach((link) => {
+        link.addEventListener("click", () => {
+          window.fbq?.("trackCustom", "Contact", {
+            contact_type: link.getAttribute("href")?.startsWith("tel:") ? "phone" : "email",
+            destination: link.getAttribute("href") || "",
+            page_path: window.location.pathname,
+          });
+          window.ornisTrack?.("contact_click", {
+            contact_type: link.getAttribute("href")?.startsWith("tel:") ? "phone" : "email",
+            destination: link.getAttribute("href") || "",
+            page_path: window.location.pathname,
+          });
+        });
+      });
     </script>
   </body>
 </html>

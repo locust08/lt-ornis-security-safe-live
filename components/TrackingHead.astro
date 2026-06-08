@@ -9,9 +9,163 @@ const ga4MeasurementId = (
   env.GOOGLE_ANALYTICS_ID ??
   ""
 ).trim();
-const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "").trim();
+const metaPixelId = (env.META_PIXEL_ID ?? env.PUBLIC_META_PIXEL_ID ?? "1848746201969006").trim();
+const tiktokPixelId = (env.PUBLIC_TIKTOK_PIXEL_ID ?? "").trim();
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
+
+<script is:inline>
+  (function () {
+    const visitorKey = "ornis_tracking_visitor_id";
+    const sessionKey = "ornis_tracking_session_id";
+    const firstTouchKey = "ornis_tracking_first_touch";
+    const attributionKeys = ["clid", "fbclid", "ttclid", "gclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+
+    const readJson = (key) => {
+      try {
+        return JSON.parse(window.localStorage.getItem(key) || "null") || {};
+      } catch {
+        return {};
+      }
+    };
+
+    const writeJson = (key, value) => {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch {}
+    };
+
+    const getId = (storage, key, prefix) => {
+      let value = storage.getItem(key);
+      if (!value) {
+        value = `${prefix}_${crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2)}`;
+        storage.setItem(key, value);
+      }
+      return value;
+    };
+
+    const pickCurrentAttribution = () => {
+      const params = new URLSearchParams(window.location.search);
+      return attributionKeys.reduce((result, key) => {
+        const value = params.get(key);
+        if (value) result[key] = value;
+        return result;
+      }, {});
+    };
+
+    const hasAttribution = (value) => attributionKeys.some((key) => value[key]);
+    const currentAttribution = pickCurrentAttribution();
+    let firstTouch = readJson(firstTouchKey);
+
+    if (hasAttribution(currentAttribution) && !hasAttribution(firstTouch)) {
+      firstTouch = {
+        ...currentAttribution,
+        first_url: window.location.href,
+        first_referrer: document.referrer || "",
+        first_seen_at: new Date().toISOString(),
+      };
+      writeJson(firstTouchKey, firstTouch);
+    }
+
+    const inferPlatform = (attribution) => {
+      const source = String(attribution.utm_source || "").toLowerCase();
+      if (attribution.fbclid || source.includes("meta") || source.includes("facebook") || source.includes("instagram")) return "Meta";
+      if (attribution.ttclid || source.includes("tiktok")) return "TikTok";
+      if (attribution.gclid || source.includes("google")) return "Google";
+      return "Unknown";
+    };
+
+    const getAttribution = () => {
+      const merged = { ...firstTouch, ...currentAttribution };
+      return {
+        ...merged,
+        clid: currentAttribution.clid || firstTouch.clid || "",
+        platform_click_id: currentAttribution.fbclid || currentAttribution.ttclid || currentAttribution.gclid || firstTouch.fbclid || firstTouch.ttclid || firstTouch.gclid || "",
+        platform: inferPlatform(merged),
+      };
+    };
+
+    const decorateUrl = (href) => {
+      try {
+        const url = new URL(href, window.location.href);
+        const attribution = getAttribution();
+        attributionKeys.forEach((key) => {
+          if (attribution[key] && !url.searchParams.has(key)) {
+            url.searchParams.set(key, attribution[key]);
+          }
+        });
+        return url.pathname + url.search + url.hash;
+      } catch {
+        return href;
+      }
+    };
+
+    const visitorId = getId(window.localStorage, visitorKey, "visitor");
+    const sessionId = getId(window.sessionStorage, sessionKey, "session");
+
+    window.ornisGetAttribution = getAttribution;
+    window.ornisBuildUrl = decorateUrl;
+    window.ornisTrack = (eventName, payload) => {
+      const attribution = getAttribution();
+      const body = {
+        event_id: crypto.randomUUID ? crypto.randomUUID() : `event_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+        event_time: new Date().toISOString(),
+        event_name: eventName,
+        visitor_id: visitorId,
+        session_id: sessionId,
+        full_url: window.location.href,
+        page_path: window.location.pathname,
+        query: window.location.search,
+        referrer: document.referrer || "",
+        user_agent: navigator.userAgent,
+        language: navigator.language || "",
+        screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        ...attribution,
+        payload: payload || {},
+      };
+
+      const text = JSON.stringify(body);
+
+      let sentWithBeacon = false;
+
+      try {
+        if (navigator.sendBeacon) {
+          sentWithBeacon = navigator.sendBeacon("/api/track", new Blob([text], { type: "application/json" }));
+        }
+      } catch {}
+
+      if (!sentWithBeacon) {
+        fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: text,
+          keepalive: true,
+        }).catch(() => {});
+      }
+
+      if (window.ttq?.track) {
+        const tiktokEventNames = {
+          page_view: "ViewContent",
+          view_content: "ViewContent",
+          promo_view: "ViewContent",
+          cta_click: "ClickButton",
+          contact_click: "Contact",
+          add_to_cart: "AddToCart",
+          begin_checkout: "InitiateCheckout",
+          add_payment_info: "AddPaymentInfo",
+          purchase: "CompletePayment",
+        };
+        const tiktokEvent = tiktokEventNames[eventName];
+        if (tiktokEvent) window.ttq.track(tiktokEvent, payload || {});
+      }
+
+      return body;
+    };
+
+    window.ornisTrack("page_view");
+  })();
+</script>
 
 {
   gtmContainerId && (
@@ -53,6 +207,46 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
 
       fbq("init", metaPixelId);
       fbq("track", "PageView");
+    </script>
+  )
+}
+
+{
+  tiktokPixelId && (
+    <script is:inline define:vars={{ tiktokPixelId }}>
+      !(function (w, d, t) {
+        w.TiktokAnalyticsObject = t;
+        var ttq = (w[t] = w[t] || []);
+        ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"];
+        ttq.setAndDefer = function (target, method) {
+          target[method] = function () {
+            target.push([method].concat(Array.prototype.slice.call(arguments, 0)));
+          };
+        };
+        for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+        ttq.instance = function (id) {
+          var instance = ttq._i[id] || [];
+          for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(instance, ttq.methods[i]);
+          return instance;
+        };
+        ttq.load = function (id) {
+          var script = d.createElement("script");
+          script.type = "text/javascript";
+          script.async = true;
+          script.src = "https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=" + id + "&lib=" + t;
+          var firstScript = d.getElementsByTagName("script")[0];
+          firstScript.parentNode.insertBefore(script, firstScript);
+          ttq._i = ttq._i || {};
+          ttq._i[id] = [];
+          ttq._i[id]._u = script.src;
+          ttq._t = ttq._t || {};
+          ttq._t[id] = +new Date();
+          ttq._o = ttq._o || {};
+          ttq._o[id] = {};
+        };
+        ttq.load(tiktokPixelId);
+        ttq.page();
+      })(window, document, "ttq");
     </script>
   )
 }

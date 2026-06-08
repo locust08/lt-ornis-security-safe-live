@@ -20,6 +20,9 @@ export type RuntimeEnv = RuntimeEnvSource & {
   RESEND_FROM_EMAIL?: string;
   META_PIXEL_ID?: string;
   PUBLIC_META_PIXEL_ID?: string;
+  NOTION_TOKEN?: string;
+  NOTION_VISITOR_EVENTS_DATABASE_ID?: string;
+  PUBLIC_TIKTOK_PIXEL_ID?: string;
   GTM_CONTAINER_ID?: string;
   PUBLIC_GTM_CONTAINER_ID?: string;
   GA4_MEASUREMENT_ID?: string;

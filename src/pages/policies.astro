@@ -249,7 +249,33 @@ import TrackingHead from "@/components/TrackingHead.astro";
 
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
-          activatePolicyTab(tab.getAttribute("data-policy-tab") || "privacy");
+          const nextTab = tab.getAttribute("data-policy-tab") || "privacy";
+          activatePolicyTab(nextTab);
+          window.fbq?.("trackCustom", "PolicyTabView", {
+            content_name: nextTab,
+            page_path: window.location.pathname,
+          });
+          window.ornisTrack?.("policy_tab_view", {
+            content_name: nextTab,
+            page_path: window.location.pathname,
+          });
+        });
+      });
+
+      document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"], a[href^="https://www.facebook.com"]').forEach((link) => {
+        link.addEventListener("click", () => {
+          const href = link.getAttribute("href") || "";
+          const contactType = href.startsWith("tel:") ? "phone" : href.startsWith("mailto:") ? "email" : "social";
+          window.fbq?.("trackCustom", "Contact", {
+            contact_type: contactType,
+            destination: href,
+            page_path: window.location.pathname,
+          });
+          window.ornisTrack?.("contact_click", {
+            contact_type: contactType,
+            destination: href,
+            page_path: window.location.pathname,
+          });
         });
       });
 
