@@ -142,6 +142,19 @@ const overviewData = [
   },
 ];
 
+const productContentEvent = {
+  content_name: "Ornis Fire-Resistant Security Safe",
+  content_type: "product",
+  content_ids: overviewData.map((product) => product.id),
+  contents: overviewData.map((product) => ({
+    id: product.id,
+    quantity: 1,
+    item_price: product.price,
+  })),
+  value: Math.min(...overviewData.map((product) => product.price)),
+  currency: "MYR",
+};
+
 const sizes = [
   { value: "310", label: "OR 310" },
   { value: "530", label: "OR 530" },
@@ -221,6 +234,14 @@ const everydayLifeTiles = [
       content="Ornis premium fire-resistant security safe overview."
     />
     <TrackingHead />
+    <script is:inline define:vars={{ productContentEvent }}>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "view_item",
+        ecommerce: productContentEvent,
+      });
+      window.ornisTrackMetaEvent?.("ViewContent", productContentEvent);
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f565d'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f6f1ea'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f6f1ea' stroke-width='5'/%3E%3C/svg%3E"
@@ -445,7 +466,7 @@ const everydayLifeTiles = [
           document.documentElement.classList.add("promo-popup-is-open");
           if (!window.sessionStorage.getItem(promoViewTrackingKey)) {
             window.sessionStorage.setItem(promoViewTrackingKey, "1");
-            window.fbq?.("track", "ViewContent", {
+            window.ornisTrackMetaCustomEvent?.("PromoView", {
               content_name: "ORNIS45 promo popup",
               content_category: "Promotion",
             });
@@ -461,7 +482,7 @@ const everydayLifeTiles = [
           promoPopup.setAttribute("aria-hidden", "true");
           document.documentElement.classList.remove("promo-popup-is-open");
           if (wasOpen) {
-            window.fbq?.("trackCustom", "PromoDismiss", {
+            window.ornisTrackMetaCustomEvent?.("PromoDismiss", {
               content_name: "ORNIS45 promo popup",
               page_path: window.location.pathname,
             });
@@ -538,7 +559,7 @@ const everydayLifeTiles = [
 
       document.querySelectorAll('a[href="#price-section"]').forEach((link) => {
         link.addEventListener("click", () => {
-          window.fbq?.("trackCustom", "CTA_Click", {
+          window.ornisTrackMetaCustomEvent?.("CTA_Click", {
             content_name: link.getAttribute("aria-label") || link.textContent?.trim() || "Buy Now",
             destination: "#price-section",
             page_path: window.location.pathname,
@@ -553,7 +574,7 @@ const everydayLifeTiles = [
 
       document.querySelectorAll(".site-footer__links a").forEach((link) => {
         link.addEventListener("click", () => {
-          window.fbq?.("trackCustom", "FooterLinkClick", {
+          window.ornisTrackMetaCustomEvent?.("FooterLinkClick", {
             content_name: link.textContent?.trim() || "Footer link",
             destination: link.getAttribute("href") || "",
             page_path: window.location.pathname,
@@ -568,7 +589,7 @@ const everydayLifeTiles = [
 
       document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"]').forEach((link) => {
         link.addEventListener("click", () => {
-          window.fbq?.("trackCustom", "Contact", {
+          window.ornisTrackMetaCustomEvent?.("Contact", {
             contact_type: link.getAttribute("href")?.startsWith("tel:") ? "phone" : "email",
             destination: link.getAttribute("href") || "",
             page_path: window.location.pathname,

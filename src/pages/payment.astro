@@ -55,7 +55,7 @@ const checkoutEvent = {
         value: checkoutEvent.value,
         ecommerce: checkoutEvent,
       });
-      window.fbq?.("track", "InitiateCheckout", {
+      window.ornisTrackMetaEvent?.("InitiateCheckout", {
         content_ids: checkoutEvent.contentIds,
         contents: checkoutEvent.contents,
         content_type: "product",
@@ -313,7 +313,7 @@ const checkoutEvent = {
         line.querySelector("[data-quantity]")?.addEventListener("input", () => {
           updateSummary();
           const checkoutPayload = getCurrentCheckoutEvent();
-          window.fbq?.("trackCustom", "CartQuantityUpdate", {
+          window.ornisTrackMetaCustomEvent?.("CartQuantityUpdate", {
             content_ids: checkoutPayload.content_ids,
             contents: checkoutPayload.contents,
             content_type: "product",
@@ -329,7 +329,7 @@ const checkoutEvent = {
         if (appliedPromoCode && appliedPromoCode !== lastAppliedPromoCode) {
           lastAppliedPromoCode = appliedPromoCode;
           const checkoutPayload = getCurrentCheckoutEvent();
-          window.fbq?.("trackCustom", "VoucherApply", {
+          window.ornisTrackMetaCustomEvent?.("VoucherApply", {
             content_name: "Ornis checkout voucher",
             coupon: appliedPromoCode,
             currency: checkoutPayload.currency,
@@ -344,7 +344,7 @@ const checkoutEvent = {
       });
       checkoutForm?.addEventListener("submit", () => {
         const checkoutPayload = getCurrentCheckoutEvent();
-        window.fbq?.("track", "AddPaymentInfo", {
+        window.ornisTrackMetaEvent?.("AddPaymentInfo", {
           content_ids: checkoutPayload.content_ids,
           contents: checkoutPayload.contents,
           content_type: "product",

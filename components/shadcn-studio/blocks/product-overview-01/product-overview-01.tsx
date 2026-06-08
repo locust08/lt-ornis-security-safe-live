@@ -57,12 +57,12 @@ type CartItem = ProductItem & {
 declare global {
   interface Window {
     dataLayer?: Array<Record<string, unknown>>;
-    fbq?: (
-      action: "track" | "trackCustom",
+    ornisTrackMetaEvent?: (
       eventName: string,
       parameters?: Record<string, unknown>,
       options?: Record<string, unknown>,
     ) => void;
+    ornisTrackMetaCustomEvent?: (eventName: string, parameters?: Record<string, unknown>) => void;
     ornisTrack?: (eventName: string, payload?: Record<string, unknown>) => void;
     ornisBuildUrl?: (href: string) => string;
   }
@@ -124,8 +124,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       item_price: getItemPrice(item),
     }));
   const trackMetaCustom = (eventName: string, parameters: Record<string, unknown>) => {
-    if (typeof window === "undefined" || !window.fbq) return;
-    window.fbq("trackCustom", eventName, parameters);
+    if (typeof window === "undefined") return;
+    window.ornisTrackMetaCustomEvent?.(eventName, parameters);
   };
   const pushEcommerceEvent = (event: "add_to_cart" | "begin_checkout", items: Array<{ item: ProductItem; quantity: number }>) => {
     if (typeof window === "undefined") return;
@@ -146,7 +146,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
         items: trackingItems,
       },
     });
-    window.fbq?.("track", metaEvent, {
+    window.ornisTrackMetaEvent?.(metaEvent, {
       content_ids: metaContents.map((item) => item.id),
       contents: metaContents,
       content_type: "product",

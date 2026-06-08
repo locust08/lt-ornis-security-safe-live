@@ -121,6 +121,36 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
     const sessionId = getId("sessionStorage", sessionKey, "session");
     const trackingQueue = [];
     let trackingFlushTimer;
+    const serverActionEvents = new Set([
+      "promo_dismiss",
+      "cta_click",
+      "contact_click",
+      "footer_link_click",
+      "product_customize",
+      "add_to_cart",
+      "cart_quantity_update",
+      "voucher_apply",
+      "begin_checkout",
+      "add_payment_info",
+      "purchase",
+      "policy_tab_view",
+    ]);
+
+    const getServerTrackingKey = (eventName, payload) => {
+      const payloadText = JSON.stringify(payload || {});
+      return `ornis_server_track_${sessionId}_${eventName}_${window.location.pathname}${window.location.search}_${payloadText}`;
+    };
+
+    const shouldQueueServerTracking = (eventName, payload) => {
+      if (eventName === "page_view") return true;
+      if (!serverActionEvents.has(eventName)) return false;
+
+      const key = getServerTrackingKey(eventName, payload);
+      if (getStorageValue("sessionStorage", key)) return false;
+
+      setStorageValue("sessionStorage", key, "1");
+      return true;
+    };
 
     const sendTrackingEvents = (events, useBeacon) => {
       if (!visitorEventApiEnabled || !events.length) return;
@@ -188,7 +218,9 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
         payload: payload || {},
       };
 
-      queueTrackingEvent(body);
+      if (shouldQueueServerTracking(eventName, payload)) {
+        queueTrackingEvent(body);
+      }
 
       if (window.ttq?.track) {
         const tiktokEventNames = {
@@ -214,11 +246,7 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       if (document.visibilityState === "hidden") flushTrackingQueue(true);
     });
 
-    const pageViewTrackingKey = `ornis_tracking_page_view_${window.location.pathname}${window.location.search}`;
-    if (!getStorageValue("sessionStorage", pageViewTrackingKey)) {
-      setStorageValue("sessionStorage", pageViewTrackingKey, "1");
-      window.ornisTrack("page_view");
-    }
+    window.ornisTrack("page_view");
   })();
 </script>
 
@@ -261,7 +289,44 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
       window.fbq("init", metaPixelId);
-      window.fbq("track", "PageView");
+      const metaPixelBeacons = [];
+      const sendMetaPixelBeacon = function (eventName, parameters, options) {
+        const url = new URL("https://www.facebook.com/tr/");
+        url.searchParams.set("id", metaPixelId);
+        url.searchParams.set("ev", eventName);
+        url.searchParams.set("dl", window.location.href);
+        url.searchParams.set("rl", document.referrer || "");
+        url.searchParams.set("if", "false");
+        url.searchParams.set("ts", String(Date.now()));
+
+        Object.entries(parameters || {}).forEach(([key, value]) => {
+          if (value === undefined || value === null) return;
+          url.searchParams.set(`cd[${key}]`, typeof value === "object" ? JSON.stringify(value) : String(value));
+        });
+
+        if (options?.eventID) url.searchParams.set("eid", String(options.eventID));
+
+        const image = new Image(1, 1);
+        image.src = url.toString();
+        metaPixelBeacons.push(image);
+      };
+
+      window.ornisTrackMetaEvent = function (eventName, parameters, options) {
+        if (!window.fbq) return;
+        if (options) {
+          window.fbq("track", eventName, parameters || {}, options);
+          sendMetaPixelBeacon(eventName, parameters, options);
+          return;
+        }
+        window.fbq("track", eventName, parameters || {});
+        sendMetaPixelBeacon(eventName, parameters);
+      };
+      window.ornisTrackMetaCustomEvent = function (eventName, parameters) {
+        if (!window.fbq) return;
+        window.fbq("trackCustom", eventName, parameters || {});
+        sendMetaPixelBeacon(eventName, parameters);
+      };
+      window.ornisTrackMetaEvent("PageView");
     </script>
   )
 }

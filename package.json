@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "ASTRO_NO_HMR=true astro dev",
+    "dev:hmr": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "clean": "node scripts/clean-local.mjs",

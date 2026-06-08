@@ -2,7 +2,7 @@
 import "../styles/globals.css";
 import TrackingBody from "@/components/TrackingBody.astro";
 import TrackingHead from "@/components/TrackingHead.astro";
-import { getUnitPrice } from "@/lib/ornis/catalog";
+import { ORNIS_PRODUCTS, ORNIS_PROMO_CODE, getUnitPrice } from "@/lib/ornis/catalog";
 import { getRuntimeEnv } from "@/lib/ornis/env";
 import { findOrderRow } from "@/lib/ornis/google";
 import { sheetRowToOrder } from "@/lib/ornis/order";
@@ -58,6 +58,29 @@ if (paid && orderId && trackingConfigured) {
     console.error("Unable to prepare purchase tracking event.", error);
   }
 }
+
+if (!purchaseEvent && trackingConfigured && !orderId && ["localhost", "127.0.0.1", "::1"].includes(Astro.url.hostname)) {
+  const product = ORNIS_PRODUCTS[0];
+  const price = getUnitPrice(product, ORNIS_PROMO_CODE);
+
+  purchaseEvent = {
+    orderId: "local-test-purchase",
+    value: price,
+    currency: "MYR",
+    contentIds: [product.id],
+    contents: [{ id: product.id, quantity: 1 }],
+    items: [
+      {
+        item_id: product.id,
+        item_name: `${product.model} ${product.color}`,
+        item_variant: product.color,
+        price,
+        quantity: 1,
+      },
+    ],
+    numItems: 1,
+  };
+}
 ---
 
 <!doctype html>
@@ -71,9 +94,10 @@ if (paid && orderId && trackingConfigured) {
       purchaseEvent && (
         <script is:inline define:vars={{ purchaseEvent }}>
           const storageKey = `tracking_purchase_${purchaseEvent.orderId}`;
+          const isLocalTestPurchase = purchaseEvent.orderId === "local-test-purchase";
           const alreadyTracked = window.sessionStorage.getItem(storageKey);
 
-          if (!alreadyTracked) {
+          if (isLocalTestPurchase || !alreadyTracked) {
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
               event: "purchase",
@@ -95,24 +119,23 @@ if (paid && orderId && trackingConfigured) {
               });
             }
 
-            if (window.fbq) {
-              window.fbq(
-                "track",
-                "Purchase",
-                {
-                  value: purchaseEvent.value,
-                  currency: purchaseEvent.currency,
-                  content_ids: purchaseEvent.contentIds,
-                  contents: purchaseEvent.contents,
-                  content_type: "product",
-                  num_items: purchaseEvent.numItems,
-                },
-                { eventID: purchaseEvent.orderId },
-              );
-            }
+            window.ornisTrackMetaEvent?.(
+              "Purchase",
+              {
+                value: purchaseEvent.value,
+                currency: purchaseEvent.currency,
+                content_ids: purchaseEvent.contentIds,
+                contents: purchaseEvent.contents,
+                content_type: "product",
+                num_items: purchaseEvent.numItems,
+              },
+              { eventID: purchaseEvent.orderId },
+            );
 
             window.ornisTrack?.("purchase", purchaseEvent);
-            window.sessionStorage.setItem(storageKey, "1");
+            if (!isLocalTestPurchase) {
+              window.sessionStorage.setItem(storageKey, "1");
+            }
           }
         </script>
       )
