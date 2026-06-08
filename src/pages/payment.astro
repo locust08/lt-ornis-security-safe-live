@@ -16,7 +16,6 @@ const catalogForScript = JSON.stringify(
     id: item.id,
     originalPrice: item.originalPrice,
     discountedPrice: item.discountedPrice,
-    stock: item.stock,
   })),
 ).replace(/</g, "\\u003c");
 const checkoutEvent = {
@@ -182,7 +181,6 @@ const checkoutEvent = {
                           type="number"
                           inputmode="numeric"
                           min="1"
-                          max={item.stock}
                           value={item.quantity}
                           data-quantity
                           required
@@ -190,7 +188,6 @@ const checkoutEvent = {
                       </label>
                       <strong data-line-total>{formatRM(getUnitPrice(item, promoCode) * item.quantity)}</strong>
                     </div>
-                    <small>{item.stock} available</small>
                   </div>
                 </article>
               ))
@@ -296,7 +293,7 @@ const checkoutEvent = {
         lineItems.forEach((line) => {
           const item = catalog.find((entry) => entry.id === line.dataset.itemId);
           const quantityInput = line.querySelector("[data-quantity]");
-          const quantity = Math.min(Math.max(Number(quantityInput?.value) || 1, 1), item.stock);
+          const quantity = Math.max(Number(quantityInput?.value) || 1, 1);
           const price = getUnitPrice(item, appliedPromoCode);
 
           contents.push({ id: item.id, quantity, item_price: price });
@@ -326,7 +323,7 @@ const checkoutEvent = {
           const item = catalog.find((entry) => entry.id === line.dataset.itemId);
           const quantityInput = line.querySelector("[data-quantity]");
           const lineTotal = line.querySelector("[data-line-total]");
-          const quantity = Math.min(Math.max(Number(quantityInput?.value) || 1, 1), item.stock);
+          const quantity = Math.max(Number(quantityInput?.value) || 1, 1);
 
           if (quantityInput && String(quantityInput.value) !== String(quantity)) {
             quantityInput.value = String(quantity);

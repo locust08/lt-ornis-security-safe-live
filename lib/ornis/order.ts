@@ -152,7 +152,7 @@ export const parseOrderFromFormData = (formData: FormData): CheckoutOrder => {
     }
 
     if (quantity > product.stock) {
-      throw new Error(`Only ${product.stock} units of ${product.model} ${product.color} are available.`);
+      throw new Error(`Sorry, there isn't enough stock available for ${product.model} ${product.color}.`);
     }
 
     items.push({ ...product, quantity });
