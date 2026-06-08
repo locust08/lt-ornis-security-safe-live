@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 190" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 205" role="img" aria-labelledby="title desc">
   <title id="title">Suruhanjaya Syarikat Malaysia logo</title>
   <desc id="desc">Stylized SSM credibility logo.</desc>
-  <rect width="360" height="190" fill="#fff"/>
+  <rect width="390" height="205" fill="#fff"/>
   <g transform="translate(14 12)">
     <path d="M7 48C70 23 134 19 205 33c38 8 79 9 121 3v12c-50 7-92 4-129-7C119 18 64 34 7 63Z" fill="#282a86"/>
     <path d="M28 61c45-22 96-24 153-8 32 9 68 10 117 3v19c-48 8-88 6-119-4C119 53 73 58 28 79Z" fill="#282a86"/>

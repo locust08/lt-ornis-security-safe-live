@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 190" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -10 384 215" role="img" aria-labelledby="title desc">
   <title id="title">Malaysian Communications and Multimedia Commission logo</title>
   <desc id="desc">Triangular MCMC credibility logo.</desc>
-  <rect width="360" height="190" fill="#fff"/>
+  <rect x="-12" y="-10" width="384" height="215" fill="#fff"/>
   <g transform="translate(17 2)">
     <path d="M108 8 6 142h203Z" fill="#f8aa00"/>
     <path d="M108 8v134h101Z" fill="#0a7ac2"/>
