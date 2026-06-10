@@ -63,7 +63,7 @@ declare global {
       options?: Record<string, unknown>,
     ) => void;
     ornisTrackMetaCustomEvent?: (eventName: string, parameters?: Record<string, unknown>) => void;
-    ornisTrack?: (eventName: string, payload?: Record<string, unknown>) => void;
+    ornisTrack?: (eventName: string, payload?: Record<string, unknown>) => Record<string, unknown> | undefined;
     ornisBuildUrl?: (href: string) => string;
   }
 }
@@ -78,6 +78,8 @@ const formatRM = (value: number) =>
     .replace("MYR", "RM");
 
 const ORNIS_PROMO_CODE = "ORNIS45";
+const WHATSAPP_CHAT_URL =
+  "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis?landing_url=https%3A%2F%2Fornis.falconsafe.com.my%2F&source_url=https%3A%2F%2Fornis.falconsafe.com.my%2F";
 
 const withPromoCode = (href: string, promoCode: string) =>
   `${href}${href.includes("?") ? "&" : "?"}promo=${encodeURIComponent(promoCode)}`;
@@ -293,6 +295,22 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
 
   return (
     <section className="relative bg-background py-8 sm:py-14 lg:py-20" aria-labelledby="choose-ornis">
+      <a
+        href={WHATSAPP_CHAT_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-20 right-4 z-[70] inline-flex size-12 items-center justify-center overflow-hidden rounded-full shadow-[0_1rem_2rem_rgba(52,40,31,0.16)] transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#25d366]/35 sm:bottom-[5.25rem] sm:right-6"
+        aria-label="Chat with Ornis on WhatsApp"
+      >
+        <img
+          src="/ornis/whatsapp-icon.png.webp"
+          alt=""
+          className="size-full object-cover"
+          loading="eager"
+          decoding="async"
+        />
+      </a>
+
       <button
         type="button"
         onClick={() => setIsCartOpen(true)}
