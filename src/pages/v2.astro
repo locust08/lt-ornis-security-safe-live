@@ -126,7 +126,7 @@ const images = [
           document.documentElement.classList.add("promo-popup-is-open");
           if (!window.sessionStorage.getItem(promoViewTrackingKey)) {
             window.sessionStorage.setItem(promoViewTrackingKey, "1");
-            window.fbq?.("track", "ViewContent", {
+            window.ornisTrackMetaEvent?.("ViewContent", {
               content_name: "ORNIS45 promo popup",
               content_category: "Promotion",
             });
@@ -142,7 +142,7 @@ const images = [
           promoPopup.setAttribute("aria-hidden", "true");
           document.documentElement.classList.remove("promo-popup-is-open");
           if (wasOpen) {
-            window.fbq?.("trackCustom", "PromoDismiss", {
+            window.ornisTrackMetaCustomEvent?.("PromoDismiss", {
               content_name: "ORNIS45 promo popup",
               page_path: window.location.pathname,
             });

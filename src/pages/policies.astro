@@ -251,7 +251,7 @@ import TrackingHead from "@/components/TrackingHead.astro";
         tab.addEventListener("click", () => {
           const nextTab = tab.getAttribute("data-policy-tab") || "privacy";
           activatePolicyTab(nextTab);
-          window.fbq?.("trackCustom", "PolicyTabView", {
+          window.ornisTrackMetaCustomEvent?.("PolicyTabView", {
             content_name: nextTab,
             page_path: window.location.pathname,
           });
@@ -266,7 +266,7 @@ import TrackingHead from "@/components/TrackingHead.astro";
         link.addEventListener("click", () => {
           const href = link.getAttribute("href") || "";
           const contactType = href.startsWith("tel:") ? "phone" : href.startsWith("mailto:") ? "email" : "social";
-          window.fbq?.("trackCustom", "Contact", {
+          window.ornisTrackMetaCustomEvent?.("Contact", {
             contact_type: contactType,
             destination: href,
             page_path: window.location.pathname,
