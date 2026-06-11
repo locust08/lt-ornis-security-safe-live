@@ -22,6 +22,7 @@ export type RuntimeEnv = RuntimeEnvSource & {
   PUBLIC_META_PIXEL_ID?: string;
   NOTION_TOKEN?: string;
   NOTION_VISITOR_EVENTS_DATABASE_ID?: string;
+  NOTION_CHECKOUT_LEADS_DATABASE_ID?: string;
   PUBLIC_TIKTOK_PIXEL_ID?: string;
   GTM_CONTAINER_ID?: string;
   PUBLIC_GTM_CONTAINER_ID?: string;

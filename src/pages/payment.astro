@@ -2,18 +2,19 @@
 import "../styles/globals.css";
 import TrackingBody from "@/components/TrackingBody.astro";
 import TrackingHead from "@/components/TrackingHead.astro";
-import { ORNIS_FREE_PROMO_CODE, ORNIS_PROMO_CODE, formatRM, getAppliedPromoCode, getUnitPrice, parseCheckoutItems } from "@/lib/ornis/catalog";
+import { ORNIS_FREE_PROMO_CODE, ORNIS_FREE_PROMO_TOTAL, ORNIS_PROMO_CODE, formatRM, getAppliedPromoCode, getPayableTotal, getUnitPrice, parseCheckoutItems } from "@/lib/ornis/catalog";
 
 export const prerender = false;
 
 const items = parseCheckoutItems(Astro.url.searchParams);
 const promoCode = getAppliedPromoCode(Astro.url.searchParams.get("promo"));
-const subtotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoCode) * item.quantity, 0);
+const subtotal = getPayableTotal(items, promoCode);
 const originalSubtotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
 const cancelled = Astro.url.searchParams.get("cancelled") === "1";
 const catalogForScript = JSON.stringify(
   items.map((item) => ({
     id: item.id,
+    name: `${item.model} ${item.color}`,
     originalPrice: item.originalPrice,
     discountedPrice: item.discountedPrice,
   })),
@@ -94,6 +95,18 @@ const checkoutEvent = {
       )}
 
       <form class="checkout-layout" action="/api/checkout" method="post" data-checkout-form>
+        <input type="hidden" name="checkoutDraftId" data-prepayment-field="draftId" />
+        <input type="hidden" name="checkoutFirstSeenAt" data-prepayment-field="firstSeenAt" />
+        <input type="hidden" name="checkoutFullUrl" data-prepayment-field="fullUrl" />
+        <input type="hidden" name="checkoutReferrer" data-prepayment-field="referrer" />
+        <input type="hidden" name="checkoutUserAgent" data-prepayment-field="userAgent" />
+        <input type="hidden" name="checkoutClid" data-prepayment-field="clid" />
+        <input type="hidden" name="checkoutFbclid" data-prepayment-field="fbclid" />
+        <input type="hidden" name="checkoutTtclid" data-prepayment-field="ttclid" />
+        <input type="hidden" name="checkoutGclid" data-prepayment-field="gclid" />
+        <input type="hidden" name="checkoutUtmSource" data-prepayment-field="utm_source" />
+        <input type="hidden" name="checkoutUtmMedium" data-prepayment-field="utm_medium" />
+        <input type="hidden" name="checkoutUtmCampaign" data-prepayment-field="utm_campaign" />
         <section class="checkout-main" aria-labelledby="checkout-title">
           <div class="checkout-title">
             <p>Free delivery included</p>
@@ -248,7 +261,7 @@ const checkoutEvent = {
       </form>
     </main>
 
-    <script is:inline define:vars={{ catalogForScript, promoCodes: [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE] }}>
+    <script is:inline define:vars={{ catalogForScript, promoCodes: [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE], freePromoCode: ORNIS_FREE_PROMO_CODE, freePromoTotal: ORNIS_FREE_PROMO_TOTAL }}>
       const catalog = JSON.parse(catalogForScript);
       const formatter = new Intl.NumberFormat("en-MY", {
         style: "currency",
@@ -262,7 +275,75 @@ const checkoutEvent = {
       const discount = document.querySelector("[data-discount]");
       const total = document.querySelector("[data-total]");
       const checkoutForm = document.querySelector("[data-checkout-form]");
+      const prePaymentFields = {
+        draftId: document.querySelector('[data-prepayment-field="draftId"]'),
+        firstSeenAt: document.querySelector('[data-prepayment-field="firstSeenAt"]'),
+        fullUrl: document.querySelector('[data-prepayment-field="fullUrl"]'),
+        referrer: document.querySelector('[data-prepayment-field="referrer"]'),
+        userAgent: document.querySelector('[data-prepayment-field="userAgent"]'),
+        clid: document.querySelector('[data-prepayment-field="clid"]'),
+        fbclid: document.querySelector('[data-prepayment-field="fbclid"]'),
+        ttclid: document.querySelector('[data-prepayment-field="ttclid"]'),
+        gclid: document.querySelector('[data-prepayment-field="gclid"]'),
+        utm_source: document.querySelector('[data-prepayment-field="utm_source"]'),
+        utm_medium: document.querySelector('[data-prepayment-field="utm_medium"]'),
+        utm_campaign: document.querySelector('[data-prepayment-field="utm_campaign"]'),
+      };
       let lastAppliedPromoCode = "";
+      let lastPrePaymentPayload = "";
+      let prePaymentTimer;
+      let checkoutSubmitInProgress = false;
+
+      const getStorageId = (key, prefix) => {
+        try {
+          let value = window.sessionStorage.getItem(key);
+          if (!value) {
+            value = `${prefix}_${crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)}`;
+            window.sessionStorage.setItem(key, value);
+          }
+          return value;
+        } catch {
+          return `${prefix}_${Date.now().toString(36)}`;
+        }
+      };
+
+      const getStorageTimestamp = (key) => {
+        try {
+          let value = window.sessionStorage.getItem(key);
+          if (!value) {
+            value = new Date().toISOString();
+            window.sessionStorage.setItem(key, value);
+          }
+          return value;
+        } catch {
+          return new Date().toISOString();
+        }
+      };
+
+      const checkoutDraftId = getStorageId("ornis_checkout_draft_id", "checkout");
+      const checkoutFirstSeenAt = getStorageTimestamp("ornis_checkout_first_seen_at");
+
+      const updatePrePaymentHiddenFields = () => {
+        const attribution = window.ornisGetAttribution?.() || {};
+        const values = {
+          draftId: checkoutDraftId,
+          firstSeenAt: checkoutFirstSeenAt,
+          fullUrl: window.location.href,
+          referrer: document.referrer || "",
+          userAgent: navigator.userAgent || "",
+          clid: attribution.clid || "",
+          fbclid: attribution.fbclid || "",
+          ttclid: attribution.ttclid || "",
+          gclid: attribution.gclid || "",
+          utm_source: attribution.utm_source || "",
+          utm_medium: attribution.utm_medium || "",
+          utm_campaign: attribution.utm_campaign || "",
+        };
+
+        Object.entries(values).forEach(([key, value]) => {
+          if (prePaymentFields[key]) prePaymentFields[key].value = value;
+        });
+      };
 
       const getAppliedPromoCode = () => {
         const normalized = promoInput?.value.trim().toUpperCase() ?? "";
@@ -270,10 +351,13 @@ const checkoutEvent = {
       };
 
       const getUnitPrice = (item, appliedPromoCode) => {
-        if (appliedPromoCode === "JIEYEE00") return 0;
+        if (appliedPromoCode === freePromoCode) return 0;
         if (appliedPromoCode === "ORNIS45") return item.discountedPrice;
         return item.originalPrice;
       };
+
+      const getPayableTotal = (subtotal, appliedPromoCode) =>
+        appliedPromoCode === freePromoCode ? freePromoTotal : subtotal;
 
       const getCurrentCheckoutEvent = () => {
         const appliedPromoCode = getAppliedPromoCode();
@@ -289,10 +373,11 @@ const checkoutEvent = {
           const price = getUnitPrice(item, appliedPromoCode);
 
           contents.push({ id: item.id, quantity, item_price: price });
-          items.push({ item_id: item.id, price, quantity });
+          items.push({ item_id: item.id, name: item.name, price, quantity });
           value += price * quantity;
           numItems += quantity;
         });
+        value = getPayableTotal(value, appliedPromoCode);
 
         return {
           content_ids: contents.map((item) => item.id),
@@ -306,10 +391,81 @@ const checkoutEvent = {
         };
       };
 
+      const getFieldValue = (name) => checkoutForm?.elements?.[name]?.value?.trim?.() || "";
+
+      const getPrePaymentPayload = (status = "Draft") => {
+        updatePrePaymentHiddenFields();
+        const checkoutPayload = getCurrentCheckoutEvent();
+
+        return {
+          draftId: checkoutDraftId,
+          status,
+          firstSeenAt: checkoutFirstSeenAt,
+          submittedAt: status === "Submitted to Fiuu" ? new Date().toISOString() : "",
+          customer: {
+            name: getFieldValue("name"),
+            phone: getFieldValue("phone"),
+            email: getFieldValue("email"),
+            address: getFieldValue("address"),
+            postcode: getFieldValue("postcode"),
+            state: getFieldValue("state"),
+          },
+          items: checkoutPayload.items.map((item) => ({
+            id: item.item_id,
+            name: item.name || item.item_id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          quantity: checkoutPayload.num_items,
+          promoCode: checkoutPayload.coupon,
+          checkoutValue: checkoutPayload.value,
+          attribution: {
+            clid: prePaymentFields.clid?.value || "",
+            fbclid: prePaymentFields.fbclid?.value || "",
+            ttclid: prePaymentFields.ttclid?.value || "",
+            gclid: prePaymentFields.gclid?.value || "",
+            utm_source: prePaymentFields.utm_source?.value || "",
+            utm_medium: prePaymentFields.utm_medium?.value || "",
+            utm_campaign: prePaymentFields.utm_campaign?.value || "",
+          },
+          fullUrl: window.location.href,
+          referrer: document.referrer || "",
+          userAgent: navigator.userAgent || "",
+        };
+      };
+
+      const hasPrePaymentContact = (payload) =>
+        Boolean(payload.customer.name || payload.customer.phone || payload.customer.email);
+
+      const savePrePaymentPayload = async (status = "Draft", force = false) => {
+        const payload = getPrePaymentPayload(status);
+        if (!hasPrePaymentContact(payload)) return;
+
+        const payloadText = JSON.stringify(payload);
+        if (!force && payloadText === lastPrePaymentPayload) return;
+        lastPrePaymentPayload = payloadText;
+
+        try {
+          await fetch("/api/pre-payment-info", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: payloadText,
+            keepalive: true,
+          });
+        } catch (error) {
+          console.error("Unable to save pre-payment info.", error);
+        }
+      };
+
+      const schedulePrePaymentSave = () => {
+        window.clearTimeout(prePaymentTimer);
+        prePaymentTimer = window.setTimeout(() => savePrePaymentPayload("Draft"), 1500);
+      };
+
       const updateSummary = () => {
         const appliedPromoCode = getAppliedPromoCode();
         let original = 0;
-        let payable = 0;
+        let payableSubtotal = 0;
 
         lineItems.forEach((line) => {
           const item = catalog.find((entry) => entry.id === line.dataset.itemId);
@@ -322,12 +478,14 @@ const checkoutEvent = {
           }
 
           original += item.originalPrice * quantity;
-          payable += getUnitPrice(item, appliedPromoCode) * quantity;
+          payableSubtotal += getUnitPrice(item, appliedPromoCode) * quantity;
 
           if (lineTotal) {
             lineTotal.textContent = formatRM(getUnitPrice(item, appliedPromoCode) * quantity);
           }
         });
+
+        const payable = getPayableTotal(payableSubtotal, appliedPromoCode);
 
         if (originalSubtotal) originalSubtotal.textContent = formatRM(original);
         if (discount) discount.textContent = formatRM(original - payable);
@@ -335,6 +493,8 @@ const checkoutEvent = {
       };
 
       promoInput?.addEventListener("input", updateSummary);
+      checkoutForm?.addEventListener("input", schedulePrePaymentSave);
+      checkoutForm?.addEventListener("change", schedulePrePaymentSave);
       lineItems.forEach((line) => {
         line.querySelector("[data-quantity]")?.addEventListener("input", () => {
           updateSummary();
@@ -368,7 +528,12 @@ const checkoutEvent = {
         }
         if (!appliedPromoCode) lastAppliedPromoCode = "";
       });
-      checkoutForm?.addEventListener("submit", () => {
+      checkoutForm?.addEventListener("submit", async (event) => {
+        if (checkoutSubmitInProgress) return;
+        event.preventDefault();
+        checkoutSubmitInProgress = true;
+        window.clearTimeout(prePaymentTimer);
+
         const checkoutPayload = getCurrentCheckoutEvent();
         window.ornisTrackMetaEvent?.("AddPaymentInfo", {
           content_ids: checkoutPayload.content_ids,
@@ -379,7 +544,10 @@ const checkoutEvent = {
           num_items: checkoutPayload.num_items,
         });
         window.ornisTrack?.("add_payment_info", checkoutPayload);
+        await savePrePaymentPayload("Submitted to Fiuu", true);
+        checkoutForm.submit();
       });
+      updatePrePaymentHiddenFields();
       updateSummary();
     </script>
   </body>

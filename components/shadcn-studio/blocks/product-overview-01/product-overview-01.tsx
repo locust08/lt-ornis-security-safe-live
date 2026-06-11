@@ -78,6 +78,9 @@ const formatRM = (value: number) =>
     .replace("MYR", "RM");
 
 const ORNIS_PROMO_CODE = "ORNIS45";
+const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
+const ORNIS_FREE_PROMO_TOTAL = 1;
+const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE];
 const WHATSAPP_CHAT_URL =
   "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis?landing_url=https%3A%2F%2Fornis.falconsafe.com.my%2F&source_url=https%3A%2F%2Fornis.falconsafe.com.my%2F";
 
@@ -93,25 +96,29 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const cartNoticeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeProduct = productItems[activeIndex] ?? productItems[0];
 
-  const couponApplied = couponCode.trim().toLowerCase() === ORNIS_PROMO_CODE.toLowerCase();
+  const normalizedCouponCode = couponCode.trim().toUpperCase();
+  const appliedCouponCode = ORNIS_PROMO_CODES.find((code) => code === normalizedCouponCode) ?? "";
+  const couponApplied = Boolean(appliedCouponCode);
+  const isFreePromoApplied = appliedCouponCode === ORNIS_FREE_PROMO_CODE;
   const listPrice = activeProduct.originalPrice ?? activeProduct.price;
   const couponPrice = activeProduct.price;
-  const finalPrice = couponApplied ? couponPrice : listPrice;
+  const finalPrice = isFreePromoApplied ? ORNIS_FREE_PROMO_TOTAL : couponApplied ? couponPrice : listPrice;
   const discountPercentage = useMemo(() => {
+    if (isFreePromoApplied) return 100;
     if (activeProduct.discountPercentage) return activeProduct.discountPercentage;
     if (!activeProduct.hasDiscount || listPrice <= couponPrice) return 0;
 
     return Math.round(((listPrice - couponPrice) / listPrice) * 100);
-  }, [activeProduct.discountPercentage, activeProduct.hasDiscount, couponPrice, listPrice]);
+  }, [activeProduct.discountPercentage, activeProduct.hasDiscount, couponPrice, isFreePromoApplied, listPrice]);
   const hasDiscount = couponApplied && activeProduct.hasDiscount && listPrice > couponPrice;
   const activeImage = activeProduct.images[0];
   const activeColor = activeProduct.defaultColorOption ?? activeProduct.color;
   const activeSize = activeProduct.defaultSize;
   const productHref = couponApplied
-    ? withPromoCode(activeProduct.href ?? "/payment", ORNIS_PROMO_CODE)
+    ? withPromoCode(activeProduct.href ?? "/payment", appliedCouponCode)
     : (activeProduct.href ?? "#");
   const getItemListPrice = (item: ProductItem) => item.originalPrice ?? item.price;
-  const getItemPrice = (item: ProductItem) => (couponApplied ? item.price : getItemListPrice(item));
+  const getItemPrice = (item: ProductItem) => (isFreePromoApplied ? 0 : couponApplied ? item.price : getItemListPrice(item));
   const getTrackingItem = (item: ProductItem, quantity = 1) => ({
     item_id: item.id ?? item.name,
     item_name: item.name,
@@ -133,7 +140,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
     if (typeof window === "undefined") return;
 
     const trackingItems = items.map(({ item, quantity }) => getTrackingItem(item, quantity));
-    const value = trackingItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = trackingItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const value = isFreePromoApplied && items.length > 0 ? ORNIS_FREE_PROMO_TOTAL : subtotal;
     const metaEvent = event === "add_to_cart" ? "AddToCart" : "InitiateCheckout";
     const metaContents = getMetaContents(items);
     window.dataLayer = window.dataLayer || [];
@@ -164,7 +172,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       value,
       num_items: metaContents.reduce((sum, item) => sum + Number(item.quantity), 0),
       items: trackingItems,
-      coupon: couponApplied ? ORNIS_PROMO_CODE : "",
+      coupon: couponApplied ? appliedCouponCode : "",
     });
   };
 
@@ -234,7 +242,8 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   };
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cartItems.reduce((total, item) => total + getItemPrice(item) * item.quantity, 0);
+  const cartSubtotal = cartItems.reduce((total, item) => total + getItemPrice(item) * item.quantity, 0);
+  const cartTotal = isFreePromoApplied && cartItems.length > 0 ? ORNIS_FREE_PROMO_TOTAL : cartSubtotal;
   const cartItemParam = cartItems
     .map((item) => `${encodeURIComponent(item.id ?? item.name)}:${item.quantity}`)
     .join(",");
@@ -243,14 +252,16 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       ? `/payment?items=${cartItemParam}`
       : `/payment?items=${cartItemParam}`;
   const checkoutHref = couponApplied
-    ? withPromoCode(baseCheckoutHref, ORNIS_PROMO_CODE)
+    ? withPromoCode(baseCheckoutHref, appliedCouponCode)
     : baseCheckoutHref;
 
   useEffect(() => {
     const promo = new URLSearchParams(window.location.search).get("promo");
 
-    if (promo?.trim().toLowerCase() === ORNIS_PROMO_CODE.toLowerCase()) {
-      setCouponCode(ORNIS_PROMO_CODE);
+    const appliedPromoCode = ORNIS_PROMO_CODES.find((code) => code === promo?.trim().toUpperCase());
+
+    if (appliedPromoCode) {
+      setCouponCode(appliedPromoCode);
     }
   }, []);
 
@@ -581,12 +592,13 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
                   onChange={(event) => {
                     const nextCode = event.target.value;
                     setCouponCode(nextCode);
-                    if (nextCode.trim().toLowerCase() === ORNIS_PROMO_CODE.toLowerCase()) {
-                      trackVoucherApply(ORNIS_PROMO_CODE);
+                    const appliedPromoCode = ORNIS_PROMO_CODES.find((code) => code === nextCode.trim().toUpperCase());
+                    if (appliedPromoCode) {
+                      trackVoucherApply(appliedPromoCode);
                     }
                   }}
                   className="min-w-0 flex-1 bg-transparent text-base font-semibold uppercase text-[#1f2020] outline-none placeholder:normal-case placeholder:text-[#8b7d78]"
-                  placeholder="Use code ORNIS45"
+                  placeholder="Enter voucher code"
                 />
                 {couponApplied && (
                   <span className="grid size-7 place-items-center rounded-full bg-green-600 text-white" aria-label="Voucher applied">

@@ -1,9 +1,10 @@
 import type { APIRoute } from "astro";
-import { ORNIS_FREE_PROMO_CODE } from "@/lib/ornis/catalog";
+import { getUnitPrice } from "@/lib/ornis/catalog";
 import { buildFiuuPaymentRequest } from "@/lib/ornis/fiuu";
-import { appendPendingOrder, updateOrderPayment } from "@/lib/ornis/google";
+import { appendPendingOrder } from "@/lib/ornis/google";
 import { getRuntimeEnv } from "@/lib/ornis/env";
-import { formatAmount, parseOrderFromFormData } from "@/lib/ornis/order";
+import { parseOrderFromFormData } from "@/lib/ornis/order";
+import { savePrePaymentLead } from "@/lib/ornis/pre-payment-server";
 
 export const prerender = false;
 
@@ -78,29 +79,60 @@ const paymentFormHtml = (action: string, fields: Record<string, string>) => `
   </body>
 </html>`;
 
+const getString = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
+
+const saveSubmittedPrePaymentLead = async (context: Parameters<APIRoute>[0], formData: FormData, order: ReturnType<typeof parseOrderFromFormData>) => {
+  const draftId = getString(formData, "checkoutDraftId");
+
+  if (!draftId) return;
+
+  const items = order.items.map((item) => ({
+    id: item.id,
+    name: `${item.model} ${item.color}`,
+    quantity: item.quantity,
+    price: getUnitPrice(item, order.promoCode),
+  }));
+
+  const savePromise = savePrePaymentLead(context, {
+    draftId,
+    orderId: order.orderId,
+    status: "Submitted to Fiuu",
+    firstSeenAt: getString(formData, "checkoutFirstSeenAt"),
+    submittedAt: new Date().toISOString(),
+    customer: order.customer,
+    items,
+    quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+    promoCode: order.promoCode,
+    checkoutValue: order.totalPaid,
+    attribution: {
+      clid: getString(formData, "checkoutClid"),
+      fbclid: getString(formData, "checkoutFbclid"),
+      ttclid: getString(formData, "checkoutTtclid"),
+      gclid: getString(formData, "checkoutGclid"),
+      utm_source: getString(formData, "checkoutUtmSource"),
+      utm_medium: getString(formData, "checkoutUtmMedium"),
+      utm_campaign: getString(formData, "checkoutUtmCampaign"),
+    },
+    fullUrl: getString(formData, "checkoutFullUrl"),
+    referrer: getString(formData, "checkoutReferrer"),
+    userAgent: getString(formData, "checkoutUserAgent"),
+  }).catch((error) => {
+    console.error("Unable to save submitted pre-payment lead.", error);
+  });
+
+  await Promise.race([
+    savePromise,
+    new Promise((resolve) => setTimeout(resolve, 2500)),
+  ]);
+};
+
 export const POST: APIRoute = async (context) => {
   try {
     const env = getRuntimeEnv(context);
     const formData = await context.request.formData();
     const order = parseOrderFromFormData(formData);
 
-    if (order.promoCode === ORNIS_FREE_PROMO_CODE && formatAmount(order.totalPaid) === "0.00") {
-      await updateOrderPayment(
-        env,
-        order,
-        {
-          status: "Paid",
-          tranId: `TEST-${order.orderId}`,
-          channel: "Internal Test",
-          amount: "0.00",
-          paydate: new Date().toISOString(),
-          note: "Marked paid internally via JIEYEE00 test checkout.",
-        },
-        "Skipped - test checkout",
-      );
-
-      return Response.redirect(new URL(`/thank-you?order=${encodeURIComponent(order.orderId)}&status=Paid`, context.url.origin), 303);
-    }
+    await saveSubmittedPrePaymentLead(context, formData, order);
 
     const paymentRequest = buildFiuuPaymentRequest(env, order, context.url.origin);
 

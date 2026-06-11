@@ -10,4 +10,6 @@ interface Window {
     options?: Record<string, unknown>,
   ) => void;
   ornisTrackMetaCustomEvent?: (eventName: string, parameters?: Record<string, unknown>) => void;
+  ornisTrack?: (eventName: string, payload?: Record<string, unknown>) => Record<string, unknown> | undefined;
+  ornisGetAttribution?: () => Record<string, string>;
 }

@@ -1,5 +1,6 @@
 import {
   getAppliedPromoCode,
+  getPayableTotal,
   ORNIS_PRODUCTS,
   getProductById,
   getUnitPrice,
@@ -163,6 +164,7 @@ export const parseOrderFromFormData = (formData: FormData): CheckoutOrder => {
   const originalTotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
   const finalTotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoCode) * item.quantity, 0);
   const shipping = 0;
+  const totalPaid = getPayableTotal(items, promoCode, shipping);
 
   return {
     orderId: createOrderId(),
@@ -174,7 +176,7 @@ export const parseOrderFromFormData = (formData: FormData): CheckoutOrder => {
     shipping,
     originalTotal,
     finalTotal,
-    totalPaid: finalTotal + shipping,
+    totalPaid,
   };
 };
 

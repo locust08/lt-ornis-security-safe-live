@@ -15,6 +15,7 @@ export type OrderLineItem = OrnisProduct & {
 
 export const ORNIS_PROMO_CODE = "ORNIS45";
 export const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
+export const ORNIS_FREE_PROMO_TOTAL = 1;
 export const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE] as const;
 export const ORNIS_SHEET_ID = "1Mp2uefJ9T0tCzqzNZ3mfoCj0YPbj62tu-Zmmb_a3PRo";
 
@@ -90,6 +91,21 @@ export const getUnitPrice = (product: OrnisProduct, promo: boolean | string | nu
   if (appliedPromoCode === ORNIS_PROMO_CODE) return product.discountedPrice;
 
   return product.originalPrice;
+};
+
+export const getPromoTotalOverride = (promoCode: string | null | undefined) => {
+  const appliedPromoCode = getAppliedPromoCode(promoCode);
+
+  if (appliedPromoCode === ORNIS_FREE_PROMO_CODE) return ORNIS_FREE_PROMO_TOTAL;
+
+  return null;
+};
+
+export const getPayableTotal = (items: OrderLineItem[], promoCode: string | null | undefined, shipping = 0) => {
+  const subtotal = items.reduce((sum, item) => sum + getUnitPrice(item, promoCode) * item.quantity, 0);
+  const promoTotalOverride = getPromoTotalOverride(promoCode);
+
+  return (promoTotalOverride ?? subtotal) + shipping;
 };
 
 export const parseCheckoutItems = (searchParams: URLSearchParams): OrderLineItem[] => {
