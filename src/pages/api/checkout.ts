@@ -136,7 +136,9 @@ export const POST: APIRoute = async (context) => {
 
     const paymentRequest = buildFiuuPaymentRequest(env, order, context.url.origin);
 
-    await appendPendingOrder(env, order);
+    await appendPendingOrder(env, order).catch((error) => {
+      console.error("Unable to append pending order before Fiuu redirect.", error);
+    });
 
     return new Response(paymentFormHtml(paymentRequest.action, paymentRequest.fields), {
       headers: { "Content-Type": "text/html; charset=utf-8" },

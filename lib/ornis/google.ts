@@ -276,14 +276,10 @@ const moveDataRowToTop = async (env: RuntimeEnv, sheetId: number, existingRowNum
 };
 
 export const appendPendingOrder = async (env: RuntimeEnv, order: CheckoutOrder) => {
-  const ordersSheetId = await getOrdersSheetId(env);
-  const existing = await findOrderRow(env, order.orderId);
-  await moveDataRowToTop(env, ordersSheetId, existing?.rowNumber);
-  await sheetsRequest(env, "/values/Orders!A2:X2?valueInputOption=RAW", {
-    method: "PUT",
+  await sheetsRequest(env, "/values/Orders!A:X:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS", {
+    method: "POST",
     body: JSON.stringify({ values: [orderToSheetRow(order, "Pending")] }),
   });
-  await applyOrderRowFormatting(env, 2);
 };
 
 export const findOrderRow = async (env: RuntimeEnv, orderId: string): Promise<ExistingOrderRow | null> => {
