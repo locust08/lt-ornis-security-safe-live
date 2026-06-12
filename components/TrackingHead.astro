@@ -12,7 +12,10 @@ const ga4MeasurementId = (
 const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const tiktokPixelId = env.PUBLIC_TIKTOK_PIXEL_ID?.trim() || "D8FTG3RC77UANKFS989G";
 const visitorEventApiEnabled = Boolean(
-  (env.NOTION_TOKEN ?? "").trim() && (env.NOTION_VISITOR_EVENTS_DATABASE_ID ?? "").trim(),
+  ((env.NOTION_TOKEN ?? "").trim() && (env.NOTION_VISITOR_EVENTS_DATABASE_ID ?? "").trim()) ||
+    ((env.GOOGLE_OAUTH_CLIENT_ID ?? "").trim() &&
+      (env.GOOGLE_OAUTH_CLIENT_SECRET ?? "").trim() &&
+      (env.GOOGLE_WORKSPACE_OAUTH_REFRESH_TOKEN ?? "").trim()),
 );
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---

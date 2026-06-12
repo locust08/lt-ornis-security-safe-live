@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getRuntimeEnv } from "@/lib/ornis/env";
+import { appendVisitorEvents, type VisitorTrackingEvent } from "@/lib/ornis/visitor-events-sheet";
 
 export const prerender = false;
 
@@ -185,8 +186,14 @@ export const POST: APIRoute = async (context) => {
     const env = getRuntimeEnv(context);
     const notionToken = env.NOTION_TOKEN?.trim();
     const databaseId = env.NOTION_VISITOR_EVENTS_DATABASE_ID?.trim();
+    const sheetsConfigured = Boolean(
+      env.GOOGLE_OAUTH_CLIENT_ID?.trim() &&
+        env.GOOGLE_OAUTH_CLIENT_SECRET?.trim() &&
+        env.GOOGLE_WORKSPACE_OAUTH_REFRESH_TOKEN?.trim(),
+    );
+    const notionConfigured = Boolean(notionToken && databaseId);
 
-    if (!notionToken || !databaseId) {
+    if (!notionConfigured && !sheetsConfigured) {
       return new Response(JSON.stringify({ ok: false, configured: false }), {
         status: 202,
         headers: { "Content-Type": "application/json" },
@@ -197,21 +204,32 @@ export const POST: APIRoute = async (context) => {
     const events = getTrackingEvents(body).filter((event) => event && typeof event === "object").slice(0, 25);
     const ipAddress = getIpAddress(context.request);
     const geo = getCloudflareGeo(context);
-    let tracked = 0;
+    let notionTracked = 0;
+    let sheetsTracked = 0;
 
-    for (const event of events) {
-      const notionResponse = await createNotionVisitorEvent(event, notionToken, databaseId, ipAddress, geo);
+    if (notionConfigured) {
+      for (const event of events) {
+        const notionResponse = await createNotionVisitorEvent(event, notionToken!, databaseId!, ipAddress, geo);
 
-      if (!notionResponse.ok) {
-        const errorText = await notionResponse.text();
-        console.error("Unable to create Notion visitor event.", errorText);
-        continue;
+        if (!notionResponse.ok) {
+          const errorText = await notionResponse.text();
+          console.error("Unable to create Notion visitor event.", errorText);
+          continue;
+        }
+
+        notionTracked += 1;
       }
-
-      tracked += 1;
     }
 
-    return new Response(JSON.stringify({ ok: true, received: events.length, tracked }), {
+    if (sheetsConfigured) {
+      try {
+        sheetsTracked = await appendVisitorEvents(env, events as VisitorTrackingEvent[], ipAddress, geo);
+      } catch (error) {
+        console.error("Unable to append Google Sheets visitor events.", error);
+      }
+    }
+
+    return new Response(JSON.stringify({ ok: true, received: events.length, notionTracked, sheetsTracked }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {

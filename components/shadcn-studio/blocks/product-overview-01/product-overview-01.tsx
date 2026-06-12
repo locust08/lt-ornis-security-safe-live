@@ -81,8 +81,7 @@ const ORNIS_PROMO_CODE = "ORNIS45";
 const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
 const ORNIS_FREE_PROMO_TOTAL = 1;
 const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE];
-const WHATSAPP_CHAT_URL =
-  "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis?landing_url=https%3A%2F%2Fornis.falconsafe.com.my%2F&source_url=https%3A%2F%2Fornis.falconsafe.com.my%2F";
+const WHATSAPP_CHAT_URL = "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis";
 
 const withPromoCode = (href: string, promoCode: string) =>
   `${href}${href.includes("?") ? "&" : "?"}promo=${encodeURIComponent(promoCode)}`;
@@ -304,12 +303,29 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
     });
   };
 
+  const trackWhatsAppClick = () => {
+    if (typeof window === "undefined") return;
+
+    window.ornisTrackMetaCustomEvent?.("Contact", {
+      contact_type: "whatsapp",
+      destination: WHATSAPP_CHAT_URL,
+      content_name: "Floating WhatsApp button",
+    });
+    window.ornisTrack?.("contact_click", {
+      contact_type: "whatsapp",
+      destination: WHATSAPP_CHAT_URL,
+      content_name: "Floating WhatsApp button",
+      placement: "floating_product_actions",
+    });
+  };
+
   return (
     <section className="relative bg-background py-8 sm:py-14 lg:py-20" aria-labelledby="choose-ornis">
       <a
         href={WHATSAPP_CHAT_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={trackWhatsAppClick}
         className="fixed bottom-20 right-4 z-[70] inline-flex size-12 items-center justify-center overflow-hidden rounded-full shadow-[0_1rem_2rem_rgba(52,40,31,0.16)] transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#25d366]/35 sm:bottom-[5.25rem] sm:right-6"
         aria-label="Chat with Ornis on WhatsApp"
       >
