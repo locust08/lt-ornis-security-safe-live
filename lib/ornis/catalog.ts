@@ -14,9 +14,10 @@ export type OrderLineItem = OrnisProduct & {
 };
 
 export const ORNIS_PROMO_CODE = "ORNIS45";
+export const ORNIS_DEALER_PROMO_CODE = "DEALER45";
 export const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
 export const ORNIS_FREE_PROMO_TOTAL = 1;
-export const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE] as const;
+export const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_DEALER_PROMO_CODE, ORNIS_FREE_PROMO_CODE] as const;
 export const ORNIS_SHEET_ID = "1Mp2uefJ9T0tCzqzNZ3mfoCj0YPbj62tu-Zmmb_a3PRo";
 
 export const ORNIS_PRODUCTS: OrnisProduct[] = [
@@ -88,7 +89,7 @@ export const getUnitPrice = (product: OrnisProduct, promo: boolean | string | nu
   const appliedPromoCode = getAppliedPromoCode(promo);
 
   if (appliedPromoCode === ORNIS_FREE_PROMO_CODE) return 0;
-  if (appliedPromoCode === ORNIS_PROMO_CODE) return product.discountedPrice;
+  if (appliedPromoCode) return product.discountedPrice;
 
   return product.originalPrice;
 };

@@ -2,7 +2,7 @@
 import "../styles/globals.css";
 import TrackingBody from "@/components/TrackingBody.astro";
 import TrackingHead from "@/components/TrackingHead.astro";
-import { ORNIS_FREE_PROMO_CODE, ORNIS_FREE_PROMO_TOTAL, ORNIS_PROMO_CODE, formatRM, getAppliedPromoCode, getPayableTotal, getUnitPrice, parseCheckoutItems } from "@/lib/ornis/catalog";
+import { ORNIS_FREE_PROMO_CODE, ORNIS_FREE_PROMO_TOTAL, ORNIS_PROMO_CODES, formatRM, getAppliedPromoCode, getPayableTotal, getUnitPrice, parseCheckoutItems } from "@/lib/ornis/catalog";
 
 export const prerender = false;
 
@@ -261,7 +261,7 @@ const checkoutEvent = {
       </form>
     </main>
 
-    <script is:inline define:vars={{ catalogForScript, promoCodes: [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE], freePromoCode: ORNIS_FREE_PROMO_CODE, freePromoTotal: ORNIS_FREE_PROMO_TOTAL }}>
+    <script is:inline define:vars={{ catalogForScript, promoCodes: ORNIS_PROMO_CODES, freePromoCode: ORNIS_FREE_PROMO_CODE, freePromoTotal: ORNIS_FREE_PROMO_TOTAL }}>
       const catalog = JSON.parse(catalogForScript);
       const formatter = new Intl.NumberFormat("en-MY", {
         style: "currency",
@@ -352,7 +352,7 @@ const checkoutEvent = {
 
       const getUnitPrice = (item, appliedPromoCode) => {
         if (appliedPromoCode === freePromoCode) return 0;
-        if (appliedPromoCode === "ORNIS45") return item.discountedPrice;
+        if (appliedPromoCode) return item.discountedPrice;
         return item.originalPrice;
       };
 

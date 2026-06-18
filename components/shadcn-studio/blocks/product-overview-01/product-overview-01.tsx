@@ -78,9 +78,10 @@ const formatRM = (value: number) =>
     .replace("MYR", "RM");
 
 const ORNIS_PROMO_CODE = "ORNIS45";
+const ORNIS_DEALER_PROMO_CODE = "DEALER45";
 const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
 const ORNIS_FREE_PROMO_TOTAL = 1;
-const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_FREE_PROMO_CODE];
+const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_DEALER_PROMO_CODE, ORNIS_FREE_PROMO_CODE];
 const WHATSAPP_CHAT_URL = "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis";
 
 const withPromoCode = (href: string, promoCode: string) =>
