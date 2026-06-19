@@ -14,7 +14,7 @@ export type OrderLineItem = OrnisProduct & {
 };
 
 export const ORNIS_PROMO_CODE = "ORNIS45";
-export const ORNIS_DEALER_PROMO_CODE = "DEALER45";
+export const ORNIS_DEALER_PROMO_CODE = "FALCON45";
 export const ORNIS_FREE_PROMO_CODE = "JIEYEE00";
 export const ORNIS_FREE_PROMO_TOTAL = 1;
 export const ORNIS_PROMO_CODES = [ORNIS_PROMO_CODE, ORNIS_DEALER_PROMO_CODE, ORNIS_FREE_PROMO_CODE] as const;
