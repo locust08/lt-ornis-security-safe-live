@@ -318,6 +318,12 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
       content_name: "Floating WhatsApp button",
       placement: "floating_product_actions",
     });
+    window.ornisTrack?.("whatsapp_click", {
+      contact_type: "whatsapp",
+      destination: WHATSAPP_CHAT_URL,
+      content_name: "Floating WhatsApp button",
+      placement: "floating_product_actions",
+    });
   };
 
   return (

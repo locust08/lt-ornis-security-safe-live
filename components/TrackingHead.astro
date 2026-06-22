@@ -11,16 +11,10 @@ const ga4MeasurementId = (
 ).trim();
 const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim() || "1848746201969006";
 const tiktokPixelId = env.PUBLIC_TIKTOK_PIXEL_ID?.trim() || "D8FTG3RC77UANKFS989G";
-const visitorEventApiEnabled = Boolean(
-  ((env.NOTION_TOKEN ?? "").trim() && (env.NOTION_VISITOR_EVENTS_DATABASE_ID ?? "").trim()) ||
-    ((env.GOOGLE_OAUTH_CLIENT_ID ?? "").trim() &&
-      (env.GOOGLE_OAUTH_CLIENT_SECRET ?? "").trim() &&
-      (env.GOOGLE_WORKSPACE_OAUTH_REFRESH_TOKEN ?? "").trim()),
-);
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
 
-<script is:inline define:vars={{ visitorEventApiEnabled }}>
+<script is:inline>
   (function () {
     const visitorKey = "ornis_tracking_visitor_id";
     const sessionKey = "ornis_tracking_session_id";
@@ -128,6 +122,8 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       "promo_dismiss",
       "cta_click",
       "contact_click",
+      "section_view",
+      "whatsapp_click",
       "footer_link_click",
       "product_customize",
       "add_to_cart",
@@ -156,7 +152,7 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
     };
 
     const sendTrackingEvents = (events, useBeacon) => {
-      if (!visitorEventApiEnabled || !events.length) return;
+      if (!events.length) return;
 
       const text = JSON.stringify({ events });
       let sentWithBeacon = false;

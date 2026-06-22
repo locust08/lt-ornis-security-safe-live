@@ -337,7 +337,14 @@ const googleReviews = [
           <>
             {
               image.src === "/ornis/everyday-life-buy-now.png" ? (
-                <section class="panel" aria-label="Ornis safes in everyday home spaces">
+                <section
+                  id="everyday-life-section"
+                  class="panel"
+                  aria-label="Ornis safes in everyday home spaces"
+                  data-track-section
+                  data-section-id="everyday-life"
+                  data-section-name="Fits Beautifully Into Everyday Life"
+                >
                   <div class="everyday-life">
                     <div class="everyday-life__header">
                       <div>
@@ -454,7 +461,13 @@ const googleReviews = [
         ))
       }
 
-      <div id="price-section" class="price-section">
+      <div
+        id="price-section"
+        class="price-section"
+        data-track-section
+        data-section-id="price-section"
+        data-section-name="Price Section"
+      >
         <ProductOverview productItems={overviewData} sizesChart={sizes} colorsChart={colors} client:load />
       </div>
 
@@ -705,6 +718,59 @@ const googleReviews = [
           });
         });
       });
+
+      const sectionViewThreshold = 0.5;
+      const trackSectionView = (section) => {
+        const sectionId = section.getAttribute("data-section-id") || section.id || "section";
+        const sectionName = section.getAttribute("data-section-name") || sectionId;
+        const storageKey = `ornis_section_view_${window.location.pathname}_${sectionId}`;
+
+        if (window.sessionStorage.getItem(storageKey)) return;
+
+        window.sessionStorage.setItem(storageKey, "1");
+        const payload = {
+          content_name: sectionName,
+          section_id: sectionId,
+          page_path: window.location.pathname,
+        };
+
+        window.ornisTrackMetaCustomEvent?.("SectionView", payload);
+        window.ornisTrack?.("section_view", payload);
+      };
+
+      const trackedSections = Array.from(document.querySelectorAll("[data-track-section]"));
+
+      if ("IntersectionObserver" in window) {
+        const sectionObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting && entry.intersectionRatio >= sectionViewThreshold) {
+                trackSectionView(entry.target);
+                sectionObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: [sectionViewThreshold] },
+        );
+
+        trackedSections.forEach((section) => sectionObserver.observe(section));
+      } else {
+        const checkTrackedSections = () => {
+          trackedSections.forEach((section) => {
+            const rect = section.getBoundingClientRect();
+            const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+            const visibleRatio = rect.height ? visibleHeight / rect.height : 0;
+
+            if (visibleRatio >= sectionViewThreshold) {
+              trackSectionView(section);
+            }
+          });
+        };
+
+        checkTrackedSections();
+        window.addEventListener("scroll", checkTrackedSections, { passive: true });
+        window.addEventListener("resize", checkTrackedSections);
+      }
 
       document.querySelectorAll(".site-footer__links a").forEach((link) => {
         link.addEventListener("click", () => {

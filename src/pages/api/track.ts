@@ -5,6 +5,7 @@ import { appendVisitorEvents, type VisitorTrackingEvent } from "@/lib/ornis/visi
 export const prerender = false;
 
 const NOTION_VERSION = "2022-06-28";
+const DEFAULT_NOTION_VISITOR_EVENTS_DATABASE_ID = "2bddfa78b664460ab518e6112626ed2b";
 const EVENT_NAMES = new Set([
   "page_view",
   "view_content",
@@ -12,6 +13,8 @@ const EVENT_NAMES = new Set([
   "promo_dismiss",
   "cta_click",
   "contact_click",
+  "section_view",
+  "whatsapp_click",
   "footer_link_click",
   "product_customize",
   "add_to_cart",
@@ -185,7 +188,7 @@ export const POST: APIRoute = async (context) => {
   try {
     const env = getRuntimeEnv(context);
     const notionToken = env.NOTION_TOKEN?.trim();
-    const databaseId = env.NOTION_VISITOR_EVENTS_DATABASE_ID?.trim();
+    const databaseId = env.NOTION_VISITOR_EVENTS_DATABASE_ID?.trim() || DEFAULT_NOTION_VISITOR_EVENTS_DATABASE_ID;
     const sheetsConfigured = Boolean(
       env.GOOGLE_OAUTH_CLIENT_ID?.trim() &&
         env.GOOGLE_OAUTH_CLIENT_SECRET?.trim() &&
