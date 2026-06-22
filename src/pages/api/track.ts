@@ -15,6 +15,7 @@ const EVENT_NAMES = new Set([
   "contact_click",
   "section_view",
   "whatsapp_click",
+  "whatsapp_redirect",
   "footer_link_click",
   "product_customize",
   "add_to_cart",
