@@ -55,6 +55,52 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
 
         const destinationUrl = buildDestinationUrl();
 
+        const getStoredValue = (area, key) => {
+          try {
+            return window[area]?.getItem(key) || "";
+          } catch {
+            return "";
+          }
+        };
+
+        const sendServerTrackingEvent = (payload) => {
+          const attribution = window.ornisGetAttribution?.() || {};
+          const event = {
+            event_id: crypto.randomUUID ? crypto.randomUUID() : `event_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            event_time: new Date().toISOString(),
+            event_name: "whatsapp_redirect",
+            visitor_id: getStoredValue("localStorage", "ornis_tracking_visitor_id"),
+            session_id: getStoredValue("sessionStorage", "ornis_tracking_session_id"),
+            full_url: window.location.href,
+            page_path: window.location.pathname,
+            query: window.location.search,
+            referrer: document.referrer || "",
+            user_agent: navigator.userAgent,
+            language: navigator.language || "",
+            screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+            ...attribution,
+            payload,
+          };
+          const text = JSON.stringify({ events: [event] });
+          let sentWithBeacon = false;
+
+          try {
+            if (navigator.sendBeacon) {
+              sentWithBeacon = navigator.sendBeacon("/api/track", new Blob([text], { type: "application/json" }));
+            }
+          } catch {}
+
+          if (!sentWithBeacon) {
+            fetch("/api/track", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: text,
+              keepalive: true,
+            }).catch(() => {});
+          }
+        };
+
         const trackBridge = () => {
           const payload = {
             contact_type: "whatsapp",
@@ -65,7 +111,7 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
 
           try {
             window.ornisTrackMetaCustomEvent?.("WhatsAppRedirect", payload);
-            window.ornisTrack?.("whatsapp_redirect", payload);
+            sendServerTrackingEvent(payload);
           } catch {}
         };
 
