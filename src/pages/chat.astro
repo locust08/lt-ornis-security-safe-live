@@ -4,7 +4,6 @@ import TrackingBody from "@/components/TrackingBody.astro";
 import TrackingHead from "@/components/TrackingHead.astro";
 
 const whatsappChatUrl = "https://sitetarik-chatbot-v2.easondev.workers.dev/wa/ornis";
-const metaRefreshContent = `2;url=${whatsappChatUrl}`;
 ---
 
 <!doctype html>
@@ -14,14 +13,12 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Redirecting you to WhatsApp."
+      content="Continue to WhatsApp to chat with the Falcon Safe team."
     />
     <meta name="robots" content="noindex, nofollow" />
-    <meta http-equiv="refresh" content={metaRefreshContent} />
     <TrackingHead />
     <script is:inline define:vars={{ whatsappChatUrl }}>
       (function () {
-        const redirectDelayMs = 1000;
         const currentParams = new URLSearchParams(window.location.search);
         const attributionKeys = [
           "clid",
@@ -106,7 +103,7 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
             contact_type: "whatsapp",
             content_name: "WhatsApp bridge page",
             destination: destinationUrl,
-            redirect_delay_ms: redirectDelayMs,
+            action: "continue_to_whatsapp",
           };
 
           try {
@@ -119,13 +116,16 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
           window.location.href = destinationUrl;
         };
 
-        window.setTimeout(redirectToWhatsApp, redirectDelayMs);
-
         window.addEventListener("DOMContentLoaded", () => {
           const link = document.querySelector("[data-whatsapp-link]");
-          if (link) link.setAttribute("href", destinationUrl);
+          if (!link) return;
 
-          trackBridge();
+          link.setAttribute("href", destinationUrl);
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            trackBridge();
+            window.setTimeout(redirectToWhatsApp, 150);
+          });
         });
       })();
     </script>
@@ -133,7 +133,7 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f565d'/%3E%3Cpath d='M20 25h24v20H20z' fill='%23f6f1ea'/%3E%3Cpath d='M24 25v-5a8 8 0 0 1 16 0v5' fill='none' stroke='%23f6f1ea' stroke-width='5'/%3E%3C/svg%3E"
     />
-    <title>Redirecting to WhatsApp</title>
+    <title>Continue to WhatsApp</title>
   </head>
   <body>
     <TrackingBody />
@@ -148,7 +148,7 @@ const metaRefreshContent = `2;url=${whatsappChatUrl}`;
           decoding="async"
         />
         <h1 id="whatsapp-bridge-title">Redirecting you to WhatsApp</h1>
-        <span>Please wait a moment.</span>
+        <span>Tap the button below to continue.</span>
         <a data-whatsapp-link href={whatsappChatUrl} rel="noopener noreferrer">Continue to WhatsApp</a>
       </section>
     </main>
