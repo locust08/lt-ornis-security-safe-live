@@ -4,6 +4,7 @@ export type OrnisProduct = {
   color: "Emerald" | "Ruby";
   originalPrice: number;
   discountedPrice: number;
+  dealerDiscountedPrice: number;
   stock: number;
   image: string;
   specs: string;
@@ -27,6 +28,7 @@ export const ORNIS_PRODUCTS: OrnisProduct[] = [
     color: "Emerald",
     originalPrice: 3160,
     discountedPrice: 1800,
+    dealerDiscountedPrice: 1710,
     stock: 16,
     image: "/ornis/or-emerald-530-hd.png",
     specs: "530 x 435 x 463 mm / 40.87L",
@@ -37,6 +39,7 @@ export const ORNIS_PRODUCTS: OrnisProduct[] = [
     color: "Ruby",
     originalPrice: 3160,
     discountedPrice: 1800,
+    dealerDiscountedPrice: 1710,
     stock: 25,
     image: "/ornis/or-ruby-530-hd.png",
     specs: "530 x 435 x 463 mm / 40.87L",
@@ -47,6 +50,7 @@ export const ORNIS_PRODUCTS: OrnisProduct[] = [
     color: "Emerald",
     originalPrice: 2690,
     discountedPrice: 1500,
+    dealerDiscountedPrice: 1425,
     stock: 69,
     image: "/ornis/or-emerald-310-hd.png",
     specs: "310 x 420 x 378 mm / 15.12L",
@@ -57,6 +61,7 @@ export const ORNIS_PRODUCTS: OrnisProduct[] = [
     color: "Ruby",
     originalPrice: 2690,
     discountedPrice: 1500,
+    dealerDiscountedPrice: 1425,
     stock: 62,
     image: "/ornis/or-ruby-310-hd.png",
     specs: "310 x 420 x 378 mm / 15.12L",
@@ -89,6 +94,7 @@ export const getUnitPrice = (product: OrnisProduct, promo: boolean | string | nu
   const appliedPromoCode = getAppliedPromoCode(promo);
 
   if (appliedPromoCode === ORNIS_FREE_PROMO_CODE) return 0;
+  if (appliedPromoCode === ORNIS_DEALER_PROMO_CODE) return product.dealerDiscountedPrice;
   if (appliedPromoCode) return product.discountedPrice;
 
   return product.originalPrice;

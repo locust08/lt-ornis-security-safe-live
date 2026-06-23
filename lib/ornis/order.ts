@@ -259,7 +259,10 @@ export const sheetRowToOrder = (values: string[]): CheckoutOrder | null => {
 
   items.forEach((item, index) => {
     if (Number.isFinite(originalPrices[index]) && originalPrices[index] > 0) item.originalPrice = originalPrices[index];
-    if (Number.isFinite(finalPrices[index])) item.discountedPrice = finalPrices[index];
+    if (Number.isFinite(finalPrices[index])) {
+      item.discountedPrice = finalPrices[index];
+      item.dealerDiscountedPrice = finalPrices[index];
+    }
   });
 
   return {

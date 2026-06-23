@@ -18,6 +18,7 @@ type ProductOverviewProps = {
     totalReview: number;
     rating: number;
     price: number;
+    dealerPrice?: number;
     originalPrice?: number;
     hasDiscount?: boolean;
     discountPercentage?: number;
@@ -88,6 +89,11 @@ const withPromoCode = (href: string, promoCode: string) =>
   `${href}${href.includes("?") ? "&" : "?"}promo=${encodeURIComponent(promoCode)}`;
 
 const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverviewProps) => {
+  const purchaseAssurances = [
+    "Lowest price possible",
+    "Direct from manufacturer",
+    "Delivery in 3 days, guaranteed",
+  ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -101,7 +107,9 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const couponApplied = Boolean(appliedCouponCode);
   const isFreePromoApplied = appliedCouponCode === ORNIS_FREE_PROMO_CODE;
   const listPrice = activeProduct.originalPrice ?? activeProduct.price;
-  const couponPrice = activeProduct.price;
+  const getCouponPrice = (item: ProductItem) =>
+    appliedCouponCode === ORNIS_DEALER_PROMO_CODE ? (item.dealerPrice ?? item.price) : item.price;
+  const couponPrice = getCouponPrice(activeProduct);
   const finalPrice = isFreePromoApplied ? ORNIS_FREE_PROMO_TOTAL : couponApplied ? couponPrice : listPrice;
   const discountPercentage = useMemo(() => {
     if (isFreePromoApplied) return 100;
@@ -118,7 +126,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
     ? withPromoCode(activeProduct.href ?? "/payment", appliedCouponCode)
     : (activeProduct.href ?? "#");
   const getItemListPrice = (item: ProductItem) => item.originalPrice ?? item.price;
-  const getItemPrice = (item: ProductItem) => (isFreePromoApplied ? 0 : couponApplied ? item.price : getItemListPrice(item));
+  const getItemPrice = (item: ProductItem) => (isFreePromoApplied ? 0 : couponApplied ? getCouponPrice(item) : getItemListPrice(item));
   const getTrackingItem = (item: ProductItem, quantity = 1) => ({
     item_id: item.id ?? item.name,
     item_name: item.name,
@@ -666,6 +674,17 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
             </div>
 
             <Separator />
+
+            <div className="grid gap-2 rounded-md border border-[#0e5963]/12 bg-[#f6f1ea] p-3 sm:grid-cols-3">
+              {purchaseAssurances.map((assurance) => (
+                <div key={assurance} className="flex items-center gap-2 rounded-md bg-white/70 px-3 py-2 text-sm font-semibold text-[#1f2020]">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[#0e5963] text-white">
+                    <CheckIcon className="size-3.5" />
+                  </span>
+                  <span>{assurance}</span>
+                </div>
+              ))}
+            </div>
 
             <div className="rounded-md border border-border bg-white/45">
               <div className="flex items-center gap-5 px-6 py-4">

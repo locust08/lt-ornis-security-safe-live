@@ -17,6 +17,7 @@ const catalogForScript = JSON.stringify(
     name: `${item.model} ${item.color}`,
     originalPrice: item.originalPrice,
     discountedPrice: item.discountedPrice,
+    dealerDiscountedPrice: item.dealerDiscountedPrice,
   })),
 ).replace(/</g, "\\u003c");
 const checkoutEvent = {
@@ -180,6 +181,7 @@ const checkoutEvent = {
                   data-item-id={item.id}
                   data-original-price={item.originalPrice}
                   data-discounted-price={item.discountedPrice}
+                  data-dealer-discounted-price={item.dealerDiscountedPrice}
                 >
                   <input type="hidden" name="itemId" value={item.id} />
                   <img src={item.image} alt={`${item.model} ${item.color} safe`} width="320" height="240" />
@@ -225,6 +227,18 @@ const checkoutEvent = {
               <dd data-total>{formatRM(subtotal)}</dd>
             </div>
           </dl>
+
+          <section class="checkout-assurance" aria-label="Ornis purchase assurance">
+            <div>
+              <span>Lowest price possible</span>
+            </div>
+            <div>
+              <span>Direct from manufacturer</span>
+            </div>
+            <div>
+              <span>Delivery in 3 days, guaranteed</span>
+            </div>
+          </section>
 
           <button class="checkout-button" type="submit">Pay Securely</button>
           <p class="checkout-note">You will be redirected to Fiuu's hosted payment page to choose FPX, card, e-wallet, DuitNow QR, or any enabled channel.</p>
@@ -352,6 +366,7 @@ const checkoutEvent = {
 
       const getUnitPrice = (item, appliedPromoCode) => {
         if (appliedPromoCode === freePromoCode) return 0;
+        if (appliedPromoCode === "FALCON45") return item.dealerDiscountedPrice;
         if (appliedPromoCode) return item.discountedPrice;
         return item.originalPrice;
       };
@@ -808,6 +823,35 @@ const checkoutEvent = {
     border-top: 1px solid rgba(14, 89, 99, 0.14);
     color: #0e5963;
     font-size: 1.25rem;
+  }
+
+  .checkout-assurance {
+    display: grid;
+    gap: 0.55rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(14, 89, 99, 0.12);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(246, 241, 234, 0.95), rgba(255, 255, 255, 0.9));
+  }
+
+  .checkout-assurance div {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #1f2020;
+    font-size: 0.88rem;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .checkout-assurance div::before {
+    content: "";
+    display: block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: #0e5963;
+    box-shadow: 0 0 0 0.25rem rgba(14, 89, 99, 0.1);
   }
 
   .checkout-button {
