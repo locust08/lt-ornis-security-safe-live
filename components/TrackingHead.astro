@@ -118,6 +118,7 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
     const sessionId = getId("sessionStorage", sessionKey, "session");
     const trackingQueue = [];
     let trackingFlushTimer;
+    const immediateServerEvents = new Set(["begin_checkout", "add_payment_info", "purchase"]);
     const serverActionEvents = new Set([
       "promo_dismiss",
       "cta_click",
@@ -220,6 +221,9 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
 
       if (shouldQueueServerTracking(eventName, payload)) {
         queueTrackingEvent(body);
+        if (immediateServerEvents.has(eventName)) {
+          flushTrackingQueue(true);
+        }
       }
 
       if (window.ttq?.track) {
