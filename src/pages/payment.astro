@@ -209,6 +209,18 @@ const checkoutEvent = {
             }
           </div>
 
+          <section class="checkout-assurance" aria-label="Ornis purchase assurance">
+            <div>
+              <span>Lowest price possible</span>
+            </div>
+            <div>
+              <span>Direct from manufacturer</span>
+            </div>
+            <div>
+              <span>3 days delivery guarantee</span>
+            </div>
+          </section>
+
           <dl class="summary-totals">
             <div>
               <dt>Original subtotal</dt>
@@ -227,18 +239,6 @@ const checkoutEvent = {
               <dd data-total>{formatRM(subtotal)}</dd>
             </div>
           </dl>
-
-          <section class="checkout-assurance" aria-label="Ornis purchase assurance">
-            <div>
-              <span>Lowest price possible</span>
-            </div>
-            <div>
-              <span>Direct from manufacturer</span>
-            </div>
-            <div>
-              <span>Delivery in 3 days, guaranteed</span>
-            </div>
-          </section>
 
           <button class="checkout-button" type="submit">Pay Securely</button>
           <p class="checkout-note">You will be redirected to Fiuu's hosted payment page to choose FPX, card, e-wallet, DuitNow QR, or any enabled channel.</p>
@@ -827,20 +827,17 @@ const checkoutEvent = {
 
   .checkout-assurance {
     display: grid;
-    gap: 0.55rem;
-    padding: 0.85rem;
-    border: 1px solid rgba(14, 89, 99, 0.12);
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(246, 241, 234, 0.95), rgba(255, 255, 255, 0.9));
+    gap: 0.65rem;
+    padding: 0.1rem 0 0.85rem;
   }
 
   .checkout-assurance div {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.65rem;
     color: #1f2020;
-    font-size: 0.88rem;
-    font-weight: 650;
+    font-size: 1rem;
+    font-weight: 700;
     line-height: 1.3;
   }
 

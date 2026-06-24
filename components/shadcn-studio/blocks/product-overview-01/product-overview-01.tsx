@@ -92,7 +92,7 @@ const ProductOverview = ({ productItems, colorsChart, sizesChart }: ProductOverv
   const purchaseAssurances = [
     "Lowest price possible",
     "Direct from manufacturer",
-    "Delivery in 3 days, guaranteed",
+    "3 days delivery guarantee",
   ];
   const [activeIndex, setActiveIndex] = useState(0);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
