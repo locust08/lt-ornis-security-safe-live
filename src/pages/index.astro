@@ -336,6 +336,19 @@ const googleReviews = [
     </div>
 
     <main class="image-stack" aria-label="Ornis security safe product story">
+      <header class="top-brand" aria-label="Falcon Safe brand">
+        <a class="top-brand__logo" href="/" aria-label="Falcon Safe home">
+          <img
+            src="/ornis/falcon-safe-footer-logo.png"
+            alt="Falcon Safe - The World's Trusted Safe"
+            width="225"
+            height="225"
+            loading="eager"
+            decoding="async"
+          />
+        </a>
+      </header>
+
       {
         images.map((image, index) => (
           <>
@@ -889,6 +902,35 @@ const googleReviews = [
     background:
       radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.85), transparent 28rem),
       #f6f1ea;
+  }
+
+  .top-brand {
+    position: relative;
+    width: min(100%, 1672px);
+    margin: 0 auto;
+    padding: clamp(1.15rem, 2.6vw, 2.5rem) clamp(1rem, 2vw, 1.25rem) clamp(0.55rem, 1.4vw, 1rem);
+  }
+
+  .top-brand__logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition:
+      filter 160ms ease,
+      transform 160ms ease;
+  }
+
+  .top-brand__logo img {
+    display: block;
+    width: clamp(4.75rem, 7.2vw, 7rem);
+    height: auto;
+  }
+
+  .top-brand__logo:hover,
+  .top-brand__logo:focus-visible {
+    filter: brightness(1.04);
+    transform: translateY(-0.08rem);
+    outline: none;
   }
 
   .panel {
@@ -1845,6 +1887,14 @@ const googleReviews = [
 
     .panel picture {
       aspect-ratio: 941 / 1672;
+    }
+
+    .top-brand {
+      padding: 1rem 1rem 0.45rem;
+    }
+
+    .top-brand__logo img {
+      width: 4.85rem;
     }
 
     .panel picture > img {
