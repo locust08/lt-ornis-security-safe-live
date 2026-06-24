@@ -336,19 +336,6 @@ const googleReviews = [
     </div>
 
     <main class="image-stack" aria-label="Ornis security safe product story">
-      <header class="top-brand" aria-label="Falcon Safe brand">
-        <a class="top-brand__logo" href="/" aria-label="Falcon Safe home">
-          <img
-            src="/ornis/falcon-safe-footer-logo.png"
-            alt="Falcon Safe - The World's Trusted Safe"
-            width="225"
-            height="225"
-            loading="eager"
-            decoding="async"
-          />
-        </a>
-      </header>
-
       {
         images.map((image, index) => (
           <>
@@ -393,7 +380,19 @@ const googleReviews = [
                   </div>
                 </section>
               ) : (
-                <section class="panel" aria-label={`Ornis product image ${index + 1}`}>
+                <section class={`panel${index === 0 ? " panel--hero" : ""}`} aria-label={`Ornis product image ${index + 1}`}>
+                  {index === 0 && (
+                    <a class="hero-brand-logo" href="/" aria-label="Falcon Safe home">
+                      <img
+                        src="/ornis/falcon-safe-footer-logo.png"
+                        alt="Falcon Safe - The World's Trusted Safe"
+                        width="225"
+                        height="225"
+                        loading="eager"
+                        decoding="async"
+                      />
+                    </a>
+                  )}
                   {image.hasBuyNow ? (
                     <a class="panel__image-link" href="#price-section" aria-label="View Ornis prices">
                       <picture>
@@ -904,14 +903,24 @@ const googleReviews = [
       #f6f1ea;
   }
 
-  .top-brand {
-    position: relative;
-    width: min(100%, 1672px);
-    margin: 0 auto;
-    padding: clamp(1.15rem, 2.6vw, 2.5rem) clamp(1rem, 2vw, 1.25rem) clamp(0.55rem, 1.4vw, 1rem);
+  .panel {
+    width: 100%;
+    margin: 0;
+    padding: clamp(0.5rem, 2vw, 1.25rem);
+    view-timeline-name: --panel;
+    view-timeline-axis: block;
   }
 
-  .top-brand__logo {
+  .panel--hero {
+    position: relative;
+    padding-top: clamp(5.75rem, 8vw, 8rem);
+  }
+
+  .hero-brand-logo {
+    position: absolute;
+    left: max(clamp(1rem, 2vw, 1.25rem), calc((100% - 1672px) / 2 + clamp(1rem, 2vw, 1.25rem)));
+    top: clamp(1rem, 2.2vw, 2rem);
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     text-decoration: none;
@@ -920,25 +929,20 @@ const googleReviews = [
       transform 160ms ease;
   }
 
-  .top-brand__logo img {
+  .hero-brand-logo img {
     display: block;
     width: clamp(4.75rem, 7.2vw, 7rem);
     height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
   }
 
-  .top-brand__logo:hover,
-  .top-brand__logo:focus-visible {
+  .hero-brand-logo:hover,
+  .hero-brand-logo:focus-visible {
     filter: brightness(1.04);
     transform: translateY(-0.08rem);
     outline: none;
-  }
-
-  .panel {
-    width: 100%;
-    margin: 0;
-    padding: clamp(0.5rem, 2vw, 1.25rem);
-    view-timeline-name: --panel;
-    view-timeline-axis: block;
   }
 
   .panel + .panel {
@@ -1095,6 +1099,14 @@ const googleReviews = [
     animation: reveal-panel both ease-out;
     animation-timeline: --panel;
     animation-range: entry 0% cover 36%;
+  }
+
+  .panel .hero-brand-logo img {
+    width: clamp(4.75rem, 7.2vw, 7rem);
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
   }
 
   .panel picture {
@@ -1889,11 +1901,16 @@ const googleReviews = [
       aspect-ratio: 941 / 1672;
     }
 
-    .top-brand {
-      padding: 1rem 1rem 0.45rem;
+    .panel--hero {
+      padding-top: 5.6rem;
     }
 
-    .top-brand__logo img {
+    .hero-brand-logo {
+      left: 1rem;
+      top: 0.9rem;
+    }
+
+    .hero-brand-logo img {
       width: 4.85rem;
     }
 
