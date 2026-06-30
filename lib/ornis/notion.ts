@@ -20,6 +20,10 @@ const select = (name: string) => ({
   select: { name },
 });
 
+const status = (name: string) => ({
+  status: { name },
+});
+
 const date = (start: string) => (start ? { date: { start } } : { date: null });
 
 const email = (value: string) => ({
@@ -58,10 +62,29 @@ const notionRequest = async (env: RuntimeEnv, path: string, init: RequestInit) =
   return response.json();
 };
 
-const leadProperties = (lead: PrePaymentLead) => ({
+type NotionDatabase = {
+  properties?: Record<string, { type?: string }>;
+};
+
+type NotionPropertyTypes = Record<string, string | undefined>;
+
+const getDatabasePropertyTypes = async (env: RuntimeEnv, databaseId: string): Promise<NotionPropertyTypes> => {
+  const database = (await notionRequest(env, `/databases/${databaseId}`, {
+    method: "GET",
+  })) as NotionDatabase;
+
+  return Object.fromEntries(
+    Object.entries(database.properties ?? {}).map(([name, property]) => [name, property.type]),
+  );
+};
+
+const selectProperty = (name: string, propertyType: string | undefined) =>
+  propertyType === "status" ? status(name) : select(name);
+
+const leadProperties = (lead: PrePaymentLead, propertyTypes: NotionPropertyTypes = {}) => ({
   "Draft ID": title(lead.draftId),
   "Order ID": richText(lead.orderId),
-  Status: select(lead.status),
+  Status: selectProperty(lead.status, propertyTypes.Status),
   "First Seen At": date(lead.firstSeenAt),
   "Last Updated At": date(lead.lastUpdatedAt),
   "Submitted At": date(lead.submittedAt),
@@ -116,7 +139,8 @@ export const upsertNotionCheckoutLead = async (env: RuntimeEnv, lead: PrePayment
   }
 
   const existingPageId = await findCheckoutLeadPageId(env, databaseId, lead.draftId);
-  const properties = leadProperties(lead);
+  const propertyTypes = await getDatabasePropertyTypes(env, databaseId);
+  const properties = leadProperties(lead, propertyTypes);
 
   if (existingPageId) {
     await notionRequest(env, `/pages/${existingPageId}`, {
