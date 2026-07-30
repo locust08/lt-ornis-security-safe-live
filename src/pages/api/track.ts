@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getRuntimeEnv } from "@/lib/ornis/env";
+import { getServerTrackingEventId } from "@/lib/ornis/tracking-dedupe";
 import { appendVisitorEvents, type VisitorTrackingEvent } from "@/lib/ornis/visitor-events-sheet";
 
 export const prerender = false;
@@ -135,6 +136,37 @@ const getTrackingEvents = (body: TrackingRequestBody) => {
   return [body as TrackingEvent];
 };
 
+const queryNotionVisitorEventById = async (eventId: string, notionToken: string, databaseId: string) => {
+  if (!eventId.startsWith("dedupe_")) return false;
+
+  const response = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${notionToken}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION,
+    },
+    body: JSON.stringify({
+      filter: {
+        property: "Event ID",
+        title: {
+          equals: eventId,
+        },
+      },
+      page_size: 1,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Unable to query Notion visitor event dedupe.", errorText);
+    return false;
+  }
+
+  const body = (await response.json()) as { results?: unknown[] };
+  return Boolean(body.results?.length);
+};
+
 const createNotionVisitorEvent = async (
   event: TrackingEvent,
   notionToken: string,
@@ -145,7 +177,11 @@ const createNotionVisitorEvent = async (
   const eventName = EVENT_NAMES.has(asString(event.event_name)) ? asString(event.event_name) : "page_view";
   const platform = PLATFORMS.has(asString(event.platform)) ? asString(event.platform) : "Unknown";
   const eventTime = asString(event.event_time) || new Date().toISOString();
-  const eventId = asString(event.event_id) || crypto.randomUUID();
+  const eventId = getServerTrackingEventId(event) || asString(event.event_id) || crypto.randomUUID();
+
+  if (await queryNotionVisitorEventById(eventId, notionToken, databaseId)) {
+    return { ok: true, skipped: true };
+  }
 
   return fetch("https://api.notion.com/v1/pages", {
     method: "POST",
@@ -216,12 +252,14 @@ export const POST: APIRoute = async (context) => {
         const notionResponse = await createNotionVisitorEvent(event, notionToken!, databaseId!, ipAddress, geo);
 
         if (!notionResponse.ok) {
-          const errorText = await notionResponse.text();
+          const errorText = "text" in notionResponse ? await notionResponse.text() : "Unknown Notion tracking error";
           console.error("Unable to create Notion visitor event.", errorText);
           continue;
         }
 
-        notionTracked += 1;
+        if (!("skipped" in notionResponse && notionResponse.skipped)) {
+          notionTracked += 1;
+        }
       }
     }
 

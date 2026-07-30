@@ -141,6 +141,13 @@ if (
             );
 
             window.ornisTrack?.("purchase", purchaseEvent);
+            window.posthog?.capture('purchase', {
+              order_id: purchaseEvent.orderId,
+              currency: purchaseEvent.currency,
+              value: purchaseEvent.value,
+              num_items: purchaseEvent.numItems,
+              item_ids: purchaseEvent.contentIds,
+            });
             if (!isLocalTestPurchase && !isMetaTestPurchase) {
               window.sessionStorage.setItem(storageKey, "1");
             }

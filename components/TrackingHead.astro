@@ -1,4 +1,5 @@
 ---
+import PostHog from "@/components/PostHog.astro";
 import { getRuntimeEnv } from "@/lib/ornis/env";
 
 const env = getRuntimeEnv(Astro);
@@ -13,6 +14,8 @@ const metaPixelId = env.META_PIXEL_ID?.trim() || env.PUBLIC_META_PIXEL_ID?.trim(
 const tiktokPixelId = env.PUBLIC_TIKTOK_PIXEL_ID?.trim() || "D8FTG3RC77UANKFS989G";
 const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga4MeasurementId)}`;
 ---
+
+<PostHog />
 
 <script is:inline>
   (function () {
@@ -137,9 +140,35 @@ const ga4ScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURICom
       "policy_tab_view",
     ]);
 
+    const normalizeCommerceContents = (contents) => {
+      if (!Array.isArray(contents)) return [];
+
+      return contents
+        .map((item) => ({
+          id: String(item?.id || item?.item_id || ""),
+          quantity: Number(item?.quantity || 1) || 1,
+          item_price: Number(item?.item_price || item?.price || 0) || 0,
+        }))
+        .filter((item) => item.id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+    };
+
+    const getServerTrackingPayloadKey = (eventName, payload) => {
+      if (eventName === "begin_checkout") {
+        return JSON.stringify({
+          contents: normalizeCommerceContents(payload?.contents),
+          currency: String(payload?.currency || ""),
+          value: Number(payload?.value || 0) || 0,
+          coupon: String(payload?.coupon || ""),
+        });
+      }
+
+      return JSON.stringify(payload || {});
+    };
+
     const getServerTrackingKey = (eventName, payload) => {
-      const payloadText = JSON.stringify(payload || {});
-      return `ornis_server_track_${sessionId}_${eventName}_${window.location.pathname}${window.location.search}_${payloadText}`;
+      const pageKey = eventName === "begin_checkout" ? "checkout_funnel" : `${window.location.pathname}${window.location.search}`;
+      return `ornis_server_track_${sessionId}_${eventName}_${pageKey}_${getServerTrackingPayloadKey(eventName, payload)}`;
     };
 
     const shouldQueueServerTracking = (eventName, payload) => {

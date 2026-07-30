@@ -311,6 +311,12 @@ const googleReviews = [
         ecommerce: productContentEvent,
       });
       window.ornisTrackMetaEvent?.("ViewContent", productContentEvent);
+      window.posthog?.capture('product_viewed', {
+        currency: productContentEvent.currency,
+        value: productContentEvent.value,
+        content_ids: productContentEvent.content_ids,
+        num_items: productContentEvent.contents?.length,
+      });
     </script>
     <link
       rel="icon"
@@ -618,6 +624,12 @@ const googleReviews = [
           num_items: fallbackAddToCartEvent.num_items,
         });
         window.ornisTrack?.("add_to_cart", fallbackAddToCartEvent);
+        window.posthog?.capture('add_to_cart', {
+          currency: fallbackAddToCartEvent.currency,
+          value: fallbackAddToCartEvent.value,
+          item_id: fallbackAddToCartEvent.content_ids?.[0],
+          num_items: fallbackAddToCartEvent.num_items,
+        });
       });
 
       if (promoPopup) {
@@ -636,6 +648,10 @@ const googleReviews = [
             window.ornisTrack?.("promo_view", {
               content_name: "ORNIS45 promo popup",
               content_category: "Promotion",
+            });
+            window.posthog?.capture('promo_popup_viewed', {
+              promo_code: 'ORNIS45',
+              page_path: window.location.pathname,
             });
           }
         };
@@ -729,6 +745,11 @@ const googleReviews = [
           });
           window.ornisTrack?.("cta_click", {
             content_name: link.getAttribute("aria-label") || link.textContent?.trim() || "Buy Now",
+            destination: "#price-section",
+            page_path: window.location.pathname,
+          });
+          window.posthog?.capture('cta_clicked', {
+            cta_label: link.getAttribute("aria-label") || link.textContent?.trim() || "Buy Now",
             destination: "#price-section",
             page_path: window.location.pathname,
           });

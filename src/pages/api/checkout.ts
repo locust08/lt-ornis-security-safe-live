@@ -5,6 +5,7 @@ import { appendPendingOrder } from "@/lib/ornis/google";
 import { getRuntimeEnv } from "@/lib/ornis/env";
 import { parseOrderFromFormData } from "@/lib/ornis/order";
 import { savePrePaymentLead } from "@/lib/ornis/pre-payment-server";
+import { getPostHogServer } from "@/lib/posthog-server";
 
 export const prerender = false;
 
@@ -135,6 +136,22 @@ export const POST: APIRoute = async (context) => {
     await saveSubmittedPrePaymentLead(context, formData, order);
 
     const paymentRequest = buildFiuuPaymentRequest(env, order, context.url.origin);
+
+    const posthog = getPostHogServer();
+    const checkoutDistinctId = getString(formData, "checkoutDraftId") || order.orderId;
+    posthog.capture({
+      distinctId: checkoutDistinctId,
+      event: "checkout_submitted",
+      properties: {
+        order_id: order.orderId,
+        currency: "MYR",
+        value: order.totalPaid,
+        num_items: order.items.reduce((sum, item) => sum + item.quantity, 0),
+        item_ids: order.items.map((item) => item.id),
+        promo_code: order.promoCode || undefined,
+      },
+    });
+    await posthog.flush();
 
     await appendPendingOrder(env, order).catch((error) => {
       console.error("Unable to append pending order before Fiuu redirect.", error);

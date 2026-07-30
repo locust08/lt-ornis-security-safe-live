@@ -65,6 +65,12 @@ const checkoutEvent = {
         num_items: checkoutEvent.numItems,
       });
       window.ornisTrack?.("begin_checkout", checkoutEvent);
+      window.posthog?.capture('checkout_started', {
+        currency: checkoutEvent.currency,
+        value: checkoutEvent.value,
+        num_items: checkoutEvent.numItems,
+        item_ids: checkoutEvent.contentIds,
+      });
     </script>
     <link
       rel="icon"
@@ -540,6 +546,11 @@ const checkoutEvent = {
             content_name: "Ornis checkout voucher",
             ...checkoutPayload,
           });
+          window.posthog?.capture('voucher_applied', {
+            coupon: appliedPromoCode,
+            currency: checkoutPayload.currency,
+            value: checkoutPayload.value,
+          });
         }
         if (!appliedPromoCode) lastAppliedPromoCode = "";
       });
@@ -559,6 +570,12 @@ const checkoutEvent = {
           num_items: checkoutPayload.num_items,
         });
         window.ornisTrack?.("add_payment_info", checkoutPayload);
+        window.posthog?.capture('payment_info_submitted', {
+          currency: checkoutPayload.currency,
+          value: checkoutPayload.value,
+          num_items: checkoutPayload.num_items,
+          coupon: checkoutPayload.coupon || undefined,
+        });
         await savePrePaymentPayload("Submitted to Fiuu", true);
         checkoutForm.submit();
       });
